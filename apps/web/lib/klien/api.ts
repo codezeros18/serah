@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { Galat, KodeGalat } from "@serah/kontrak/galat";
-import { HEADER_IDEMPOTENCY_KEY } from "@serah/kontrak/galat";
+import { HEADER_ALASAN_ADMIN, HEADER_IDEMPOTENCY_KEY } from "@serah/kontrak/galat";
 import { TEKS, isi } from "@serah/kontrak/teks";
 import type {
   RUTE_ADMIN,
@@ -70,6 +70,8 @@ type Opsi<R extends SemuaRute> = (R extends { params: infer P } ? { params: Masu
     body?: Masuk<R["masukan"]>;
     /** Wajib untuk rute `idempoten` (UUID dibuat di perangkat). */
     idempotencyKey?: string;
+    /** Header X-Alasan (≥15 karakter) — wajib untuk SEMUA rute /api/admin/* (baca maupun ubah). */
+    alasan?: string;
     signal?: AbortSignal;
   };
 
@@ -78,6 +80,7 @@ export type OpsiMentah = {
   kueri?: Record<string, unknown>;
   body?: unknown;
   idempotencyKey?: string;
+  alasan?: string;
   signal?: AbortSignal;
 };
 
@@ -163,6 +166,7 @@ export async function panggilMentah(metode: string, jalur: string, opsi: OpsiMen
   const header: Record<string, string> = {};
   if (opsi.body !== undefined) header["Content-Type"] = "application/json";
   if (opsi.idempotencyKey) header[HEADER_IDEMPOTENCY_KEY] = opsi.idempotencyKey;
+  if (opsi.alasan) header[HEADER_ALASAN_ADMIN] = opsi.alasan;
   let res: Response;
   try {
     res = await fetch(url, {

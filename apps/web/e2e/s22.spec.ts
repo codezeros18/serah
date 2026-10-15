@@ -20,6 +20,11 @@ test.describe("S22: Layar admin internal", () => {
       page.getByRole("heading", { level: 1, name: TEKS.ADM_JUDUL }),
     ).toBeVisible({ timeout: 20_000 });
 
+    // Semua rute admin wajib X-Alasan (S21): alasan akses diminta sebelum data dimuat.
+    await page.locator("textarea#input-alasan-admin").fill("Pemeriksaan rutin data platform");
+    await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+
     await axeBersih(page);
 
     // S22-1: Dialog alasan wajib sebelum melihat detail organisasi
@@ -73,7 +78,7 @@ test.describe("S22: Layar admin internal", () => {
 
     // S22-2: Tab Audit
     await page.getByRole("tab", { name: TEKS.ADM_AUDIT }).click();
-    await expect(page.getByText("BUKA_DATA_ORGANISASI").first()).toBeVisible();
+    await expect(page.getByText("ORGANISASI_DIBUKA").first()).toBeVisible();
 
     // S22-2: Tab Metrik
     await page.getByRole("tab", { name: TEKS.ADM_METRIK }).click();
@@ -85,7 +90,8 @@ test.describe("S22: Layar admin internal", () => {
     const tombolReset = page.getByRole("button", { name: TEKS.DEMO_RESET });
     await expect(tombolReset).toBeVisible();
     await tombolReset.click();
-    await expect(page.getByText(TEKS.DEMO_RESET_SELESAI)).toBeVisible();
+    // Reset mengembalikan seluruh data ke seed (termasuk sesi admin) → layar pindah ke /demo untuk masuk lagi.
+    await expect(page).toHaveURL(/\/demo$/);
 
     await axeBersih(page);
   });
