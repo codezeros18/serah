@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const GET = tanganiRute(async (request: Request) => {
   const sesi = await wajibSesi(request);
   const { orgIds } = konteksAkses(sesi);
-  return new Response(bukaAliran({ orgIds, peran: sesi.peran, signal: request.signal }), {
+  return new Response(await bukaAliran({ orgIds, peran: sesi.peran, signal: request.signal }), {
     headers: {
       "Content-Type": "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",

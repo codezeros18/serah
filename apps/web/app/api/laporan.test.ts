@@ -117,7 +117,7 @@ beforeAll(async () => {
   };
   await wadahBaru(c.petugasA, a, "HIJAU", null); // wadah tanpa berat: tercatat, beratnya tidak ditebak
   // s6 berumur > 12 jam sejak disetujui → MENGGANTUNG lewat cron (R-07).
-  await jalankanCron("sepuluh-menit", new Date(Date.now() + 13 * JAM), { hanyaSerah: [kode.s6], jendela: `uji-s11-${randomUUID()}` });
+  await jalankanCron("sepuluh-menit", new Date(Date.now() + 13 * JAM), { hanyaSerah: [kode.s6], hanyaR07: true, jendela: `uji-s11-${randomUUID()}` });
 }, 120_000);
 
 const lap = (cookie: string, pihak: string, kueri: string) => panggil(laporan, { jalur: `/api/laporan/${pihak}?${kueri}`, cookie, params: { pihak } });

@@ -125,34 +125,31 @@ export function pendengar(): Pendengar {
  * Aliran SSE untuk satu sesi. Event: `serah` & `notifikasi` (data {jenis, kode, versi}), `ping` tiap `detakMs`.
  * Ditutup bersih (UNLISTEN bila perlu, interval dihentikan) saat `signal` dibatalkan atau klien memutus.
  */
-export function bukaAliran(m: { orgIds: readonly string[]; peran: Peran | null; signal: AbortSignal; detakMs?: number }): ReadableStream<Uint8Array> {
+export async function bukaAliran(m: { orgIds: readonly string[]; peran: Peran | null; signal: AbortSignal; detakMs?: number }): Promise<ReadableStream<Uint8Array>> {
   const enc = new TextEncoder();
+  let ctl!: ReadableStreamDefaultController<Uint8Array>;
   let selesai: (() => Promise<void>) | null = null;
   let detak: ReturnType<typeof setInterval> | null = null;
   let tertutup = false;
 
-  return new ReadableStream<Uint8Array>({
-    async start(ctl) {
-      const tulis = (s: string) => {
-        if (!tertutup) ctl.enqueue(enc.encode(s));
-      };
-      const tutup = async () => {
-        if (tertutup) return;
-        tertutup = true;
-        if (detak) clearInterval(detak);
-        await selesai?.();
-        try {
-          ctl.close();
-        } catch {
-          /* sudah ditutup */
-        }
-      };
-      if (m.signal.aborted) return void (await tutup());
-      m.signal.addEventListener("abort", () => void tutup(), { once: true });
-      tulis("retry: 5000\n\n");
-      selesai = await pendengar().daftar(m.orgIds, { peran: m.peran, kirim: (event, data) => tulis(`event: ${event}\ndata: ${data}\n\n`) });
-      if (tertutup) return void (await selesai());
-      detak = setInterval(() => tulis("event: ping\ndata: {}\n\n"), m.detakMs ?? DETAK_MS);
+  const tulis = (s: string) => {
+    if (!tertutup) ctl.enqueue(enc.encode(s));
+  };
+  const tutup = async () => {
+    if (tertutup) return;
+    tertutup = true;
+    if (detak) clearInterval(detak);
+    await selesai?.();
+    try {
+      ctl.close();
+    } catch {
+      /* sudah ditutup */
+    }
+  };
+
+  const aliran = new ReadableStream<Uint8Array>({
+    start(c) {
+      ctl = c;
     },
     async cancel() {
       tertutup = true;
@@ -160,4 +157,20 @@ export function bukaAliran(m: { orgIds: readonly string[]; peran: Peran | null; 
       await selesai?.();
     },
   });
+
+  if (m.signal.aborted) {
+    await tutup();
+    return aliran;
+  }
+  // LISTEN terpasang SEBELUM aliran dikembalikan (dan header respons dikirim): event yang terjadi tepat setelah
+  // klien tersambung tidak boleh terlewat. Pelanggan tidak punya antrean sebelum ini, jadi tidak ada yang tertinggal.
+  selesai = await pendengar().daftar(m.orgIds, { peran: m.peran, kirim: (event, data) => tulis(`event: ${event}\ndata: ${data}\n\n`) });
+  if (m.signal.aborted) {
+    await tutup();
+    return aliran;
+  }
+  m.signal.addEventListener("abort", () => void tutup(), { once: true });
+  tulis("retry: 5000\n\n");
+  detak = setInterval(() => tulis("event: ping\ndata: {}\n\n"), m.detakMs ?? DETAK_MS);
+  return aliran;
 }

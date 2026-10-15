@@ -4,7 +4,7 @@ import { emailDemo } from "@serah/kontrak/demo";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { PengirimRekam } from "@/lib/adaptor/email";
 import type { HasilPush, LanggananPush, PayloadPush, PengirimPush } from "@/lib/adaptor/push";
-import { denganSistem } from "@/lib/server/db";
+import { denganSistem, tungguKait } from "@/lib/server/db";
 import { buatNotifikasi, kalimatNotifikasi, placeholderNotifikasi, setelKanalNotifikasiUji } from "@/lib/server/notifikasi";
 import { orgBaru } from "@/lib/server/uji/akun";
 import { data, demo, denganPemilik, masuk, panggil, satu, semua, type DemoS08 } from "@/lib/server/uji/klien";
@@ -111,7 +111,9 @@ describe("pengiriman push & email (setelah commit)", () => {
   });
 
   const kirimMenunggu = (kode = kodeUnik()) =>
-    denganSistem((tx) => buatNotifikasi(tx, [{ jenis: "SERAH_MENUNGGU_SETUJU", organisasiId: d.org.kawasan, objekKode: kode, data: { kode } }], new Date())).then(() => kode);
+    denganSistem((tx) => buatNotifikasi(tx, [{ jenis: "SERAH_MENUNGGU_SETUJU", organisasiId: d.org.kawasan, objekKode: kode, data: { kode } }], new Date()))
+      .then(() => tungguKait())
+      .then(() => kode);
 
   it("push ke langganan pengelola: judul APP_NAMA, isi teks NTF, tautan detail serah; email ke pengelola terverifikasi", async () => {
     const kode = await kirimMenunggu();
@@ -158,6 +160,7 @@ describe("pengiriman push & email (setelah commit)", () => {
     await masuk("PENGELOLA", org); // keanggotaan PENGELOLA demo di organisasi ini
     const kode = kodeUnik();
     await denganSistem((tx) => buatNotifikasi(tx, [{ jenis: "TAGIHAN_TERBIT", organisasiId: org, objekKode: kode, data: { nomor: "TGH-202610-0001", jumlah: "350.000" } }], new Date()));
+    await tungguKait();
     expect(email.terkirim).toEqual([]);
     expect(push.terkirim.filter((p) => p.endpoint === endpoint).map((p) => p.payload.url)).toEqual(["/notifikasi"]);
   });
@@ -247,10 +250,12 @@ describe("API push (S17-3)", () => {
     const endpoint = `https://push.contoh.invalid/${randomBytes(8).toString("hex")}`;
     const body = { endpoint, keys: { p256dh: "kunci-p256dh", auth: "kunci-auth" } };
     expect(data(await panggil(langganan, { jalur: "/", cookie: pengelola, kunci: null, body }))).toEqual({ ok: true });
+    await tungguKait();
     const pemilik = async () => (await semua<{ email: string }>(`SELECT p.email FROM langganan_push l JOIN pengguna p ON p.id = l.pengguna_id WHERE l.endpoint = $1`, [endpoint])).map((r) => r.email);
     expect(await pemilik()).toEqual([emailDemo("PENGELOLA")]);
 
     expect(data(await panggil(langganan, { jalur: "/", cookie: penerima, kunci: null, body }))).toEqual({ ok: true });
+    await tungguKait(); // pemindahan langganan berjalan sebagai kait pasca-commit
     expect(await pemilik()).toEqual([emailDemo("PENERIMA")]);
 
     // Pengelola tidak bisa menghapus langganan yang kini milik penerima.

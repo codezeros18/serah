@@ -38,6 +38,8 @@ export type OpsiCron = {
   hanyaSerah?: readonly string[];
   /** Timpa kunci jendela (uji & pemicu manual admin). */
   jendela?: string;
+  /** Hanya R-07 (tanda menggantung); lewati pemindaian seluruh TPS (R-10, R-05/06, nowcast). Uji & pemicu terarah. */
+  hanyaR07?: boolean;
 };
 
 type Prefetch = { nowcast: NowcastMentah[] | null; prakiraan: PrakiraanMentah[] };
@@ -225,7 +227,7 @@ export async function jalankanCron(nama: NamaCron, sekarang: Date, opsi: OpsiCro
   // 2. Kerja. Semua efek idempoten: bila terputus di tengah, jendela berikutnya menyelesaikannya tanpa ganda.
   const data = await ambilData(nama);
   const menggantung = nama === "sepuluh-menit" ? { menggantung: await r07(sekarang, opsi) } : {};
-  const hasil = { ...menggantung, ...(await denganSistem((tx) => kerja(tx, nama, sekarang, data))) };
+  const hasil = { ...menggantung, ...(opsi.hanyaR07 ? {} : await denganSistem((tx) => kerja(tx, nama, sekarang, data))) };
   // 3. Tandai selesai.
   await denganSistem((tx) => tx.pekerjaanCron.update({ where: { nama_jendela: { nama, jendela } }, data: { selesaiPada: new Date(), hasil } }));
   return { pekerjaan: nama, jendela, dilewati: false };

@@ -51,10 +51,10 @@ describe("T06 — R-07 lewat cron sepuluh-menit", () => {
     const jendela = `uji-${randomUUID()}`;
 
     // 11 jam 59 menit: belum.
-    await jalankanCron("sepuluh-menit", new Date(Date.now() + 12 * JAM - 60_000), { hanyaSerah: [kode], jendela: `${jendela}-awal` });
+    await jalankanCron("sepuluh-menit", new Date(Date.now() + 12 * JAM - 60_000), { hanyaSerah: [kode], hanyaR07: true, jendela: `${jendela}-awal` });
     expect((await satu<{ status: string }>(`SELECT status::text FROM serah WHERE kode = $1`, [kode])).status).toBe("DIANGKUT");
 
-    const a = await jalankanCron("sepuluh-menit", nanti, { hanyaSerah: [kode], jendela });
+    const a = await jalankanCron("sepuluh-menit", nanti, { hanyaSerah: [kode], hanyaR07: true, jendela });
     expect(a).toEqual({ pekerjaan: "sepuluh-menit", jendela, dilewati: false });
     expect(await satu<{ status: string; versi: number }>(`SELECT status::text, versi FROM serah WHERE kode = $1`, [kode])).toEqual({ status: "MENGGANTUNG", versi: 4 });
     const e = await satu<{ peran: string; idempotency_key: string }>(
@@ -66,8 +66,8 @@ describe("T06 — R-07 lewat cron sepuluh-menit", () => {
     expect(Number(n.n)).toBe(3);
 
     // Jendela sama → dilewati. Jendela berikutnya → serah sudah MENGGANTUNG, tidak ada event kedua.
-    expect((await jalankanCron("sepuluh-menit", nanti, { hanyaSerah: [kode], jendela })).dilewati).toBe(true);
-    await jalankanCron("sepuluh-menit", new Date(nanti.getTime() + 10 * 60_000), { hanyaSerah: [kode], jendela: `${jendela}-lanjut` });
+    expect((await jalankanCron("sepuluh-menit", nanti, { hanyaSerah: [kode], hanyaR07: true, jendela })).dilewati).toBe(true);
+    await jalankanCron("sepuluh-menit", new Date(nanti.getTime() + 10 * 60_000), { hanyaSerah: [kode], hanyaR07: true, jendela: `${jendela}-lanjut` });
     const jumlah = await satu<{ n: string }>(`SELECT count(*) AS n FROM event e JOIN serah s ON s.id = e.serah_id WHERE s.kode = $1 AND e.jenis = 'SERAH_MENGGANTUNG'`, [kode]);
     expect(Number(jumlah.n)).toBe(1);
 

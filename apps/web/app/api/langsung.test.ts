@@ -127,7 +127,7 @@ describe("T28 — GET /api/langsung", () => {
 
   it("heartbeat `ping` berkala; tanpa sesi → 401", async () => {
     const ac = new AbortController();
-    const aliran = bukaAliran({ orgIds: [d.org.kawasan], peran: "PENGELOLA", signal: ac.signal, detakMs: 40 });
+    const aliran = await bukaAliran({ orgIds: [d.org.kawasan], peran: "PENGELOLA", signal: ac.signal, detakMs: 40 });
     const pembaca = aliran.getReader();
     const dec = new TextDecoder();
     let teks = "";

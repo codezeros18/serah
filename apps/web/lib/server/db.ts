@@ -30,8 +30,8 @@ export function larikPg(nilai: readonly string[]): string {
 
 // ── Kait setelah commit ───────────────────────────────────────────────────
 // Efek di luar DB (push, email) hanya boleh terjadi bila transaksinya benar-benar commit. Kait didaftarkan di
-// dalam transaksi denganX lalu dijalankan berurutan sesudah commit; galat kait tidak menggagalkan permintaan
-// (dicatat tanpa PII). Transaksi yang batal tidak menjalankan kaitnya sama sekali.
+// dalam transaksi denganX lalu dijalankan berurutan di latar belakang sesudah commit; galat kait tidak menggagalkan
+// permintaan (dicatat tanpa PII). Transaksi yang batal tidak menjalankan kaitnya sama sekali.
 
 type Kait = () => Promise<void>;
 const kaitPerTx = new WeakMap<object, Kait[]>();
@@ -43,20 +43,37 @@ export function setelahCommit(tx: Tx, kait: Kait): void {
   daftar.push(kait);
 }
 
+// Kait berjalan di LATAR BELAKANG: respons ke pengguna tidak menunggu push/email (fan-out ke seluruh anggota bisa
+// panjang dan bergantung pada penyedia eksternal). Aplikasi berjalan sebagai proses panjang (Railway), bukan serverless.
+const kaitTertunda = new Set<Promise<void>>();
+
+/** Tunggu semua kait pasca-commit yang sedang berjalan selesai (test, dan penutupan proses yang rapi). */
+export async function tungguKait(): Promise<void> {
+  while (kaitTertunda.size > 0) await Promise.allSettled([...kaitTertunda]);
+}
+
+function jalankanKait(daftar: readonly Kait[]): void {
+  if (daftar.length === 0) return;
+  const p = (async () => {
+    for (const k of daftar) {
+      try {
+        await k();
+      } catch (e) {
+        process.stderr.write(`[serah] kait setelah commit gagal: ${e instanceof Error ? e.name : "unknown"}\n`);
+      }
+    }
+  })();
+  kaitTertunda.add(p);
+  void p.finally(() => kaitTertunda.delete(p));
+}
+
 async function transaksi<T>(isi: (tx: Tx) => Promise<T>): Promise<T> {
   const kait: Kait[] = [];
   const hasil = await prisma().$transaction(async (tx) => {
     kaitPerTx.set(tx, kait);
     return isi(tx);
   }, OPSI_TX);
-  for (const k of kait) {
-    try {
-      await k();
-    } catch (e) {
-      process.stderr.write(`[serah] kait setelah commit gagal: ${e instanceof Error ? e.name : "unknown"}
-`);
-    }
-  }
+  jalankanKait(kait);
   return hasil;
 }
 
