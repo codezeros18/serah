@@ -93,6 +93,20 @@ describe("T15 murni: hash event = fixture (silang dengan SQL S01-4)", () => {
       prev = b.hash;
     }
   });
+  it("hash setiap event fixture DB (S01, packages/db/test/fixture-rantai.json) juga cocok — termasuk peran SISTEM", () => {
+    const fixtureDb = JSON.parse(readFileSync(new URL("../../db/test/fixture-rantai.json", import.meta.url), "utf8")) as {
+      event: Omit<BarisFixture, "urutanRantai" | "praGambar">[];
+    };
+    let prev = HASH_AWAL;
+    for (const b of fixtureDb.event) {
+      const e = { ...b, diterimaPada: new Date(b.diterimaPada) };
+      expect(b.prevHash).toBe(prev);
+      expect(kanonis(b.payload)).toBe(b.payloadKanonis);
+      expect(hashEvent(prev, e)).toBe(b.hash);
+      prev = b.hash;
+    }
+    expect(fixtureDb.event.some((b) => b.peran === "SISTEM")).toBe(true);
+  });
   it("serah_kode null ditulis '-'", () => {
     expect(praGambarEvent(HASH_AWAL, keEvent(fixture.event[0]!)).split("|")[2]).toBe("-");
   });

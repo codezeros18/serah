@@ -1,5 +1,5 @@
 {
-  "keterangan": "hash = SHA-256(prev|jenis|serah_kode atau -|peran atau -|payload_kanonis|diterima_pada ISO UTC ms), hex kecil",
+  "keterangan": "hash = SHA-256(prev|jenis|serah_kode atau -|peran|payload_kanonis|diterima_pada ISO UTC ms), hex kecil",
   "event": [
     {
       "jenis": "WADAH_DICATAT",
@@ -39,14 +39,14 @@
     {
       "jenis": "SERAH_MENGGANTUNG",
       "serahKode": "SRH-20261015-0001",
-      "peran": null,
+      "peran": "SISTEM",
       "payload": {
         "jam": 13
       },
       "diterimaPada": "2026-10-15T14:00:00.000Z",
       "payloadKanonis": "{\"jam\":13}",
       "prevHash": "8a872bda23ca3a18a1365dac16a9ea77048173c6a5393fbdf72c6bb23e8c0b55",
-      "hash": "0cd909146d493427f1daa2078f278d30d22726a6e06871a663c23cc9a07a690d"
+      "hash": "67542962cdb9a152d1d92bb99579c3775342f531ba96c4f1b02914055de93d55"
     }
   ]
 }

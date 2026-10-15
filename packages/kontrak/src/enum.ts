@@ -11,7 +11,12 @@ export const PERAN = ["PETUGAS", "PENGELOLA", "PENGANGKUT", "PENERIMA", "ADMIN"]
 export const Peran = z.enum(PERAN);
 export type Peran = z.infer<typeof Peran>;
 
-export const JENIS_ORGANISASI = ["KAWASAN", "PENGANGKUT", "PENERIMA", "INTERNAL"] as const;
+/** Peran pada event rantai: peran manusia + SISTEM (cron, mis. TANDAI_MENGGANTUNG). */
+export const PERAN_EVENT = [...PERAN, "SISTEM"] as const;
+export const PeranEvent = z.enum(PERAN_EVENT);
+export type PeranEvent = z.infer<typeof PeranEvent>;
+
+export const JENIS_ORGANISASI =["KAWASAN", "PENGANGKUT", "PENERIMA", "INTERNAL"] as const;
 export const JenisOrganisasi = z.enum(JENIS_ORGANISASI);
 export type JenisOrganisasi = z.infer<typeof JenisOrganisasi>;
 

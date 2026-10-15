@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Aliran, AlasanTolak, JenisEvent, JenisFoto, KeyakinanAi, Peran, StatusSerah, SumberCuaca, SumberTiket } from "../enum";
+import { Aliran, AlasanTolak, JenisEvent, JenisFoto, KeyakinanAi, PeranEvent, StatusSerah, SumberCuaca, SumberTiket } from "../enum";
 import { RujukanAturan } from "../galat";
 import {
   Alasan,
@@ -38,7 +38,7 @@ export const SerahWadah = z.object({
 export const SerahTimelineEvent = z.object({
   urutanRantai: z.number().int().min(1),
   jenis: JenisEvent,
-  peran: Peran,
+  peran: PeranEvent,
   terjadiPada: WaktuIso,
   diterimaPada: WaktuIso,
   hash: z.string().length(64),

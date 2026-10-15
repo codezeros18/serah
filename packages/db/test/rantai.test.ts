@@ -3,11 +3,12 @@ import type pg from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { dalamRollback, galatKueri, idAcak, klienPg } from "./koneksi.ts";
 
-// S01-4 — hash_event & verifikasi_rantai SQL cocok dengan fixture acuan (dipakai juga oleh test core S02, T15).
+// S01-4 — hash_event & verifikasi_rantai SQL cocok dengan DUA fixture acuan yang dibuat independen:
+// packages/db/test/fixture-rantai.json (S01) dan packages/core/rantai/fixture.json (S02). T15 bagian silang.
 type EventFixture = {
   jenis: string;
   serahKode: string | null;
-  peran: string | null;
+  peran: string;
   payload: unknown;
   payloadKanonis: string;
   diterimaPada: string;
@@ -32,7 +33,13 @@ describe("rantai hash SQL = fixture", () => {
     expect(fixture.event[2]?.prevHash).toBe(fixture.event[1]?.hash);
   });
 
-  it.each(fixture.event.map((e, i) => [i + 1, e] as const))("event %i: json_kanonis & hash_event sama dengan fixture", async (_n, e) => {
+  const fixtureCore = JSON.parse(readFileSync(new URL("../../core/rantai/fixture.json", import.meta.url), "utf8")) as { event: EventFixture[] };
+  const semua = [
+    ...fixture.event.map((e, i) => [`db #${i + 1}`, e] as const),
+    ...fixtureCore.event.map((e, i) => [`core #${i + 1}`, e] as const),
+  ];
+
+  it.each(semua)("fixture %s: json_kanonis & hash_event SQL sama dengan hash acuan", async (_n, e) => {
     const { rows } = await migrasi.query<{ kanonis: string; hash: string }>(
       `SELECT json_kanonis($1::jsonb) AS kanonis, hash_event($2, $3, $4, $5, $1::jsonb, $6::timestamptz) AS hash`,
       [JSON.stringify(e.payload), e.prevHash, e.jenis, e.serahKode, e.peran, e.diterimaPada],
@@ -76,7 +83,7 @@ describe("verifikasi_rantai", () => {
       await migrasi.query(
         `INSERT INTO event (id, kawasan_id, urutan_rantai, serah_id, org_kawasan_id, jenis, peran, payload, prev_hash, hash,
                             idempotency_key, terjadi_pada, diterima_pada)
-         VALUES ($1, $2, $3, $4, $5, $6::"JenisEvent", $7::"Peran", $8::jsonb, $9, $10, $11, $12::timestamptz, $12::timestamptz)`,
+         VALUES ($1, $2, $3, $4, $5, $6::"JenisEvent", $7::"PeranEvent", $8::jsonb, $9, $10, $11, $12::timestamptz, $12::timestamptz)`,
         [idAcak("e"), kawasan, i + 1, e.serahKode ? serahId : null, org, e.jenis, e.peran, JSON.stringify(e.payload), e.prevHash, e.hash, idAcak("i"), e.diterimaPada],
       );
     }

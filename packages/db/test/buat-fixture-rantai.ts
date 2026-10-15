@@ -18,10 +18,10 @@ function kanonis(v: Json): string {
   return JSON.stringify(v);
 }
 
-type Masukan = { jenis: string; serahKode: string | null; peran: string | null; payload: Json; diterimaPada: string };
+type Masukan = { jenis: string; serahKode: string | null; peran: string; payload: Json; diterimaPada: string };
 
 function hashEvent(prev: string, e: Masukan): string {
-  const teks = [prev, e.jenis, e.serahKode ?? "-", e.peran ?? "-", kanonis(e.payload), new Date(e.diterimaPada).toISOString()].join("|");
+  const teks = [prev, e.jenis, e.serahKode ?? "-", e.peran, kanonis(e.payload), new Date(e.diterimaPada).toISOString()].join("|");
   return createHash("sha256").update(teks, "utf8").digest("hex");
 }
 
@@ -42,10 +42,10 @@ const masukan: Masukan[] = [
     diterimaPada: "2026-10-15T02:00:00.000Z",
   },
   {
-    // Event sistem: peran null → "-".
+    // Event sistem (cron): peran SISTEM.
     jenis: "SERAH_MENGGANTUNG",
     serahKode: "SRH-20261015-0001",
-    peran: null,
+    peran: "SISTEM",
     payload: { jam: 13 },
     diterimaPada: "2026-10-15T14:00:00.000Z",
   },
@@ -60,7 +60,7 @@ const event = masukan.map((e) => {
 });
 
 const keluar = {
-  keterangan: "hash = SHA-256(prev|jenis|serah_kode atau -|peran atau -|payload_kanonis|diterima_pada ISO UTC ms), hex kecil",
+  keterangan: "hash = SHA-256(prev|jenis|serah_kode atau -|peran|payload_kanonis|diterima_pada ISO UTC ms), hex kecil",
   event,
 };
 writeFileSync(new URL("./fixture-rantai.json", import.meta.url), JSON.stringify(keluar, null, 2) + "\n");

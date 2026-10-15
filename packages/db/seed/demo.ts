@@ -308,7 +308,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     event.push({ ...pihak, t: tSetuju, jenis: "SERAH_DISETUJUI", peran: "PENGELOLA", payload: {} });
     if (status === "DIANGKUT") continue;
     if (status === "MENGGANTUNG") {
-      event.push({ ...pihak, t: new Date(tSetuju.getTime() + 12 * JAM_MS + 10 * 60_000), jenis: "SERAH_MENGGANTUNG", peran: null, payload: { jam: 12 } });
+      event.push({ ...pihak, t: new Date(tSetuju.getTime() + 12 * JAM_MS + 10 * 60_000), jenis: "SERAH_MENGGANTUNG", peran: "SISTEM", payload: { jam: 12 } });
       continue;
     }
 
@@ -420,7 +420,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     const { rows } = await k.query<{ hash: string }>(
       `INSERT INTO event (id, kawasan_id, urutan_rantai, serah_id, org_kawasan_id, org_pengangkut_id, org_penerima_id, jenis, peran,
                           payload, prev_hash, hash, idempotency_key, terjadi_pada, diterima_pada)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::text::"JenisEvent", $9::text::"Peran", $10::jsonb, $11::text,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8::text::"JenisEvent", $9::text::"PeranEvent", $10::jsonb, $11::text,
                hash_event($11::text, $8::text, $12::text, $9::text, $10::jsonb, $13::timestamptz), $14, $13::timestamptz, $13::timestamptz)
        RETURNING hash`,
       [idBaru(), e.kawasanId, n + 1, e.serahId, e.orgKawasan, e.orgPengangkut, e.orgPenerima, e.jenis, e.peran, JSON.stringify(e.payload), prev, e.serahKode, e.t, `demo-event-${n + 1}`],

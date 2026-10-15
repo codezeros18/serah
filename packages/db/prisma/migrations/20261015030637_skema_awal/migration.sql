@@ -1,8 +1,14 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "wt_s01";
+
 -- CreateEnum
 CREATE TYPE "Aliran" AS ENUM ('HIJAU', 'KUNING', 'MERAH', 'ABU');
 
 -- CreateEnum
 CREATE TYPE "Peran" AS ENUM ('PETUGAS', 'PENGELOLA', 'PENGANGKUT', 'PENERIMA', 'ADMIN');
+
+-- CreateEnum
+CREATE TYPE "PeranEvent" AS ENUM ('PETUGAS', 'PENGELOLA', 'PENGANGKUT', 'PENERIMA', 'ADMIN', 'SISTEM');
 
 -- CreateEnum
 CREATE TYPE "JenisOrganisasi" AS ENUM ('KAWASAN', 'PENGANGKUT', 'PENERIMA', 'INTERNAL');
@@ -317,7 +323,7 @@ CREATE TABLE "event" (
     "org_pengangkut_id" TEXT,
     "org_penerima_id" TEXT,
     "jenis" "JenisEvent" NOT NULL,
-    "peran" "Peran",
+    "peran" "PeranEvent" NOT NULL,
     "payload" JSONB NOT NULL,
     "prev_hash" CHAR(64) NOT NULL,
     "hash" CHAR(64) NOT NULL,

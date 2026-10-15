@@ -29,6 +29,16 @@ enum Peran {
   ADMIN
 }
 
+/// Peran pada event rantai: peran manusia + SISTEM (cron, mis. TANDAI_MENGGANTUNG).
+enum PeranEvent {
+  PETUGAS
+  PENGELOLA
+  PENGANGKUT
+  PENERIMA
+  ADMIN
+  SISTEM
+}
+
 enum JenisOrganisasi {
   KAWASAN
   PENGANGKUT
@@ -578,8 +588,7 @@ model Event {
   orgPengangkutId  String?    @map("org_pengangkut_id")
   orgPenerimaId    String?    @map("org_penerima_id")
   jenis            JenisEvent
-  /// Null = sistem (cron).
-  peran            Peran?
+  peran            PeranEvent
   payload          Json
   prevHash         String     @map("prev_hash") @db.Char(64)
   hash             String     @db.Char(64)
