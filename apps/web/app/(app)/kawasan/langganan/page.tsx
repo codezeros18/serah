@@ -117,7 +117,7 @@ export default function HalamanLangganan() {
         <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm font-semibold text-tinta-redup">Status</span>
-            <span className="rounded-kontrol bg-aksi/10 px-3 py-1 text-sm font-bold text-aksi">
+            <span className="rounded-kontrol border border-garis bg-latar px-2 py-1 text-xs font-semibold text-tinta">
               {teksStatusLangganan(langganan)}
             </span>
           </div>

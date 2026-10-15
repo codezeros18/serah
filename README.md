@@ -8,7 +8,7 @@ SERAH adalah aplikasi web (PWA) untuk pengelola kawasan — pasar swasta, food c
 
 Dibuat untuk **Hackathon JOINTS × INSPIRE 2026 (UGM)** · Tema **Sustainability** · Subtema: pasar tradisional, UMKM kuliner, dan rumah tangga yang menghasilkan sampah non-organik yang belum dikelola optimal.
 
-**Demo:** {URL produksi} · **Halaman demo empat panel:** {URL produksi}/demo
+**Demo:** https://serah.up.railway.app · **Halaman demo empat panel:** https://serah.up.railway.app/demo
 
 ---
 
@@ -65,7 +65,7 @@ SERAH bukan portal pelaporan pemerintah. SERAH menyiapkan berkas yang Anda lapor
 
 **Dalam produk:** satu pemakaian saja — membaca tiket/nota timbang dengan Claude Haiku 5.5 (`claude-haiku-5-5`) melalui structured output, dengan Claude Sonnet 5.5 (`claude-sonnet-5-5`) sebagai cadangan. Hasilnya selalu berlabel, diperiksa, dan dikonfirmasi manusia sebelum tercatat; isian manual selalu tersedia. Aturan, status, prioritas cuaca, deteksi foto ulang, dan laporan sepenuhnya deterministik.
 
-**Dalam pengerjaan:** Claude (riset & dokumen) dan Claude Code (penulisan kode, test, dokumentasi){, Higgsfield (aset visual) — hanya bila dipakai}.
+**Dalam pengerjaan:** Claude (riset & dokumen) dan Claude Code (penulisan kode, test, dokumentasi).
 
 ## Arsitektur
 
@@ -95,7 +95,7 @@ packages/ui         token desain & komponen
 
 ### Langkah
 ```bash
-git clone https://github.com/{org}/serah.git
+git clone https://github.com/serah-id/serah.git
 cd serah
 pnpm install
 cp .env.example .env          # isi TOKEN_PEPPER & SESI_SECRET (≥32 karakter acak); untuk mencoba: DEMO_MODE=true
