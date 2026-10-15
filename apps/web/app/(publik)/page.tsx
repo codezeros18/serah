@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Kartu } from "@serah/ui";
-import { TEKS } from "@serah/kontrak/teks";
+import { TEKS, isi } from "@serah/kontrak/teks";
 import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
 
 const FITUR_SOROTAN = [
@@ -71,18 +71,21 @@ export default function HalamanLanding() {
 
       {/* Konten Utama */}
       <main className="flex-1">
-        {/* Bagian Hero dengan Atmospheric Accent */}
+        {/* Bagian Hero dengan Atmospheric Accent & Visual Pipeline */}
         <section
-          className="relative overflow-hidden border-b border-garis-halus bg-kertas px-4 py-16 sm:px-6 sm:py-24"
+          className="relative overflow-hidden border-b border-garis-halus px-4 py-16 sm:px-6 sm:py-24"
           aria-labelledby="hero-judul"
           style={{
             background:
-              "radial-gradient(100% 60% at 50% 0%, rgba(36, 87, 197, 0.07) 0%, rgba(255, 255, 255, 0) 100%), #ffffff",
+              "radial-gradient(120% 80% at 50% -10%, rgba(36, 87, 197, 0.16) 0%, rgba(36, 87, 197, 0.03) 55%, #f8fafc 100%)",
           }}
         >
-          <div className="mx-auto flex max-w-4xl flex-col items-center gap-6 text-center">
+          {/* Subtle Decorative Background Circles */}
+          <div className="absolute top-12 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-aksi/5 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 text-center">
             {/* SERAH Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-aksi/25 bg-aksi-latar px-3.5 py-1 text-xs font-bold text-aksi shadow-xs">
+            <div className="inline-flex items-center gap-2 rounded-full border border-aksi/30 bg-aksi-latar px-4 py-1.5 text-xs font-bold text-aksi shadow-xs">
               <span className="h-2 w-2 rounded-full bg-aksi animate-pulse" aria-hidden="true" />
               <span>{TEKS.APP_NAMA} · {TEKS.APP_TAGLINE}</span>
             </div>
@@ -90,73 +93,130 @@ export default function HalamanLanding() {
             {/* Headline dengan text-wrap: balance */}
             <h1
               id="hero-judul"
-              className="text-4xl font-black tracking-tight text-tinta sm:text-5xl lg:text-6xl [text-wrap:balance]"
+              className="text-4xl font-black tracking-tight text-tinta sm:text-6xl lg:text-7xl [text-wrap:balance]"
             >
-              {TEKS.LANDING_JUDUL}
+              Satu serah,{" "}
+              <span className="text-aksi drop-shadow-xs">tiga laporan.</span>
             </h1>
 
             {/* Subtitle */}
             <p className="max-w-2xl text-lg leading-relaxed text-tinta-redup sm:text-xl [text-wrap:balance]">
-              {TEKS.LANDING_SUB}
+              {TEKS.APP_DESKRIPSI}
             </p>
 
             {/* Tombol Aksi Utama */}
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-3">
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
               <Link
                 href="/mulai"
-                className="inline-flex min-h-12 items-center justify-center rounded-kontrol bg-aksi px-7 py-3 text-base font-bold text-aksi-teks shadow-sm hover:bg-aksi-hover hover:shadow-md transition-all active:scale-[0.98]"
+                className="inline-flex min-h-12 items-center justify-center rounded-kontrol bg-aksi px-8 py-3.5 text-base font-bold text-white shadow-md shadow-aksi/25 hover:bg-aksi-hover hover:shadow-lg hover:shadow-aksi/35 hover:-translate-y-0.5 transition-all active:scale-[0.98]"
               >
                 {TEKS.LANDING_CTA}
               </Link>
               <Link
                 href="/demo"
-                className="inline-flex min-h-12 items-center justify-center rounded-kontrol border-2 border-garis bg-kertas px-6 py-3 text-base font-bold text-tinta shadow-xs hover:bg-latar hover:border-tinta transition-all active:scale-[0.98]"
+                className="inline-flex min-h-12 items-center justify-center rounded-kontrol border-2 border-garis bg-kertas px-7 py-3.5 text-base font-bold text-tinta shadow-xs hover:border-aksi hover:text-aksi hover:bg-aksi-latar/40 hover:-translate-y-0.5 transition-all active:scale-[0.98]"
               >
-                {TEKS.LANDING_CTA_DEMO}
+                <span className="mr-2">▶</span> {TEKS.LANDING_CTA_DEMO}
               </Link>
               <Link
                 href="/harga"
-                className="inline-flex min-h-12 items-center justify-center px-4 py-3 text-sm font-semibold text-tinta-redup hover:text-aksi hover:underline transition-colors"
+                className="inline-flex min-h-12 items-center justify-center px-5 py-3.5 text-sm font-bold text-tinta-redup hover:text-aksi hover:underline transition-colors"
               >
                 {TEKS.HRG_JUDUL} →
               </Link>
             </div>
 
-            {/* Ilustrasi Konsep Tiga Pihak Satu Serah */}
-            <div className="mt-8 w-full max-w-3xl rounded-kartu border border-garis-halus bg-latar/60 p-5 shadow-xs">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 text-left">
-                <div className="flex flex-col gap-1 rounded-kontrol border border-garis-halus bg-kertas p-3.5 shadow-2xs">
-                  <span className="text-[11px] font-bold tracking-wider text-aksi uppercase">
-                    {TEKS.PERAN_PENGELOLA}
+            {/* Visual Pipeline Tiga Pihak Satu Serah */}
+            <div className="mt-8 w-full max-w-4xl rounded-2xl border border-garis-halus bg-kertas p-5 sm:p-7 shadow-xl shadow-slate-200/50 text-left">
+              <div className="flex items-center justify-between border-b border-garis-halus pb-4 mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-bold text-tinta tracking-wide uppercase">
+                    Alur Verifikasi Rantai Serah
                   </span>
-                  <p className="text-xs font-semibold text-tinta">
-                    {TEKS.K1_JUDUL}
-                  </p>
-                  <p className="text-[11px] text-tinta-redup">
-                    {TEKS.T1_PILIH_ALIRAN}
-                  </p>
                 </div>
-                <div className="flex flex-col gap-1 rounded-kontrol border border-garis-halus bg-kertas p-3.5 shadow-2xs">
-                  <span className="text-[11px] font-bold tracking-wider text-aksi uppercase">
-                    {TEKS.PERAN_PENGANGKUT}
-                  </span>
-                  <p className="text-xs font-semibold text-tinta">
-                    {TEKS.A2_FOTO}
-                  </p>
-                  <p className="text-[11px] text-tinta-redup">
-                    {TEKS.KND_JUDUL}
-                  </p>
+                <span className="rounded-full border border-aksi/20 bg-aksi-latar px-2.5 py-0.5 text-[11px] font-black text-aksi">
+                  Pergub DKI 102/2021
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                {/* Tahap 1: TPS Kawasan */}
+                <div className="flex flex-col gap-3 rounded-xl border-2 border-emerald-500/30 bg-emerald-50/20 p-4 transition-all hover:border-emerald-500 hover:shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-xs font-black text-white">
+                      1
+                    </span>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800 uppercase">
+                      {TEKS.PERAN_PENGELOLA}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-tinta">{TEKS.K1_JUDUL}</h4>
+                    <p className="text-xs text-tinta-redup mt-0.5">{TEKS.T1_PILIH_ALIRAN}</p>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-auto pt-2">
+                    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-emerald-700 text-white">
+                      Hijau
+                    </span>
+                    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-400 text-slate-900">
+                      Kuning
+                    </span>
+                    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-rose-700 text-white">
+                      Merah
+                    </span>
+                    <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-slate-600 text-white">
+                      Abu
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col gap-1 rounded-kontrol border border-garis-halus bg-kertas p-3.5 shadow-2xs">
-                  <span className="text-[11px] font-bold tracking-wider text-aksi uppercase">
-                    {TEKS.PERAN_PENERIMA}
-                  </span>
-                  <p className="text-xs font-semibold text-tinta">
-                    {TEKS.P1_FOTO_TIKET}
-                  </p>
-                  <p className="text-[11px] text-tinta-redup">
-                    {TEKS.P1_DITUTUP}
-                  </p>
+
+                {/* Tahap 2: Pengangkut */}
+                <div className="flex flex-col gap-3 rounded-xl border-2 border-aksi/30 bg-aksi-latar/30 p-4 transition-all hover:border-aksi hover:shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-xs font-black text-white">
+                      2
+                    </span>
+                    <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-aksi uppercase">
+                      {TEKS.PERAN_PENGANGKUT}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-tinta">{TEKS.A2_FOTO}</h4>
+                    <p className="text-xs text-tinta-redup mt-0.5">{TEKS.KND_JUDUL}</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-auto pt-2">
+                    <span className="rounded border border-garis bg-kertas px-2 py-0.5 font-mono text-[11px] font-bold text-tinta">
+                      B 9012 SER
+                    </span>
+                    <span className="text-[11px] font-bold text-aksi">
+                      Pindai QR ✓
+                    </span>
+                  </div>
+                </div>
+
+                {/* Tahap 3: Penerima Olahan */}
+                <div className="flex flex-col gap-3 rounded-xl border-2 border-indigo-500/30 bg-indigo-50/20 p-4 transition-all hover:border-indigo-500 hover:shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-600 text-xs font-black text-white">
+                      3
+                    </span>
+                    <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-800 uppercase">
+                      {TEKS.PERAN_PENERIMA}
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-tinta">{TEKS.P1_FOTO_TIKET}</h4>
+                    <p className="text-xs text-tinta-redup mt-0.5">{isi("P1_DITUTUP", { kode_serah: "SRH-0001" })}</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-auto pt-2">
+                    <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-800">
+                      Timbang Bersama
+                    </span>
+                    <span className="text-[11px] font-bold text-indigo-700">
+                      BAST Digital ✓
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

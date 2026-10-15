@@ -15,9 +15,12 @@ export function Tombol({
     <button
       type={type}
       className={gabung(
-        "inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol px-5 text-base font-semibold transition-all duration-150 active:scale-[0.98] select-none",
-        "disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
-        varian === "utama" ? "bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-sm" : "border-2 border-garis bg-kertas text-tinta hover:bg-latar",
+        "inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol px-5 text-base font-bold transition-all duration-150 active:scale-[0.98] select-none",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aksi",
+        "disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100",
+        varian === "utama"
+          ? "bg-aksi text-white hover:bg-aksi-hover shadow-sm hover:shadow-md"
+          : "border border-garis-halus bg-kertas text-tinta hover:bg-aksi-latar/50 hover:border-aksi-garis hover:text-aksi shadow-2xs",
         className,
       )}
       {...sisa}
@@ -28,7 +31,10 @@ export function Tombol({
 export function Kartu({ className, ...sisa }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={gabung("rounded-kartu border border-garis-halus bg-kertas p-4 shadow-sm", className)}
+      className={gabung(
+        "rounded-kartu border border-garis-halus bg-kertas p-4 sm:p-5 shadow-xs transition-shadow duration-150",
+        className,
+      )}
       {...sisa}
     />
   );
@@ -37,8 +43,8 @@ export function Kartu({ className, ...sisa }: HTMLAttributes<HTMLDivElement>) {
 /** Keadaan kosong. `teks` = salah satu kunci K_KOSONG_* dari TEKS. */
 export function Kosong({ teks, aksi }: { teks: string; aksi?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-kartu border border-dashed border-garis bg-kertas p-6 text-center">
-      <p className="text-base text-tinta-redup">{teks}</p>
+    <div className="flex flex-col items-center gap-3 rounded-kartu border-2 border-dashed border-garis-halus bg-kertas p-8 text-center">
+      <p className="text-base font-medium text-tinta-redup">{teks}</p>
       {aksi}
     </div>
   );
@@ -49,7 +55,7 @@ export function BannerGalat({ pesan, onCoba }: { pesan: string; onCoba?: () => v
   return (
     <div
       role="alert"
-      className="flex flex-wrap items-center gap-3 rounded-kartu border-l-8 border-galat bg-galat-latar p-4 text-base"
+      className="flex flex-wrap items-center gap-3 rounded-kartu border-l-8 border-galat bg-galat-latar p-4 text-base shadow-xs"
     >
       <span aria-hidden="true" className="text-xl font-bold">
         !
@@ -67,12 +73,13 @@ export function BannerGalat({ pesan, onCoba }: { pesan: string; onCoba?: () => v
 /** Ditampilkan di setiap layar mode demo. */
 export function LabelDemo() {
   return (
-    <p
+    <div
       role="note"
-      className="border-b-2 border-peringatan-garis bg-peringatan-latar px-4 py-2 text-center text-sm font-semibold text-peringatan"
+      className="border-b border-amber-200 bg-gradient-to-r from-amber-50 via-amber-100/60 to-amber-50 px-4 py-1.5 text-center text-xs font-semibold text-amber-900 tracking-wide flex items-center justify-center gap-2"
     >
-      {TEKS.DEMO_LABEL}
-    </p>
+      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
+      <span>{TEKS.DEMO_LABEL}</span>
+    </div>
   );
 }
 

@@ -11,21 +11,21 @@
   --color-aliran-abu: #4b5563;
   --color-aliran-abu-teks: #ffffff;
 
-  /* Netral */
+  /* Netral modern */
   --color-kertas: #ffffff;
-  --color-latar: #f3f4f6;
-  --color-garis: #6b7280;
-  --color-garis-halus: #d1d5db;
-  --color-tinta: #111827;
-  --color-tinta-redup: #4b5563;
+  --color-latar: #f8fafc;
+  --color-garis: #94a3b8;
+  --color-garis-halus: #e2e8f0;
+  --color-tinta: #0f172a;
+  --color-tinta-redup: #475569;
 
   /* Aksi utama & fokus — Biru SERAH #2457c5 */
   --color-aksi: #2457c5;
   --color-aksi-teks: #ffffff;
   --color-aksi-hover: #1b439c;
   --color-aksi-aktif: #143377;
-  --color-aksi-latar: #eff4ff;
-  --color-aksi-garis: #93b5f8;
+  --color-aksi-latar: #eff6ff;
+  --color-aksi-garis: #bfdbfe;
   --color-fokus: #2457c5;
 
   /* Peringatan = kuning tua + ikon (bukan merah) */
@@ -34,30 +34,30 @@
   --color-peringatan-garis: #b45309;
 
   /* Tolak aturan = panel garis tebal + ikon kunci */
-  --color-tolak: #1f2937;
-  --color-tolak-latar: #f9fafb;
+  --color-tolak: #1e293b;
+  --color-tolak-latar: #f8fafc;
 
   /* Status serah — tanpa merah (merah = aliran B3) */
-  --color-status-draf: #374151;
-  --color-status-draf-latar: #e5e7eb;
+  --color-status-draf: #475569;
+  --color-status-draf-latar: #f1f5f9;
   --color-status-menunggu: #92400e;
   --color-status-menunggu-latar: #fef3c7;
   --color-status-angkut: #2457c5;
-  --color-status-angkut-latar: #eff4ff;
-  --color-status-selesai: #115e59;
+  --color-status-angkut-latar: #eff6ff;
+  --color-status-selesai: #0f766e;
   --color-status-selesai-latar: #ccfbf1;
-  --color-status-sebagian: #3730a3;
+  --color-status-sebagian: #4338ca;
   --color-status-sebagian-latar: #e0e7ff;
-  --color-status-tolak: #581c87;
+  --color-status-tolak: #6b21a8;
   --color-status-tolak-latar: #f3e8ff;
 
   /* Galat sistem (bukan aliran): garis tebal gelap, bukan merah */
-  --color-galat: #1f2937;
-  --color-galat-latar: #f3f4f6;
+  --color-galat: #1e293b;
+  --color-galat-latar: #f1f5f9;
 
   /* Bentuk */
-  --radius-kartu: 0.75rem;
-  --radius-kontrol: 0.5rem;
+  --radius-kartu: 1rem;
+  --radius-kontrol: 0.625rem;
 }
 
 @layer base {

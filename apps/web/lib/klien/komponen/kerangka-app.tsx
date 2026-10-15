@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { Peran } from "@serah/kontrak/enum";
 import { TEKS, type KunciTeks } from "@serah/kontrak/teks";
 import { BannerGalat, LabelDemo, Tombol } from "@serah/ui";
@@ -67,6 +67,13 @@ function Isi({ children }: { children: ReactNode }) {
   const { keadaan, muatUlang } = useSesi();
   const jalur = usePathname();
   const router = useRouter();
+  const [adalahPanelDemo, setAdalahPanelDemo] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("panel")) {
+      setAdalahPanelDemo(true);
+    }
+  }, []);
 
   if (keadaan.status === "memuat") {
     return (
@@ -112,74 +119,118 @@ function Isi({ children }: { children: ReactNode }) {
             : "/admin"
     : "/";
 
+  const peranDesktop = peran === "PENGELOLA" || peran === "PENERIMA" || peran === "ADMIN";
+  const batasLebar = peranDesktop ? "max-w-6xl" : "max-w-xl";
+
   return (
-    <div className="mx-auto flex min-h-dvh max-w-3xl flex-col bg-latar text-tinta">
-      {MOCK_AKTIF ? <LabelDemo /> : null}
+    <div className="min-h-dvh bg-latar text-tinta flex flex-col">
+      {/* Accent Line Brand #2457c5 */}
+      <div className="h-1 bg-gradient-to-r from-aksi via-blue-500 to-indigo-600 w-full shrink-0" />
+
+      {MOCK_AKTIF && !adalahPanelDemo ? <LabelDemo /> : null}
 
       {/* App Shell Header */}
-      <header className="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-garis-halus bg-kertas/95 backdrop-blur px-4 py-2.5 shadow-xs">
-        {/* Sisi Kiri: Logo SERAH & Info Pengguna/Organisasi */}
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <Link href={ruteHome} className="shrink-0 group" aria-label={TEKS.APP_NAMA}>
-            <LogoSerah ukuran="sm" denganTeks={false} />
-          </Link>
-          <div className="min-w-0 flex-1 flex flex-col">
-            <div className="flex items-center gap-2">
-              <span className="truncate text-sm font-extrabold text-tinta">
-                {peran ? TEKS[KUNCI_PERAN[peran]] : TEKS.APP_NAMA}
-              </span>
-              {peran ? (
-                <span className="hidden sm:inline-block rounded-full border border-aksi/25 bg-aksi-latar px-2 py-0.2 text-[10px] font-black text-aksi uppercase">
-                  {peran}
+      <header className={`sticky top-0 z-30 border-b border-garis-halus bg-kertas/95 backdrop-blur-md px-4 shadow-xs ${adalahPanelDemo ? "py-2" : "py-3"}`}>
+        <div className={`mx-auto flex ${batasLebar} items-center justify-between gap-4`}>
+          {/* Sisi Kiri: Logo SERAH & Info Pengguna/Organisasi */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {!adalahPanelDemo ? (
+              <>
+                <Link href={ruteHome} className="shrink-0 group flex items-center gap-2" aria-label={TEKS.APP_NAMA}>
+                  <LogoSerah ukuran="sm" denganTeks={true} />
+                </Link>
+                <div className="h-6 w-px bg-garis-halus hidden sm:block" />
+              </>
+            ) : null}
+            <div className="min-w-0 flex flex-col justify-center">
+              <div className="flex items-center gap-2">
+                <span className="truncate text-xs font-bold text-tinta">
+                  {peran ? TEKS[KUNCI_PERAN[peran]] : TEKS.APP_NAMA}
                 </span>
+                {peran ? (
+                  <span className="rounded-full border border-aksi/20 bg-aksi-latar px-2 py-0.5 text-[10px] font-black text-aksi uppercase tracking-wide">
+                    {peran}
+                  </span>
+                ) : null}
+              </div>
+              {sesi.organisasiAktif ? (
+                <p className="truncate text-[11px] text-tinta-redup font-medium">
+                  {sesi.organisasiAktif.nama}
+                </p>
               ) : null}
             </div>
-            {sesi.organisasiAktif ? (
-              <p className="truncate text-xs text-tinta-redup font-medium">
-                {sesi.organisasiAktif.nama}
-              </p>
+          </div>
+
+          {/* Desktop Sub-Nav for Desk Roles */}
+          {peranDesktop && nav.length > 0 ? (
+            <nav aria-label="Navigasi Desktop" className="hidden lg:flex items-center gap-1">
+              {nav.map((n) => {
+                const aktif =
+                  jalur === n.href ||
+                  (n.href !== "/" &&
+                    jalur.startsWith(`${n.href}/`) &&
+                    !nav.some((m) => m.href.length > n.href.length && jalur.startsWith(m.href)));
+                return (
+                  <Link
+                    key={n.href}
+                    href={n.href}
+                    aria-current={aktif ? "page" : undefined}
+                    className={`px-3 py-1.5 rounded-kontrol text-xs font-bold transition-all ${
+                      aktif
+                        ? "bg-aksi text-white shadow-2xs"
+                        : "text-tinta-redup hover:text-aksi hover:bg-aksi-latar/50"
+                    }`}
+                  >
+                    {TEKS[n.kunci]}
+                  </Link>
+                );
+              })}
+            </nav>
+          ) : null}
+
+          {/* Sisi Kanan: Notifikasi & Tombol Keluar */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/notifikasi"
+              className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-kontrol border px-2.5 py-1 text-xs font-bold transition-all shadow-2xs ${
+                jalur === "/notifikasi"
+                  ? "border-aksi bg-aksi text-white"
+                  : "border-garis-halus bg-kertas text-tinta hover:border-aksi hover:text-aksi hover:bg-aksi-latar/40"
+              }`}
+              aria-label={TEKS.NTF_JUDUL}
+            >
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true">🔔</span>
+                <span className="hidden sm:inline">{TEKS.NTF_JUDUL}</span>
+              </span>
+            </Link>
+
+            {!adalahPanelDemo ? (
+              <Tombol
+                varian="sekunder"
+                onClick={() => void keluar()}
+                className="min-h-9 px-3.5 py-1 text-xs font-bold"
+              >
+                {TEKS.UMUM_KELUAR}
+              </Tombol>
             ) : null}
           </div>
-        </div>
-
-        {/* Sisi Kanan: Notifikasi & Tombol Keluar */}
-        <div className="flex items-center gap-2 shrink-0">
-          <Link
-            href="/notifikasi"
-            className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-kontrol border px-3 py-1.5 text-xs font-bold transition-all ${
-              jalur === "/notifikasi"
-                ? "border-aksi bg-aksi text-aksi-teks"
-                : "border-garis-halus bg-kertas text-tinta hover:border-aksi hover:text-aksi hover:bg-aksi-latar/40"
-            }`}
-            aria-label={TEKS.NTF_JUDUL}
-          >
-            <span className="flex items-center gap-1.5">
-              <span aria-hidden="true">🔔</span>
-              <span className="hidden sm:inline">{TEKS.NTF_JUDUL}</span>
-            </span>
-          </Link>
-
-          <Tombol
-            varian="sekunder"
-            onClick={() => void keluar()}
-            className="min-h-10 px-3 py-1.5 text-xs font-bold"
-          >
-            {TEKS.UMUM_KELUAR}
-          </Tombol>
         </div>
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 pb-24">
+      <main className={`mx-auto w-full ${batasLebar} flex-1 p-4 sm:p-6 ${peranDesktop ? "pb-12" : "pb-28 sm:pb-32"}`}>
         {boleh ? children : <BannerGalat pesan={TEKS.G_PERAN_TIDAK_BOLEH} />}
       </main>
 
-      {/* Fixed Bottom Navigation Bar */}
+      {/* Fixed Bottom Navigation Bar (Hidden on desktop for desktop roles) */}
       <nav
         aria-label={TEKS.APP_NAMA}
-        className="fixed inset-x-0 bottom-0 z-30 border-t-2 border-garis bg-kertas/95 backdrop-blur shadow-lg"
+        className={`fixed inset-x-0 bottom-0 z-30 border-t border-garis-halus bg-kertas/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.06)] ${
+          peranDesktop ? "lg:hidden" : ""
+        }`}
       >
-        <ul className="mx-auto flex max-w-3xl">
+        <ul className={`mx-auto flex ${batasLebar} items-center justify-around px-2`}>
           {nav.map((n) => {
             const aktif =
               jalur === n.href ||
@@ -191,13 +242,15 @@ function Isi({ children }: { children: ReactNode }) {
                 <Link
                   href={n.href}
                   aria-current={aktif ? "page" : undefined}
-                  className={`flex min-h-14 items-center justify-center px-1 text-center text-sm transition-all ${
+                  className={`flex min-h-14 flex-col items-center justify-center gap-1 px-1 py-1 text-center transition-all ${
                     aktif
-                      ? "border-t-4 border-aksi text-aksi bg-aksi-latar/40 font-bold"
-                      : "border-t-4 border-transparent text-tinta hover:text-aksi hover:bg-latar/50 font-medium"
+                      ? "text-aksi font-bold border-t-2 border-aksi bg-aksi-latar/40"
+                      : "text-tinta-redup hover:text-aksi hover:bg-latar/50 font-medium border-t-2 border-transparent"
                   }`}
                 >
-                  {TEKS[n.kunci]}
+                  <span className="text-xs sm:text-sm tracking-tight truncate max-w-[120px]">
+                    {TEKS[n.kunci]}
+                  </span>
                 </Link>
               </li>
             );

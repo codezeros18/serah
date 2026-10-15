@@ -15,6 +15,8 @@ interface PanelInfo {
   lencanaKelas: string;
   nomorUrut: string;
   tugasRingkas: string;
+  tipe: "hp" | "desktop";
+  deskripsi: string;
 }
 
 const DAFTAR_PANEL: readonly PanelInfo[] = [
@@ -26,6 +28,8 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
     lencanaKelas: "border-emerald-600 bg-emerald-50 text-emerald-800",
     nomorUrut: "1",
     tugasRingkas: TEKS.T1_JUDUL,
+    tipe: "hp",
+    deskripsi: "Pekerja Lapangan HP",
   },
   {
     id: "pengangkut",
@@ -35,6 +39,8 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
     lencanaKelas: "border-aksi bg-aksi-latar text-aksi",
     nomorUrut: "2",
     tugasRingkas: TEKS.A2_FOTO,
+    tipe: "hp",
+    deskripsi: "Sopir Truk HP",
   },
   {
     id: "kawasan",
@@ -44,6 +50,8 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
     lencanaKelas: "border-purple-600 bg-purple-50 text-purple-800",
     nomorUrut: "3",
     tugasRingkas: TEKS.K1_JUDUL,
+    tipe: "desktop",
+    deskripsi: "Pengelola Kawasan Desktop",
   },
   {
     id: "penerima",
@@ -53,6 +61,8 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
     lencanaKelas: "border-amber-600 bg-amber-50 text-amber-800",
     nomorUrut: "4",
     tugasRingkas: TEKS.P1_JUDUL,
+    tipe: "desktop",
+    deskripsi: "Penerima Olahan Desktop",
   },
 ] as const;
 
@@ -229,14 +239,40 @@ export default function HalamanDemo() {
                   </div>
 
                   {/* Device-style Container for iframe */}
-                  <div className="relative overflow-hidden rounded-kartu border border-garis bg-latar shadow-inner">
-                    <iframe
-                      key={`${panel.id}-${kunciIframe}`}
-                      src={panel.url}
-                      title={panel.title}
-                      className="h-[620px] min-h-[500px] w-full border-0 bg-latar"
-                    />
-                  </div>
+                  {panel.tipe === "hp" ? (
+                    <div className="mx-auto w-full max-w-[400px] rounded-[32px] border-[6px] border-slate-900 bg-slate-900 p-1 shadow-2xl">
+                      <div className="flex items-center justify-center py-1">
+                        <div className="h-3 w-20 rounded-full bg-slate-800" />
+                      </div>
+                      <div className="overflow-hidden rounded-[24px] bg-latar">
+                        <iframe
+                          key={`${panel.id}-${kunciIframe}`}
+                          src={panel.url}
+                          title={panel.title}
+                          className="h-[620px] w-full border-0 bg-latar"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full overflow-hidden rounded-xl border border-garis bg-kertas shadow-lg">
+                      <div className="flex items-center gap-2 border-b border-garis-halus bg-slate-100 px-3 py-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                        </div>
+                        <div className="mx-auto rounded-md bg-kertas px-3 py-0.5 font-mono text-[11px] text-tinta-redup shadow-2xs">
+                          serah.id{panel.url.split("?")[0]}
+                        </div>
+                      </div>
+                      <iframe
+                        key={`${panel.id}-${kunciIframe}`}
+                        src={panel.url}
+                        title={panel.title}
+                        className="h-[620px] w-full border-0 bg-latar"
+                      />
+                    </div>
+                  )}
                 </section>
               );
             })}

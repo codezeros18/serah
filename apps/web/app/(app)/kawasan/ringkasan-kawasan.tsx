@@ -68,41 +68,59 @@ export function RingkasanKawasan() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Kartu
               data-testid="menunggu-setuju"
-              className={`flex flex-col justify-between gap-3 border transition-shadow duration-150 hover:shadow-md ${
+              className={`flex flex-col justify-between gap-4 border-2 border-t-4 p-5 transition-all duration-150 hover:shadow-md ${
                 data.menungguSetuju > 0
-                  ? "border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/25"
-                  : "border-garis-halus"
+                  ? "border-garis-halus border-t-aksi bg-gradient-to-b from-blue-50/40 to-kertas shadow-sm"
+                  : "border-garis-halus border-t-slate-300"
               }`}
             >
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold text-tinta-redup">{TEKS.K1_MENUNGGU_SETUJU}</span>
-                <p className="text-4xl font-extrabold tracking-tight tabular-nums text-tinta">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-tinta-redup">
+                    {TEKS.K1_MENUNGGU_SETUJU}
+                  </span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aksi-latar text-xs font-black text-aksi">
+                    !
+                  </span>
+                </div>
+                <p className="text-4xl sm:text-5xl font-black tracking-tight tabular-nums text-tinta">
                   {data.menungguSetuju}
                 </p>
               </div>
-              <div className="pt-1">
+              <div className="pt-2 border-t border-garis-halus/60">
                 <Link
                   href="/kawasan/setujui"
-                  className="inline-flex min-h-10 items-center justify-center rounded-kontrol bg-aksi px-4 py-2 text-sm font-semibold text-aksi-teks shadow-xs transition-all duration-150 hover:bg-aksi-hover active:scale-[0.98]"
+                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-kontrol bg-aksi px-4 py-2 text-xs font-bold text-white shadow-xs transition-all duration-150 hover:bg-aksi-hover hover:shadow-sm active:scale-[0.98]"
                 >
-                  {TEKS.UMUM_LIHAT_DETAIL}
+                  <span>{TEKS.UMUM_LIHAT_DETAIL}</span>
+                  <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </Kartu>
 
             <Kartu
               data-testid="menggantung"
-              className={`flex flex-col justify-between gap-3 border transition-shadow duration-150 hover:shadow-md ${
+              className={`flex flex-col justify-between gap-4 border-2 border-t-4 p-5 transition-all duration-150 hover:shadow-md ${
                 data.menggantung > 0
-                  ? "border-l-4 border-l-status-menunggu border-garis-halus bg-status-menunggu-latar/20"
-                  : "border-garis-halus"
+                  ? "border-garis-halus border-t-amber-500 bg-gradient-to-b from-amber-50/40 to-kertas shadow-sm"
+                  : "border-garis-halus border-t-slate-300"
               }`}
             >
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold text-tinta-redup">{TEKS.K1_MENGGANTUNG}</span>
-                <p className="text-4xl font-extrabold tracking-tight tabular-nums text-tinta">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-tinta-redup">
+                    {TEKS.K1_MENGGANTUNG}
+                  </span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-black text-amber-800">
+                    ⏱
+                  </span>
+                </div>
+                <p className="text-4xl sm:text-5xl font-black tracking-tight tabular-nums text-tinta">
                   {data.menggantung}
                 </p>
+              </div>
+              <div className="pt-2 border-t border-garis-halus/60 text-xs font-medium text-tinta-redup">
+                {TEKS.STATUS_MENGGANTUNG}
               </div>
             </Kartu>
           </div>

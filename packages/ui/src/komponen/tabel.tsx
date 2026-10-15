@@ -21,23 +21,42 @@ export function Tabel<T>({
   kunciBaris: (baris: T) => string;
 }) {
   return (
-    <div role="region" aria-label={keterangan} tabIndex={0} className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas">
-      <table className="w-full border-collapse text-left text-base">
+    <div
+      role="region"
+      aria-label={keterangan}
+      tabIndex={0}
+      className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas shadow-xs"
+    >
+      <table className="w-full border-collapse text-left text-sm sm:text-base">
         <caption className="sr-only">{keterangan}</caption>
         <thead>
-          <tr className="border-b-2 border-garis bg-latar">
+          <tr className="border-b border-garis-halus bg-slate-100/70 text-tinta font-bold">
             {kolom.map((k) => (
-              <th key={k.kunci} scope="col" className={`px-3 py-2 font-semibold ${k.angka ? "text-right" : ""}`}>
+              <th
+                key={k.kunci}
+                scope="col"
+                className={`px-4 py-3 text-xs font-bold uppercase tracking-wider text-tinta-redup ${
+                  k.angka ? "text-right" : ""
+                }`}
+              >
                 {k.judul}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-garis-halus">
           {baris.map((b) => (
-            <tr key={kunciBaris(b)} className="border-b border-garis-halus last:border-0">
+            <tr
+              key={kunciBaris(b)}
+              className="transition-colors hover:bg-aksi-latar/40 duration-150"
+            >
               {kolom.map((k) => (
-                <td key={k.kunci} className={`px-3 py-2 ${k.angka ? "text-right tabular-nums" : ""}`}>
+                <td
+                  key={k.kunci}
+                  className={`px-4 py-3 text-tinta font-medium ${
+                    k.angka ? "text-right tabular-nums font-bold font-mono" : ""
+                  }`}
+                >
                   {k.sel(b)}
                 </td>
               ))}
