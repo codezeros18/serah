@@ -7,6 +7,7 @@ import { GalatApi } from "../galat";
 import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi-stub";
 import { nowcastBerlaku, prioritasTps, simpanNowcast, simpanPrakiraan, type PrakiraanTersimpan } from "./cuaca";
 import { buatNotifikasi } from "../notifikasi";
+import { kerjaLanggananHarian } from "./langganan";
 import { muatSerah } from "./serah";
 import { layananTransisi } from "./transisi";
 import { peringatanTps, yurisdiksiKawasan, type TpsAkses } from "./wadah";
@@ -14,7 +15,8 @@ import { peringatanTps, yurisdiksiKawasan, type TpsAkses } from "./wadah";
 // Cron (BLUEPRINT §F.5, S08-7). Setiap pekerjaan idempoten lewat `pekerjaan_cron(nama, jendela)`: panggilan kedua
 // pada jendela yang sama dilewati. Efek di dalam pekerjaan juga idempoten (kunci event deterministik, dedup
 // prioritas & notifikasi), sehingga pekerjaan yang diulang di jendela berikutnya tidak menggandakan apa pun.
-// Notifikasi hanya ditulis ke tabel (pengiriman push/email di S17). Uji coba & tagihan bulanan: S19.
+// Notifikasi hanya ditulis ke tabel (pengiriman push/email di S17). Harian juga menjalankan mesin langganan
+// (uji coba berakhir, menunggak, tenggang habis) & tagihan bulanan tanggal 1 WIB (S19).
 
 export const NAMA_CRON = ["sepuluh-menit", "tiga-jam", "harian"] as const;
 export type NamaCron = (typeof NAMA_CRON)[number];
@@ -159,7 +161,7 @@ async function peringatanWadah(tx: Tx, sekarang: Date, kode: readonly ("R05" | "
   return n;
 }
 
-// ── harian: R-09, retensi foto, bersih batas laju ──────────────────────────
+// ── harian: langganan & tagihan, R-09, retensi foto, bersih batas laju ──────────────────────────
 
 async function retensiFoto(tx: Tx, sekarang: Date): Promise<number> {
   const batas = new Date(sekarang.getTime() - muatEnv().RETENSI_FOTO_HARI * HARI);
@@ -202,12 +204,16 @@ async function kerja(tx: Tx, nama: NamaCron, sekarang: Date, data: Prefetch): Pr
       for (const p of data.prakiraan) slot += await simpanPrakiraan(tx, p, sekarang);
       return { prakiraanAdm4: data.prakiraan.length, slotBaru: slot };
     }
-    case "harian":
+    case "harian": {
+      const langganan = await kerjaLanggananHarian(tx, sekarang);
       return {
+        langgananPeralihan: langganan.peralihan,
+        tagihanTerbit: langganan.tagihanTerbit,
         catatanHarianBelum: await peringatanWadah(tx, sekarang, ["R09"], "CATATAN_HARIAN_BELUM"),
         fotoRetensi: await retensiFoto(tx, sekarang),
         batasLajuDibersihkan: (await tx.batasLaju.deleteMany({ where: { jendelaMulai: { lt: new Date(sekarang.getTime() - HARI) } } })).count,
       };
+    }
   }
 }
 
