@@ -164,7 +164,8 @@ describe("S07-2 anggota", () => {
     expect(await ambilSesi(p.cookie)).toMatchObject({ organisasiAktif: null, peran: null });
 
     const diri = (await ambilSesi(cookiePengelola)).pengguna.id;
-    const [kDiri] = await kueriPemilik<{ id: string }>(`SELECT id FROM keanggotaan WHERE pengguna_id = $1`, [diri]);
+    // Akun demo bisa punya keanggotaan lain dari test jendela lain; ambil yang di organisasi aktifnya (ORG-PCS) saja.
+    const [kDiri] = await kueriPemilik<{ id: string }>(`SELECT id FROM keanggotaan WHERE pengguna_id = $1 AND organisasi_id = $2`, [diri, org["ORG-PCS"]]);
     expect((await nonaktif(permintaan(`/api/anggota/x/nonaktif`, { cookie: cookiePengelola }), params(kDiri?.id ?? ""))).status).toBe(400);
     const [kLain] = await kueriPemilik<{ id: string }>(`SELECT id FROM keanggotaan WHERE organisasi_id = $1 LIMIT 1`, [org["ORG-ACB"]]);
     expect((await nonaktif(permintaan(`/api/anggota/x/nonaktif`, { cookie: cookiePengelola }), params(kLain?.id ?? ""))).status).toBe(404);
