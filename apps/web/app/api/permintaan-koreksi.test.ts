@@ -1,10 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { TEKS, isi } from "@serah/kontrak";
 import { beforeAll, describe, expect, it } from "vitest";
-import { data, demo, masuk, panggil, satu, semua, type DemoS08 } from "@/lib/server/uji/klien";
+import { data, demo, formFoto, masuk, panggil, pngContoh, satu, semua, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as ajukan, GET as daftar } from "./permintaan-koreksi/route";
 import { POST as putus } from "./permintaan-koreksi/[id]/putus/route";
+import { POST as unggah } from "./foto/route";
 import { GET as rantai } from "./rantai/verifikasi/route";
+import { POST as ambil } from "./serah/[kode]/ambil/route";
+import { POST as setujui } from "./serah/[kode]/setujui/route";
 import { POST as tutup } from "./serah/[kode]/tutup/route";
 import { POST as buatSerah } from "./serah/route";
 import { POST as catatWadah } from "./wadah/route";
@@ -40,7 +43,6 @@ const putusOleh = (cookie: string, id: string, body: unknown, kunci?: string) =>
 describe("T26 — permintaan koreksi WADAH disetujui pengelola", () => {
   it("diajukan petugas → notifikasi ke pengelola → disetujui: baris koreksi (nilai asli tetap) + event berantai, serah tak berubah", async () => {
     const wadahId = await wadahBaru(12_000);
-    const sebelum = await satu<{ n: string }>(`SELECT count(*) AS n FROM event WHERE kawasan_id = (SELECT kawasan_id FROM wadah_catat WHERE id = $1)`, [wadahId]);
 
     const kunci = randomUUID();
     const h = await ajukanOleh(petugas, ajukanBody("WADAH", wadahId, 9_500), kunci);
@@ -84,14 +86,13 @@ describe("T26 — permintaan koreksi WADAH disetujui pengelola", () => {
     const v = await satu<{ nilai_asli_g: number; nilai_final_g: number }>(`SELECT nilai_asli_g, nilai_final_g FROM v_nilai_final WHERE target_id = $1`, [wadahId]);
     expect(v).toEqual({ nilai_asli_g: 12_000, nilai_final_g: 9_500 });
 
-    // Dua event baru (diajukan + disetujui) di rantai kawasan yang sama, berantai.
+    // Tepat dua event milik permintaan ini (diajukan + disetujui), berantai di rantai kawasan.
     const ev = await semua<{ jenis: string; urutan_rantai: string }>(
-      `SELECT jenis::text, urutan_rantai::text FROM event WHERE kawasan_id = (SELECT kawasan_id FROM wadah_catat WHERE id = $1) AND jenis::text LIKE 'PERMINTAAN_KOREKSI_%' ORDER BY urutan_rantai DESC LIMIT 2`,
-      [wadahId],
+      `SELECT jenis::text, urutan_rantai::text FROM event WHERE payload->>'kode' = $1 ORDER BY urutan_rantai`,
+      [kode],
     );
-    expect(ev.map((e) => e.jenis).sort()).toEqual(["PERMINTAAN_KOREKSI_DIAJUKAN", "PERMINTAAN_KOREKSI_DISETUJUI"]);
-    const sesudah = await satu<{ n: string }>(`SELECT count(*) AS n FROM event WHERE kawasan_id = (SELECT kawasan_id FROM wadah_catat WHERE id = $1)`, [wadahId]);
-    expect(Number(sesudah.n) - Number(sebelum.n)).toBe(2);
+    expect(ev.map((e) => e.jenis)).toEqual(["PERMINTAAN_KOREKSI_DIAJUKAN", "PERMINTAAN_KOREKSI_DISETUJUI"]);
+    expect(Number(ev[1]!.urutan_rantai)).toBeGreaterThan(Number(ev[0]!.urutan_rantai));
     const kws = await satu<{ kawasan_id: string }>(`SELECT kawasan_id FROM wadah_catat WHERE id = $1`, [wadahId]);
     const utuh = await panggil(rantai, { jalur: `/api/rantai/verifikasi?kawasanId=${kws.kawasan_id}`, cookie: pengelola });
     expect(data<{ utuh: boolean }>(utuh).utuh).toBe(true);
@@ -148,8 +149,12 @@ describe("TIKET/RINCIAN diputus penerima pemilik serah", () => {
   async function serahTertutup(): Promise<{ kode: string; tiketId: string; rincianId: string }> {
     const ids = [await wadahBaru(10_000), await wadahBaru(10_000)];
     const kode = data<{ kode: string }>(await panggil(buatSerah, { jalur: "/api/serah", cookie: petugas, body: { tpsId: d.tps1, wadahIds: ids } })).kode;
-    // Sampai DIANGKUT lewat jalur nyata dikerjakan test S08; di sini cukup mengatur status lewat pemilik DB.
-    await satu(`UPDATE serah SET status = 'DIANGKUT', org_pengangkut_id = $2, org_penerima_id = $3, versi = versi + 1 WHERE kode = $1 RETURNING id`, [kode, d.org.pengangkut, d.org.daurUlang]);
+    // Sampai DIANGKUT lewat alur nyata: foto muatan → ambil → setujui.
+    const fotoId = data<{ fotoId: string }>(
+      await panggil(unggah, { jalur: "/api/foto", cookie: pengangkut, kunci: null, form: formFoto("MUATAN", pngContoh(randomUUID()), "image/png", kode) }),
+    ).fotoId;
+    data(await panggil(ambil, { jalur: "/", cookie: pengangkut, params: { kode }, body: { fotoId, kendaraanId: d.kendaraan, penerimaId: d.org.daurUlang } }));
+    data(await panggil(setujui, { jalur: "/", cookie: pengelola, params: { kode }, body: {} }));
     data(await panggil(tutup, { jalur: "/", cookie: penerima, params: { kode }, body: { tiket: { beratG: 20_000, sumber: "MANUAL", nomor: "TKT-PKR" }, rincian: [{ aliran: "KUNING", diterimaG: 20_000, ditolakG: 0 }] } }));
     const r = await satu<{ tiket: string; rincian: string }>(
       `SELECT t.id AS tiket, r.id AS rincian FROM serah s JOIN tiket_timbang t ON t.serah_id = s.id JOIN penutupan_rincian r ON r.serah_id = s.id WHERE s.kode = $1`,
