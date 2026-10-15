@@ -34,7 +34,10 @@ export function keluaran(perintah, args, opsi = {}) {
 /** Jalankan pnpm memakai biner yang sama dengan pemanggil (`pnpm wt:…`), tanpa shell. */
 export function pnpm(args, opsi = {}) {
   const execpath = process.env.npm_execpath;
-  if (execpath && /pnpm/i.test(execpath)) jalankan(process.execPath, [execpath, ...args], opsi);
+  // npm_execpath bisa berupa skrip JS (npm i -g pnpm) atau program biner (pnpm terpasang mise di Railway):
+  // biner tidak boleh dijalankan lewat `node` (SyntaxError pada header ELF).
+  if (execpath && /pnpm/i.test(execpath) && /\.[cm]?js$/i.test(execpath)) jalankan(process.execPath, [execpath, ...args], opsi);
+  else if (execpath && /pnpm/i.test(execpath)) jalankan(execpath, args, opsi);
   else jalankan("pnpm", args, { shell: process.platform === "win32", ...opsi });
 }
 
