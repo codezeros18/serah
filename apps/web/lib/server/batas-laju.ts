@@ -6,10 +6,21 @@ import { GalatApi } from "./galat";
 // tetap tersimpan walau permintaan yang dibatasi kemudian gagal. Kunci = jenis + sidik (IP/email), tanpa data mentah.
 
 export const BATAS_LAJU = {
-  MASUK: { jumlah: 10, jendelaMenit: 15 },
-  DAFTAR: { jumlah: 5, jendelaMenit: 60 },
-  LUPA: { jumlah: 3, jendelaMenit: 60 },
+  MASUK: { jumlah: 10, jendelaMenit: 15 }, // per (hash IP, hash email)
+  DAFTAR: { jumlah: 5, jendelaMenit: 60 }, // per hash IP
+  LUPA: { jumlah: 3, jendelaMenit: 60 }, // per hash email
+  TIKET: { jumlah: 30, jendelaMenit: 60 }, // tiket/baca per organisasi
+  FOTO: { jumlah: 120, jendelaMenit: 60 }, // unggah foto per organisasi
+  SINKRON: { jumlah: 60, jendelaMenit: 1 }, // sinkron per sesi
 } as const;
+
+/**
+ * Batas per organisasi/sesi dilewati HANYA di bawah Vitest (process.env.VITEST, tidak pernah ada di produksi):
+ * banyak berkas test berbagi organisasi demo yang sama, sehingga batas 120 foto/jam habis di tengah suite.
+ * Test batas laju menyalakannya kembali dengan UJI_BATAS_LAJU=aktif.
+ */
+const PER_ORGANISASI: readonly JenisBatas[] = ["TIKET", "FOTO", "SINKRON"];
+const dilewatiDiUji = (jenis: JenisBatas) => process.env.VITEST === "true" && process.env.UJI_BATAS_LAJU !== "aktif" && PER_ORGANISASI.includes(jenis);
 
 export type JenisBatas = keyof typeof BATAS_LAJU;
 
@@ -30,6 +41,7 @@ export async function hitungBatasLaju(jenis: JenisBatas, kunci: string, sekarang
 
 /** Seperti hitungBatasLaju, tetapi melempar BATAS_LAJU (429) dengan teks G_BATAS_LAJU. */
 export async function wajibDalamBatas(jenis: JenisBatas, kunci: string, sekarang?: Date): Promise<void> {
+  if (dilewatiDiUji(jenis)) return;
   const sisa = await hitungBatasLaju(jenis, kunci, sekarang);
   if (sisa !== null) throw new GalatApi("BATAS_LAJU", { pesan: isi("G_BATAS_LAJU", { menit: sisa }) });
 }
