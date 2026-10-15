@@ -13,6 +13,7 @@ import type {
 } from "@serah/kontrak";
 import { TEKS, isi } from "@serah/kontrak/teks";
 import type { HasilApi, OpsiMentah } from "./api";
+import { formatGramKeKg } from "./angka";
 import {
   ALIRAN_SEMUA,
   ANGGOTA,
@@ -127,6 +128,15 @@ function sesiPenuh(peran: Peran) {
 }
 const PERAN_URUTAN: Record<Peran, number> = { PETUGAS: 1, PENGELOLA: 2, PENGANGKUT: 3, PENERIMA: 4, ADMIN: 5 };
 
+/** Skenario uji (e2e): kunci sessionStorage → nilai. Tanpa penyimpanan → null. */
+function skenario(kunci: string): string | null {
+  try {
+    return typeof sessionStorage === "undefined" ? null : sessionStorage.getItem(`serah.mock.${kunci}`);
+  } catch {
+    return null;
+  }
+}
+
 // ── Keadaan mock (dalam memori; hilang saat muat ulang) ─────────────────────
 
 type SerahState = {
@@ -183,7 +193,7 @@ function inisialisasi(sekarang: number): void {
     w(6, 1, "KUNING", 15_000, null, 8, null),
   );
   const daftar: Array<[StatusSerah, number, Aliran[], number]> = [
-    ["DRAF", 0, ["KUNING", "HIJAU"], 2],
+    ["DRAF", 0, ["KUNING"], 2],
     ["MENUNGGU_SETUJU", 0, ["KUNING"], 5],
     ["DIANGKUT", 1, ["KUNING"], 8],
     ["DITERIMA", 0, ["ABU"], 30],
@@ -296,7 +306,10 @@ function detail(s: SerahState, sekarang: number) {
     kendaraan: kendaraan ? { id: kendaraan.id, plat: kendaraan.plat } : null,
     wadah,
     timeline: timeline(s, sekarang),
-    foto: [],
+    foto:
+      s.status === "DRAF"
+        ? []
+        : [{ id: idm("fto", 900), jenis: "MUATAN" as const, url: "/ikon/ikon.svg", kedaluwarsaPada: iso(sekarang, -1) }],
     tiket: s.tiket
       ? {
           id: idm("tkt", Number.parseInt(s.kode.slice(-4), 10)),
@@ -580,7 +593,7 @@ const HANDLER: Record<string, Handler> = {
       penerimaId: null,
       kendaraanId: null,
     });
-    return { kode, qrToken: `mocktokenserah${kode.toLowerCase().replace(/-/g, "")}` };
+    return { kode, qrToken: kode };
   },
   "GET /api/serah/[kode]": (c) => detail(cariSerah(c.params.kode), c.sekarang),
   "GET /api/serah": (c) => ({
@@ -619,6 +632,26 @@ const HANDLER: Record<string, Handler> = {
         teks: isi("ATURAN_R01", { aliran: s.aliran.filter((a) => a !== "ABU").join(", ") }),
       });
     }
+    if (penerima) {
+      const kurang = s.aliran.filter((a) => !penerima.aliranDiterima.includes(a));
+      if (kurang.length > 0) {
+        throw new GalatMock("ATURAN_DITOLAK", "R03", {
+          kode: "R03",
+          aksi: "TOLAK",
+          teks: isi("ATURAN_R03", { aliran: kurang.join(", ") }),
+        });
+      }
+      const tanpaKontrak = s.aliran.filter(
+        (a) => !state.kontrak.some((k) => k.status === "AKTIF" && k.penerima.id === penerima.id && k.aliran.includes(a)),
+      );
+      if (tanpaKontrak.length > 0) {
+        throw new GalatMock("ATURAN_DITOLAK", "R02", {
+          kode: "R02",
+          aksi: "TOLAK",
+          teks: isi("ATURAN_R02", { aliran: tanpaKontrak.join(", ") }),
+        });
+      }
+    }
     s.status = "MENUNGGU_SETUJU";
     s.versi += 1;
     s.penerimaId = String(c.body.penerimaId);
@@ -642,25 +675,78 @@ const HANDLER: Record<string, Handler> = {
   "POST /api/serah/[kode]/tutup": (c) => {
     const s = cariSerah(c.params.kode);
     if (s.status !== "DIANGKUT" && s.status !== "MENGGANTUNG") throw new GalatMock("TRANSISI_TIDAK_SAH");
+    const beratTpsG = s.wadahIds.length * 30_000;
     s.status = terapkanTutup(s, c.body as unknown as MasukanTutup);
     s.versi += 1;
-    return { kode: s.kode, status: s.status, versi: s.versi, peringatan: [] };
+    // R-08 (tiruan sederhana): selisih tiket vs catatan TPS > 20% → peringatan, TIDAK menolak.
+    const tiketG = s.tiket?.beratG ?? 0;
+    const selisihPersen = Math.trunc((Math.abs(tiketG - beratTpsG) * 100) / beratTpsG);
+    const peringatan =
+      selisihPersen > 20
+        ? [
+            {
+              kode: "R08" as const,
+              aksi: "PERINGATAN" as const,
+              teks: isi("ATURAN_R08", {
+                berat_tiket: formatGramKeKg(tiketG),
+                persen: selisihPersen,
+                berat_tps: formatGramKeKg(beratTpsG),
+              }),
+            },
+          ]
+        : [];
+    return { kode: s.kode, status: s.status, versi: s.versi, peringatan };
   },
   "POST /api/serah/[kode]/koreksi": (c) => {
     const s = cariSerah(c.params.kode);
-    const final = Number(c.body.nilaiFinalG ?? 0);
-    return { koreksiId: idm("krk", state.urutLain++), nilaiAsliG: s.tiket?.beratG ?? final, nilaiFinalG: final };
+    const perubahan = (c.body.perubahan as Array<{ target: string; targetId: string; nilaiFinalG: number }> | undefined) ?? [];
+    if (perubahan.length === 0) throw new GalatMock("VALIDASI_GAGAL");
+    const koreksi = perubahan.map((p) => {
+      const r = s.rincian.find((x) => x.id === p.targetId);
+      const asli = p.target === "TIKET" ? (s.tiket?.beratG ?? 0) : p.target === "RINCIAN_DITERIMA" ? (r?.diterimaG ?? 0) : (r?.ditolakG ?? 0);
+      if (p.target === "TIKET" && s.tiket) s.tiket.beratG = p.nilaiFinalG;
+      if (r && p.target === "RINCIAN_DITERIMA") r.diterimaFinalG = p.nilaiFinalG;
+      if (r && p.target === "RINCIAN_DITOLAK") r.ditolakFinalG = p.nilaiFinalG;
+      return {
+        koreksiId: idm("krk", state.urutLain++),
+        target: p.target as "TIKET" | "RINCIAN_DITERIMA" | "RINCIAN_DITOLAK",
+        targetId: p.targetId,
+        nilaiAsliG: asli,
+        nilaiFinalG: p.nilaiFinalG,
+      };
+    });
+    const [pertama] = koreksi;
+    if (!pertama) throw new GalatMock("VALIDASI_GAGAL");
+    return {
+      koreksiId: pertama.koreksiId,
+      nilaiAsliG: pertama.nilaiAsliG,
+      nilaiFinalG: pertama.nilaiFinalG,
+      kode: s.kode,
+      status: s.status,
+      versi: s.versi,
+      koreksi,
+    };
   },
 
   // Foto, tiket, sinkron
-  "POST /api/foto": () => ({ fotoId: idm("fto", state.urutLain++), dhash: "0f0f0f0f0f0f0f0f" }),
-  "POST /api/tiket/baca": () => ({
-    nomorTiket: "TKT-CONTOH-001",
-    beratKgTeks: "42,5",
-    tanggal: null,
-    keyakinan: "TINGGI",
-    model: "claude-haiku-5-5",
-  }),
+  "POST /api/foto": (c) => {
+    if (c.body.jenis === "MUATAN" && skenario("r04") === "1") {
+      throw new GalatMock("ATURAN_DITOLAK", "R04", {
+        kode: "R04",
+        aksi: "TOLAK",
+        teks: isi("ATURAN_R04", { kode_serah: kodeSerah(c.sekarang, 4) }),
+      });
+    }
+    return { fotoId: idm("fto", state.urutLain++), dhash: "0f0f0f0f0f0f0f0f" };
+  },
+  "POST /api/tiket/baca": () => {
+    const mode = skenario("ai") ?? "TINGGI";
+    if (mode === "MATI") throw new GalatMock("AI_TIDAK_TERSEDIA");
+    if (mode === "RAGU") {
+      return { nomorTiket: null, beratKgTeks: "4?,5", tanggal: null, keyakinan: "RENDAH" as const, model: "claude-haiku-5-5" };
+    }
+    return { nomorTiket: "TKT-CONTOH-001", beratKgTeks: "30", tanggal: null, keyakinan: "TINGGI" as const, model: "claude-haiku-5-5" };
+  },
   "POST /api/sinkron": (c) => ({
     hasil: ((c.body.aksi as Array<{ idempotencyKey: string }> | undefined) ?? []).map((a) => ({
       idempotencyKey: a.idempotencyKey,

@@ -50,7 +50,7 @@ const BODY: Record<string, Record<string, unknown>> = {
     tiket: { beratG: 30_000, sumber: "MANUAL", nomor: "TKT-1" },
     rincian: [{ aliran: "KUNING", diterimaG: 30_000, ditolakG: 0 }],
   },
-  "POST /api/serah/[kode]/koreksi": { target: "TIKET", targetId: idm("tkt", 3), nilaiFinalG: 29_000, alasan: "contoh" },
+  "POST /api/serah/[kode]/koreksi": { alasan: "contoh", perubahan: [{ target: "TIKET", targetId: idm("tkt", 3), nilaiFinalG: 29_000 }] },
   "POST /api/sinkron": { aksi: [{ idempotencyKey: "00000000-0000-4000-8000-000000000001", jenis: "WADAH_CATAT" }] },
   "POST /api/tagihan-angkut/terbitkan": { kontrakId: idm("ktr", 1), periode: "2026-10" },
   "POST /api/admin/aturan": { kode: "R05", yurisdiksi: "DKI", sumber: "contoh", aksi: "PERINGATAN", ambang: { jam: 72 }, kunciTeks: "ATURAN_R05", berlakuDari: "2026-10-15T00:00:00Z" },
@@ -145,11 +145,8 @@ describe("mock — perilaku", () => {
       {
         params: { kode },
         body: {
-          tiket: { beratG: 60_000, sumber: "MANUAL" },
-          rincian: [
-            { aliran: "KUNING", diterimaG: 30_000, ditolakG: 0 },
-            { aliran: "HIJAU", diterimaG: 20_000, ditolakG: 10_000, alasan: "BASAH_KOTOR" },
-          ],
+          tiket: { beratG: 30_000, sumber: "MANUAL" },
+          rincian: [{ aliran: "KUNING", diterimaG: 20_000, ditolakG: 10_000, alasan: "BASAH_KOTOR" }],
         },
       },
       SEKARANG,

@@ -34,7 +34,6 @@ export function KameraFoto({
     if (video.current) {
       video.current.srcObject = h.stream;
       await video.current.play().catch(() => undefined);
-      setSiap(true);
     }
   }, []);
 
@@ -45,7 +44,12 @@ export function KameraFoto({
 
   async function ambil() {
     if (!video.current) return;
-    const blob = await ambilFoto(video.current);
+    let blob = await ambilFoto(video.current);
+    // Bingkai pertama kadang belum berisi piksel; coba sekali lagi.
+    if (!blob) {
+      await new Promise((r) => setTimeout(r, 250));
+      blob = await ambilFoto(video.current);
+    }
     if (blob) onFoto(blob);
   }
 
@@ -54,7 +58,7 @@ export function KameraFoto({
   return (
     <div className="flex flex-col gap-3">
       <p className="text-base">{petunjuk}</p>
-      <video ref={video} playsInline muted aria-label={TEKS.A2_FOTO} className="aspect-[4/3] w-full rounded-kartu bg-black object-cover" />
+      <video ref={video} playsInline muted onPlaying={() => setSiap(true)} aria-label={TEKS.A2_FOTO} className="aspect-[4/3] w-full rounded-kartu bg-black object-cover" />
       <Tombol onClick={() => void ambil()} disabled={!siap}>
         {labelAmbil}
       </Tombol>
