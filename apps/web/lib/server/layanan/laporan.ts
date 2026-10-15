@@ -8,13 +8,16 @@ import {
   type FilterPihak,
   type SerahTertutup,
 } from "@serah/core/laporan";
+import { susunModelLaporanPdf, susunModelLembarNeraca } from "@serah/core/pdf";
 import { hitungNeraca, jumlahkanPerAliran, type RincianNeraca, type WadahNeraca } from "@serah/core/neraca";
 import { akhirPeriodeWib, awalHariWib, awalPeriodeWib, tanggalWib } from "@serah/core/waktu";
 import { ALIRAN, TEKS, type JenisEvent, type PihakEkspor, type PihakLaporan } from "@serah/kontrak";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import type { Sesi } from "../sesi";
+import { boleh } from "../hak";
 import { prioritasTps, type PrakiraanTersimpan } from "./cuaca";
+import { renderLaporanPdf, renderLembarNeracaPdf } from "./pdf";
 import { nilaiFinal } from "./serah";
 import { peringatanTps, rujukan } from "./wadah";
 
@@ -281,4 +284,36 @@ export async function indikatorKawasan(tx: Tx, sesi: Sesi, kawasanId: string, pe
   });
 
   return hitungIndikator({ ...neraca, statusSerahDibuat: dibuat.map((s) => s.status), wadahDiangkut, prioritas, serahDisetujui });
+}
+
+// ── PDF (S23) ───────────────────────────────────────────────────────────────
+// Model disusun core/pdf dari baris yang sama dengan laporan & CSV; renderer (layanan/pdf.ts) hanya menggambar.
+// Hak paket: ekspor.pdf / lembar_neraca lewat boleh(). Pencatatan, tiga laporan di layar, dan CSV tidak pernah dikunci.
+
+async function wajibHak(tx: Tx, sesi: Sesi, kunci: "ekspor.pdf" | "lembar_neraca"): Promise<void> {
+  if (!sesi.organisasiAktifId || !(await boleh(tx, sesi.organisasiAktifId, kunci))) throw new GalatApi("HAK_PAKET_TIDAK_ADA");
+}
+
+export async function eksporPdf(tx: Tx, sesi: Sesi, pihak: PihakLaporan, periode: string, kawasanId: string | undefined, sekarang: Date) {
+  await wajibHak(tx, sesi, "ekspor.pdf");
+  const lap = await laporanKeluaran(tx, sesi, pihak, periode, kawasanId);
+  const model = susunModelLaporanPdf(pihak, periode, lap.baris, lap.total);
+  const isiPdf = await renderLaporanPdf(model);
+  await tx.ekspor.createMany({
+    data: [{ organisasiId: sesi.organisasiAktifId!, pihak: PIHAK_EKSPOR[pihak], periode, format: "PDF", sidikIsi: model.sidikIsi, jumlahBaris: model.jumlahBaris, dibuatPada: sekarang }],
+  });
+  return { isi: isiPdf, sidikIsi: model.sidikIsi, namaBerkas: `laporan-${pihak}-${periode}.pdf` };
+}
+
+export async function lembarNeraca(tx: Tx, sesi: Sesi, kawasanId: string, periode: string, sekarang: Date) {
+  await wajibHak(tx, sesi, "lembar_neraca");
+  const k = await kawasanSesi(tx, sesi, kawasanId, true);
+  const lap = await laporanKeluaran(tx, sesi, "kawasan", periode, kawasanId);
+  const nama = await tx.kawasan.findUnique({ where: { id: k.id }, select: { nama: true } });
+  const model = susunModelLembarNeraca(periode, nama?.nama ?? "", lap.baris);
+  const isiPdf = await renderLembarNeracaPdf(model);
+  await tx.ekspor.createMany({
+    data: [{ organisasiId: sesi.organisasiAktifId!, pihak: "LEMBAR_NERACA", periode, format: "PDF", sidikIsi: model.sidikIsi, jumlahBaris: model.jumlahSerah, dibuatPada: sekarang }],
+  });
+  return { isi: isiPdf, sidikIsi: model.sidikIsi, namaBerkas: `lembar-neraca-${periode}.pdf` };
 }
