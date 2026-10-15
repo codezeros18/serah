@@ -3,18 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
-import { Poppins } from "next/font/google";
 import type { Peran } from "@serah/kontrak/enum";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat } from "@serah/ui";
 import { MOCK_AKTIF, panggil } from "@/lib/klien/api";
 import { aturPeranMock } from "@/lib/klien/mock";
 import { rutePeran } from "@/lib/klien/rute-peran";
-import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { KELAS_INPUT, KerangkaAuth } from "@/lib/klien/komponen/kerangka-auth";
+import { TumpukanToast, useToast } from "@/lib/klien/komponen/toast";
 import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
-import { VisualMvp } from "@/lib/klien/komponen/visual-mvp";
-
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 const AKUN_DEMO: { peran: Peran; label: string; hint: string; ikon: NamaIkon }[] = [
   { peran: "PETUGAS", label: TEKS.PERAN_PETUGAS, hint: TEKS.T1_JUDUL, ikon: "tps" },
@@ -23,30 +19,33 @@ const AKUN_DEMO: { peran: Peran; label: string; hint: string; ikon: NamaIkon }[]
   { peran: "PENERIMA", label: TEKS.PERAN_PENERIMA, hint: TEKS.P1_JUDUL, ikon: "timbang" },
 ];
 
-const KELAS_INPUT =
-  "h-12 w-full rounded-xl border border-garis-halus bg-kertas px-4 text-sm text-tinta shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 placeholder:text-garis hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15";
-
 export default function HalamanMasuk() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [sandi, setSandi] = useState("");
   const [lihatSandi, setLihatSandi] = useState(false);
   const [memuat, setMemuat] = useState(false);
-  const [galat, setGalat] = useState<string | null>(null);
+  const { daftar: toast, kirim: kirimToast, tutup: tutupToast } = useToast();
 
   async function kirimMasuk(e: FormEvent) {
     e.preventDefault();
-    setGalat(null);
     setMemuat(true);
 
-    const res = await panggil("POST", "/api/auth/masuk", { body: { email, sandi } });
+    let res;
+    try {
+      res = await panggil("POST", "/api/auth/masuk", { body: { email, sandi } });
+    } catch {
+      setMemuat(false);
+      kirimToast("galat", TEKS.G_SERVER);
+      return;
+    }
     setMemuat(false);
 
     if (!res.ok) {
       if (res.galat.kode === "TIDAK_DITEMUKAN" || res.galat.kode === "VALIDASI_GAGAL") {
-        setGalat(TEKS.MASUK_SALAH);
+        kirimToast("galat", TEKS.MASUK_SALAH);
       } else {
-        setGalat(res.pesan);
+        kirimToast("galat", res.pesan);
       }
       return;
     }
@@ -57,13 +56,19 @@ export default function HalamanMasuk() {
   }
 
   async function masukDemo(peran: Peran) {
-    setGalat(null);
     setMemuat(true);
-    const res = await panggil("POST", "/api/auth/demo", { body: { peran } });
+    let res;
+    try {
+      res = await panggil("POST", "/api/auth/demo", { body: { peran } });
+    } catch {
+      setMemuat(false);
+      kirimToast("galat", TEKS.G_SERVER);
+      return;
+    }
     setMemuat(false);
 
     if (!res.ok) {
-      setGalat(res.pesan);
+      kirimToast("galat", res.pesan);
       return;
     }
 
@@ -72,23 +77,8 @@ export default function HalamanMasuk() {
   }
 
   return (
-    <div className={`${poppins.className} min-h-dvh bg-kertas p-3 text-tinta sm:p-4`}>
-      <div className="grid min-h-[calc(100dvh-1.5rem)] gap-4 sm:min-h-[calc(100dvh-2rem)] lg:grid-cols-2">
-        {/* Kiri: formulir */}
-        <main className="flex flex-col px-4 py-6 sm:px-10 lg:px-14">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="group inline-block" aria-label={TEKS.APP_NAMA}>
-              <LogoSerah ukuran="md" />
-            </Link>
-            <Link
-              href="/"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-tinta-redup transition-colors duration-200 hover:bg-aksi-latar hover:text-aksi"
-            >
-              ← {TEKS.MASUK_KE_BERANDA}
-            </Link>
-          </div>
-
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-7 py-10">
+    <KerangkaAuth visualJudul={TEKS.LANDING_MVP_JUDUL} visualSub={TEKS.LANDING_MVP_SUB}>
+      <TumpukanToast daftar={toast} tutup={tutupToast} />
             <div className="hero-masuk flex flex-col gap-2">
               <p className="text-sm font-medium text-aksi">{TEKS.MASUK_SAPA}</p>
               <h1 className="text-3xl font-semibold leading-tight tracking-[-0.025em] text-tinta sm:text-4xl">
@@ -96,8 +86,6 @@ export default function HalamanMasuk() {
               </h1>
               <p className="text-sm leading-relaxed text-tinta-redup">{TEKS.MASUK_SUB}</p>
             </div>
-
-            {galat ? <BannerGalat pesan={galat} /> : null}
 
             <form onSubmit={kirimMasuk} className="hero-masuk flex flex-col gap-5">
               <div className="flex flex-col gap-2">
@@ -210,42 +198,6 @@ export default function HalamanMasuk() {
                 ))}
               </div>
             </section>
-          </div>
-
-          <p className="text-center text-xs text-tinta-redup">{TEKS.KAKI_HAK_CIPTA}</p>
-        </main>
-
-        {/* Kanan: peragaan MVP */}
-        <aside
-          aria-hidden="true"
-          className="relative hidden overflow-hidden rounded-3xl p-10 lg:flex lg:flex-col lg:justify-center xl:p-14"
-          style={{ background: "linear-gradient(155deg, #3469de 0%, #2457c5 45%, #173a8a 100%)" }}
-        >
-          {/* Dekor: cincin dan cahaya */}
-          <svg
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            viewBox="0 0 700 900"
-            preserveAspectRatio="xMidYMid slice"
-            fill="none"
-          >
-            {[180, 300, 430, 560].map((r) => (
-              <circle key={r} cx="350" cy="470" r={r} stroke="white" strokeOpacity="0.10" />
-            ))}
-          </svg>
-          <div className="ikon-melayang pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-          <div className="ikon-melayang pointer-events-none absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-sky-300/20 blur-3xl" />
-
-          <div className="relative flex flex-col gap-8">
-            <div className="flex flex-col gap-3">
-              <h2 className="text-3xl font-semibold leading-tight tracking-[-0.025em] text-white xl:text-4xl [text-wrap:balance]">
-                {TEKS.LANDING_MVP_JUDUL}
-              </h2>
-              <p className="max-w-lg text-sm leading-relaxed text-white/75">{TEKS.LANDING_MVP_SUB}</p>
-            </div>
-            <VisualMvp />
-          </div>
-        </aside>
-      </div>
-    </div>
+    </KerangkaAuth>
   );
 }

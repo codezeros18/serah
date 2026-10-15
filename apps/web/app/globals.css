@@ -76,3 +76,34 @@ html {
     }
   }
 }
+
+/* Toast pojok kanan atas */
+@keyframes toast-masuk {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes toast-progres {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.toast-masuk {
+  animation: toast-masuk 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.toast-progres {
+  animation: toast-progres linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast-masuk {
+    animation: none;
+  }
+}

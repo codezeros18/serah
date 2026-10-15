@@ -3,140 +3,162 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { TEKS } from "@serah/kontrak/teks";
-import { BannerGalat, Kartu, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
-import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { KELAS_INPUT, KerangkaAuth } from "@/lib/klien/komponen/kerangka-auth";
+import { TumpukanToast, useToast } from "@/lib/klien/komponen/toast";
 
 const VERSI_PDP = "PRIV-2026-10-1";
 
 export default function HalamanDaftar() {
   const [email, setEmail] = useState("");
   const [sandi, setSandi] = useState("");
+  const [lihatSandi, setLihatSandi] = useState(false);
   const [setuju, setSetuju] = useState(false);
   const [memuat, setMemuat] = useState(false);
-  const [galat, setGalat] = useState<string | null>(null);
   const [terkirim, setTerkirim] = useState(false);
+  const { daftar: toast, kirim: kirimToast, tutup: tutupToast } = useToast();
 
   async function kirimDaftar(e: FormEvent) {
     e.preventDefault();
     if (!setuju) return;
-    setGalat(null);
     setMemuat(true);
 
-    const res = await panggil("POST", "/api/auth/daftar", {
-      body: {
-        email,
-        sandi,
-        persetujuanVersi: VERSI_PDP,
-      },
-    });
+    let res;
+    try {
+      res = await panggil("POST", "/api/auth/daftar", {
+        body: { email, sandi, persetujuanVersi: VERSI_PDP },
+      });
+    } catch {
+      setMemuat(false);
+      kirimToast("galat", TEKS.G_SERVER);
+      return;
+    }
     setMemuat(false);
 
     if (!res.ok) {
-      setGalat(res.pesan);
+      kirimToast("galat", res.pesan);
       return;
     }
 
+    kirimToast("sukses", TEKS.DAFTAR_CEK_EMAIL);
     setTerkirim(true);
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-12 text-tinta">
-      {/* Brand Header */}
-      <div className="mb-8 text-center flex flex-col items-center">
-        <Link href="/" className="inline-block group" aria-label={TEKS.APP_NAMA}>
-          <LogoSerah ukuran="md" denganTagline />
-        </Link>
+    <KerangkaAuth visualJudul={TEKS.DAFTAR_VISUAL_JUDUL} visualSub={TEKS.DAFTAR_VISUAL_SUB}>
+      <TumpukanToast daftar={toast} tutup={tutupToast} />
+
+      <div className="hero-masuk flex flex-col gap-2">
+        <p className="text-sm font-medium text-aksi">{TEKS.DAFTAR_SAPA}</p>
+        <h1 className="text-3xl font-semibold leading-tight tracking-[-0.025em] text-tinta sm:text-4xl">
+          {TEKS.DAFTAR_JUDUL}
+        </h1>
+        <p className="text-sm leading-relaxed text-tinta-redup">{TEKS.DAFTAR_SUB}</p>
       </div>
 
-      <Kartu className="flex flex-col gap-6 p-6 sm:p-8 border border-garis-halus bg-kertas shadow-md">
-        <div className="border-b border-garis-halus pb-3">
-          <h1 className="text-xl font-black text-tinta">{TEKS.DAFTAR_JUDUL}</h1>
+      {terkirim ? (
+        <div className="hero-masuk flex flex-col items-center gap-5 rounded-3xl border border-garis-halus bg-latar/60 p-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-aksi-latar text-2xl text-aksi">
+            ✉
+          </span>
+          <p className="text-base font-medium leading-relaxed text-tinta [text-wrap:balance]">
+            {TEKS.DAFTAR_CEK_EMAIL}
+          </p>
+          <Link
+            href="/masuk"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-aksi text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover"
+          >
+            {TEKS.MASUK_TOMBOL}
+          </Link>
         </div>
-
-        {galat ? <BannerGalat pesan={galat} /> : null}
-
-        {terkirim ? (
-          <div className="flex flex-col gap-5 py-4 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-aksi-latar text-aksi text-2xl font-bold border border-aksi/25">
-              ✉
-            </div>
-            <p className="text-base font-medium text-tinta leading-relaxed [text-wrap:balance]">
-              {TEKS.DAFTAR_CEK_EMAIL}
-            </p>
-            <Link href="/masuk" className="mt-2">
-              <Tombol varian="utama" className="w-full bg-aksi hover:bg-aksi-hover text-white shadow-sm">
-                {TEKS.MASUK_TOMBOL}
-              </Tombol>
-            </Link>
+      ) : (
+        <form onSubmit={kirimDaftar} className="hero-masuk flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="daftar-email" className="text-sm font-medium text-tinta">
+              {TEKS.MASUK_EMAIL}
+            </label>
+            <input
+              id="daftar-email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="nama@kawasan.id"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={KELAS_INPUT}
+            />
           </div>
-        ) : (
-          <form onSubmit={kirimDaftar} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="daftar-email" className="text-sm font-semibold text-tinta">
-                {TEKS.MASUK_EMAIL}
-              </label>
-              <input
-                id="daftar-email"
-                type="email"
-                required
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
-              />
-            </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="daftar-sandi" className="text-sm font-semibold text-tinta">
-                {TEKS.MASUK_SANDI}
-              </label>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="daftar-sandi" className="text-sm font-medium text-tinta">
+              {TEKS.MASUK_SANDI}
+            </label>
+            <div className="relative">
               <input
                 id="daftar-sandi"
-                type="password"
+                type={lihatSandi ? "text" : "password"}
                 required
                 minLength={10}
                 autoComplete="new-password"
                 value={sandi}
                 onChange={(e) => setSandi(e.target.value)}
-                className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
+                className={`${KELAS_INPUT} pr-12`}
               />
-              <p className="text-xs text-tinta-redup">{TEKS.DAFTAR_SANDI_ATURAN}</p>
+              <button
+                type="button"
+                onClick={() => setLihatSandi((v) => !v)}
+                aria-label={lihatSandi ? TEKS.MASUK_SEMBUNYI_SANDI : TEKS.MASUK_LIHAT_SANDI}
+                className="absolute right-2 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-tinta-redup transition-colors hover:bg-latar hover:text-aksi"
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+                  <path
+                    d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinejoin="round"
+                  />
+                  <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+                  {lihatSandi ? null : (
+                    <path d="M4 4l16 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                  )}
+                </svg>
+              </button>
             </div>
+            <p className="text-xs text-tinta-redup">{TEKS.DAFTAR_SANDI_ATURAN}</p>
+          </div>
 
-            <div className="flex items-start gap-2.5 pt-2">
-              <input
-                id="daftar-setuju"
-                type="checkbox"
-                required
-                checked={setuju}
-                onChange={(e) => setSetuju(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-garis text-aksi accent-[#2457c5] focus:ring-aksi"
-              />
-              <label htmlFor="daftar-setuju" className="text-xs leading-relaxed text-tinta-redup">
-                {TEKS.DAFTAR_SETUJU}
-              </label>
-            </div>
+          <div className="flex items-start gap-3 rounded-2xl border border-garis-halus bg-latar/60 p-4 transition-colors duration-200 hover:border-aksi-garis">
+            <input
+              id="daftar-setuju"
+              type="checkbox"
+              required
+              checked={setuju}
+              onChange={(e) => setSetuju(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-garis accent-[#2457c5]"
+            />
+            <label htmlFor="daftar-setuju" className="cursor-pointer text-xs leading-relaxed text-tinta-redup">
+              {TEKS.DAFTAR_SETUJU}
+            </label>
+          </div>
 
-            <Tombol
-              type="submit"
-              disabled={memuat || !setuju}
-              className="w-full mt-2 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
-            >
-              {memuat ? TEKS.UMUM_MUAT : TEKS.DAFTAR_TOMBOL}
-            </Tombol>
-          </form>
-        )}
-
-        <div className="text-center text-sm border-t border-garis-halus pt-4">
-          <Link
-            href="/masuk"
-            className="font-semibold text-tinta-redup hover:text-aksi transition-colors"
+          <button
+            type="submit"
+            disabled={memuat || !setuju}
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-aksi text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover hover:shadow-[0_12px_28px_rgba(36,87,197,0.38)] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
-            {TEKS.MASUK_JUDUL}
-          </Link>
-        </div>
-      </Kartu>
-    </main>
+            {memuat ? TEKS.UMUM_MUAT : TEKS.DAFTAR_TOMBOL}
+          </button>
+        </form>
+      )}
+
+      <p className="text-center text-sm text-tinta-redup">
+        <Link
+          href="/masuk"
+          className="font-medium text-tinta transition-colors hover:text-aksi hover:underline"
+        >
+          {TEKS.MASUK_JUDUL}
+        </Link>
+      </p>
+    </KerangkaAuth>
   );
 }
