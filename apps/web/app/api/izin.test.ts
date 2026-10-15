@@ -1,9 +1,9 @@
 import { TEKS } from "@serah/kontrak";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
-import { denganAdmin, denganAkses } from "@/lib/server/db";
+import { denganAdmin, denganAkses, denganSistem } from "@/lib/server/db";
 import { GalatApi } from "@/lib/server/galat";
-import { putuskanIzin } from "@/lib/server/layanan/izin";
+import { evaluasiUlangKontrakMenunggu, putuskanIzin } from "@/lib/server/layanan/izin";
 import type { Sesi } from "@/lib/server/sesi";
 import { konteksAkses } from "@/lib/server/sesi";
 import { cookieDemo, orgBaru, type OrgUji } from "@/lib/server/uji/akun";
@@ -88,6 +88,16 @@ describe("S15-1 ajukan izin", () => {
     const r = await ajukanIzin(a, { nomorIzin: "IZIN-ANGKUT-3", fotoDokumenId: fotoB });
     expect(r.status).toBe(400);
     expect((await status(a.organisasiId)).status_izin).toBe("BELUM_DIAJUKAN");
+
+    // Foto MILIK SENDIRI tetapi bukan dokumen izin (RLS tidak menolongnya): jenis diperiksa di layanan.
+    const origin = new URL(process.env.BASE_URL!).origin;
+    const bukti = await foto(
+      new Request(`${origin}/api/foto`, { method: "POST", headers: { origin, cookie: a.cookie }, body: formFoto("BUKTI_TRANSFER", pngContoh(`bukti-${Math.random()}`), "image/png") }),
+    );
+    expect(bukti.status).toBe(200);
+    const buktiId = (await bukti.json()).data.fotoId as string;
+    expect((await ajukanIzin(a, { nomorIzin: "IZIN-ANGKUT-3", fotoDokumenId: buktiId })).status).toBe(400);
+    expect((await status(a.organisasiId)).status_izin).toBe("BELUM_DIAJUKAN");
   });
 });
 
@@ -141,6 +151,30 @@ describe("S15-2 putusan admin", () => {
     await putus(p.organisasiId, "TERVERIFIKASI");
     await expect(putus(p.organisasiId, "DITOLAK")).rejects.toMatchObject({ kode: "TRANSISI_TIDAK_SAH" });
     expect((await status(p.organisasiId)).status_izin).toBe("TERVERIFIKASI");
+  });
+});
+
+describe("evaluasiUlangKontrakMenunggu — R-11 dinilai ulang oleh evaluator core", () => {
+  it("penerima yang belum TERVERIFIKASI tidak mengaktifkan kontrak USULAN lengkap, walau dipanggil langsung", async () => {
+    const p = await orgBaru(rekam, { jenis: "PENERIMA", jenisPenerima: "BANK_SAMPAH_INDUK", aliranDiterima: ["KUNING"] });
+    await ajukanIzin(p, { nomorIzin: "IZIN-BSI-1" }); // MENUNGGU
+    const kawasan = await orgBaru(rekam, { jenis: "KAWASAN" });
+    const kws = await buatKawasan(permintaan("/api/kawasan", { cookie: kawasan.cookie, body: { nama: "Pasar R11 Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
+    const kawasanId = (await kws.json()).data.kawasan.id as string;
+    const angkut = await orgBaru(rekam, { jenis: "PENGANGKUT" });
+    const u = await usulKontrak(
+      permintaan("/api/kontrak", {
+        cookie: kawasan.cookie,
+        body: { kawasanId, pengangkutId: angkut.organisasiId, penerimaId: p.organisasiId, aliran: ["KUNING"], berlakuDari: "2026-10-01", berlakuSampai: "2027-09-30" },
+      }),
+    );
+    const kontrakId = (await u.json()).data.kontrak.id as string;
+    await kueriPemilik(`UPDATE kontrak SET dikonfirmasi_pengangkut_pada = now(), dikonfirmasi_penerima_pada = now() WHERE id = $1`, [kontrakId]);
+
+    // Konteks sistem: kontrak antar-organisasi terlihat (bukan vakum karena RLS); evaluator R-11 yang menahannya.
+    const n = await denganSistem((tx) => evaluasiUlangKontrakMenunggu(tx, p.organisasiId));
+    expect(n).toBe(0);
+    expect((await kueriPemilik<{ status: string }>(`SELECT status::text FROM kontrak WHERE id = $1`, [kontrakId]))[0]?.status).toBe("USULAN");
   });
 });
 
