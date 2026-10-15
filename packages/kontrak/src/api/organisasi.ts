@@ -44,7 +44,13 @@ export const OrganisasiIzinKeluaran = z.object({ statusIzin: z.literal("MENUNGGU
 export const UndanganMasukan = z.object({ email: Email, peran: Peran.exclude(["ADMIN"]) }).strict();
 export const UndanganKeluaran = z.object({ kadaluwarsaPada: WaktuIso });
 
-export const UndanganTerimaMasukan = z.object({ token: TokenSekali, sandi: Sandi.optional() }).strict();
+/**
+ * Dengan sesi: terima untuk akun yang sedang masuk (email akun harus = email undangan).
+ * Tanpa sesi (akun baru): wajib email (dicocokkan dengan sidik email undangan), sandi, dan versi persetujuan PDP.
+ */
+export const UndanganTerimaMasukan = z
+  .object({ token: TokenSekali, email: Email.optional(), sandi: Sandi.optional(), persetujuanVersi: z.string().min(1).max(40).optional() })
+  .strict();
 export const UndanganTerimaKeluaran = z.object({ organisasiId: Id, peran: Peran });
 
 /** Daftar anggota — tanpa email orang lain. */
