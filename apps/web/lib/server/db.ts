@@ -89,3 +89,11 @@ export function denganAuth<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
     return fn(tx);
   }, OPSI_TX);
 }
+
+/** Rute publik tanpa sesi (mis. /api/health): tanpa konteks apa pun — RLS hanya membuka tabel global baca-semua. */
+export function denganPublik<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
+  return prisma().$transaction(async (tx) => {
+    await aturKonteks(tx, { org_ids: "{}", pengguna_id: "", peran: "", admin: false, sistem: false, auth: false });
+    return fn(tx);
+  }, OPSI_TX);
+}

@@ -240,6 +240,8 @@ export const penyimpananLokal: Penyimpanan = {
   },
   baca: bacaObjekLokal,
   async hapus(kunci) {
+    // Kunci di luar format penyimpanan ini (mis. seed demo) tidak pernah punya objek lokal.
+    if (!kunciObjekSah(kunci)) return;
     await rm(jalurLokal(kunci), { force: true });
   },
   urlBertanda(kunci, sekarang) {
