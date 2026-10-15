@@ -70,6 +70,9 @@ function teksPdf(b: Berkas): string {
   return keluar.join("\n");
 }
 
+const hitungEkspor = async (pihak: string, format: string) =>
+  Number((await satu<{ n: string }>(`SELECT count(*) AS n FROM ekspor WHERE organisasi_id = $1 AND pihak = $2::"PihakEkspor" AND format = $3::"FormatEkspor" AND periode = $4`, [d.org.kawasan, pihak, format, periode])).n);
+
 describe("S23-1 PDF tiga laporan = CSV", () => {
   it("PDF sah; sidik di header = sidik CSV; semua kode serah & total CSV muncul di PDF; tercatat di tabel ekspor", async () => {
     const pdf = await ekspPdf(c.pengelola, "kawasan");
@@ -101,12 +104,15 @@ describe("S23-1 PDF tiga laporan = CSV", () => {
       expect(potongan.slice(Math.max(0, i - 5), i), `label total ${t[2]}`).toContain(TEKS.LAPORAN_TOTAL);
     }
 
-    const catat = await semua<{ pihak: string; format: string; jumlah_baris: number }>(
-      `SELECT pihak::text, format::text, jumlah_baris FROM ekspor WHERE sidik_isi = $1 AND format = 'PDF'`,
-      [pdf.header.get(HEADER_SIDIK_ISI)],
+    // Satu baris ekspor PDF ditambahkan per unduhan (dihitung sebelum & sesudah: data demo identik antar-run).
+    const sebelum = await hitungEkspor("KAWASAN", "PDF");
+    expect((await ekspPdf(c.pengelola, "kawasan")).status).toBe(200);
+    const sesudah = await semua<{ sidik_isi: string; jumlah_baris: number }>(
+      `SELECT sidik_isi, jumlah_baris FROM ekspor WHERE organisasi_id = $1 AND pihak = 'KAWASAN' AND format = 'PDF' AND periode = $2 ORDER BY dibuat_pada DESC, id DESC LIMIT 1`,
+      [d.org.kawasan, periode],
     );
-    expect(catat.length).toBeGreaterThanOrEqual(1);
-    expect(catat[0]).toEqual({ pihak: "KAWASAN", format: "PDF", jumlah_baris: sel.filter((s) => s[1] && s[0] !== TEKS.LAPORAN_TOTAL).length });
+    expect(await hitungEkspor("KAWASAN", "PDF")).toBe(sebelum + 1);
+    expect(sesudah[0]).toEqual({ sidik_isi: pdf.header.get(HEADER_SIDIK_ISI), jumlah_baris: sel.filter((s) => s[1] && s[0] !== TEKS.LAPORAN_TOTAL).length });
   });
 
   it("tiga pihak: sidik PDF = sidik CSV untuk masing-masing (pengangkut & penerima demo)", async () => {
@@ -139,11 +145,16 @@ describe("S23-2 Lembar Neraca berjejak asal", () => {
     for (const k of kode) expect(teks, k).toContain(k);
     for (const s of new Set(lap.baris.map((b) => b.status))) expect(teks).toContain(TEKS[`STATUS_${s}` as keyof typeof TEKS] as string);
 
-    const catat = await satu<{ pihak: string; format: string; jumlah_baris: number }>(
-      `SELECT pihak::text, format::text, jumlah_baris FROM ekspor WHERE sidik_isi = $1`,
-      [r.header.get(HEADER_SIDIK_ISI)],
+    const sebelum = await hitungEkspor("LEMBAR_NERACA", "PDF");
+    const ulang = await ambil(lembar, `/api/kawasan/${d.kawasan}/lembar-neraca?periode=${periode}`, c.pengelola, { id: d.kawasan });
+    expect(ulang.status).toBe(200);
+    expect(ulang.header.get(HEADER_SIDIK_ISI)).toBe(r.header.get(HEADER_SIDIK_ISI)); // deterministik untuk data yang sama
+    expect(await hitungEkspor("LEMBAR_NERACA", "PDF")).toBe(sebelum + 1);
+    const catat = await satu<{ sidik_isi: string; jumlah_baris: number }>(
+      `SELECT sidik_isi, jumlah_baris FROM ekspor WHERE organisasi_id = $1 AND pihak = 'LEMBAR_NERACA' AND periode = $2 ORDER BY dibuat_pada DESC, id DESC LIMIT 1`,
+      [d.org.kawasan, periode],
     );
-    expect(catat).toEqual({ pihak: "LEMBAR_NERACA", format: "PDF", jumlah_baris: kode.length });
+    expect(catat).toEqual({ sidik_isi: r.header.get(HEADER_SIDIK_ISI), jumlah_baris: kode.length });
   });
 
   it("hanya pengelola pemilik kawasan: peran lain 403, pengelola kawasan lain 404, periode wajib 400", async () => {
