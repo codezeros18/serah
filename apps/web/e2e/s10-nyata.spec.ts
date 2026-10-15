@@ -39,11 +39,34 @@ const PENERIMA_PER_ALIRAN: Record<string, RegExp> = {
   MERAH: /Fasilitas B3 Contoh/,
 };
 
+/**
+ * Kamera acak: R-04 nyata menolak foto yang mirip (dHash). Kamera palsu bawaan Chromium selalu memberi bingkai
+ * yang sama, jadi unggahan kedua ditolak. Di sini setiap bingkai berupa kisi 9×8 abu-abu acak (dHash berbeda).
+ */
+async function kameraAcak(page: Page) {
+  await page.addInitScript(() => {
+    navigator.mediaDevices.getUserMedia = async () => {
+      const c = document.createElement("canvas");
+      c.width = 360;
+      c.height = 320;
+      const g = c.getContext("2d")!;
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 9; x++) {
+          const v = Math.floor(Math.random() * 256);
+          g.fillStyle = `rgb(${v},${v},${v})`;
+          g.fillRect(x * 40, y * 40, 40, 40);
+        }
+      }
+      return c.captureStream(5);
+    };
+  });
+}
+
 let kodeAmbil = "";
 
-/** A2 butuh GET /api/kendaraan & /api/direktori/mitra (S13, jalur A). Sebelum itu MERGED, bagian A2 dilewati. */
+/** A2 butuh GET /api/kendaraan & /api/kontrak (S13, jalur A). Sebelum itu MERGED, bagian A2 dilewati. */
 async function rutePendukungAda(page: Page): Promise<boolean> {
-  const [k, m] = await Promise.all([page.request.get("/api/kendaraan"), page.request.get("/api/direktori/mitra?jenis=PENERIMA")]);
+  const [k, m] = await Promise.all([page.request.get("/api/kendaraan"), page.request.get("/api/kontrak")]);
   return k.status() !== 404 && m.status() !== 404;
 }
 
@@ -71,7 +94,7 @@ test("A2 nyata: foto → kendaraan & penerima → ambil (atau panel aturan bila 
   test.skip(kodeAmbil === "", "tidak ada serah DRAF");
   await page.goto("/masuk");
   await masuk(page, "PENGANGKUT");
-  test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/direktori/mitra belum ada");
+  test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/kontrak belum ada");
   const d = await api<Detail>(page, `/api/serah/${kodeAmbil}`);
   await page.goto(`/pengangkut/serah/${kodeAmbil}`);
   await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
@@ -94,13 +117,25 @@ test("A2 nyata: foto → kendaraan & penerima → ambil (atau panel aturan bila 
 });
 
 test("A2 nyata: R-01 terlihat saat memilih TPST untuk muatan KUNING", async ({ page }) => {
+  await kameraAcak(page);
   await page.goto("/masuk");
+  // Siapkan muatan KUNING baru lewat API sebagai pengelola (seed hanya punya satu serah DRAF residu).
+  await masuk(page, "PENGELOLA");
+  const asal = new URL(test.info().project.use.baseURL ?? "http://localhost:3000").origin;
+  const tps = await api<{ tps: Array<{ id: string }> }>(page, "/api/tps");
+  const wadah = await page.request.post("/api/wadah", {
+    headers: { origin: asal, "idempotency-key": crypto.randomUUID() },
+    data: { tpsId: tps.tps[0]!.id, aliran: "KUNING", beratG: 5_000, terjadiPada: new Date().toISOString() },
+  });
+  const wadahId = ((await wadah.json()) as { data: { id: string } }).data.id;
+  const buat = await page.request.post("/api/serah", {
+    headers: { origin: asal, "idempotency-key": crypto.randomUUID() },
+    data: { tpsId: tps.tps[0]!.id, wadahIds: [wadahId] },
+  });
+  const kuning = { kode: ((await buat.json()) as { data: { kode: string } }).data.kode };
   await masuk(page, "PENGANGKUT");
-  test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/direktori/mitra belum ada");
-  const daftar = await api<{ serah: Ringkas[] }>(page, "/api/ambil");
-  const kuning = daftar.serah.find((s) => s.aliran.length === 1 && s.aliran[0] === "KUNING");
-  test.skip(!kuning, "tidak ada serah DRAF KUNING tersisa");
-  await page.goto(`/pengangkut/serah/${kuning!.kode}`);
+  test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/kontrak belum ada");
+  await page.goto(`/pengangkut/serah/${kuning.kode}`);
   await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
   const ambil = page.getByRole("button", { name: TEKS.A2_FOTO });
   await expect(ambil).toBeEnabled();
@@ -110,7 +145,10 @@ test("A2 nyata: R-01 terlihat saat memilih TPST untuk muatan KUNING", async ({ p
   await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
   const panel = page.locator('[data-aturan="R01"]');
   await expect(panel).toContainText(TEKS.ATURAN_JUDUL_TOLAK);
-  await expect(panel).toContainText(isi("ATURAN_R01", { aliran: "KUNING" }));
+  // Teks dari server memuat label aliran lengkap; kutipan pasal harus terlihat.
+  await expect(panel).toContainText("Pasal 20 ayat (2) huruf d");
+  await expect(panel).toContainText(TEKS.ALIRAN_KUNING);
+  await expect(panel).toContainText(TEKS.ATURAN_BUKAN_NASIHAT);
 });
 
 test("K2 nyata: menyetujui serah yang menunggu", async ({ page }) => {
@@ -118,7 +156,15 @@ test("K2 nyata: menyetujui serah yang menunggu", async ({ page }) => {
   await masuk(page, "PENGELOLA");
   const daftar = await api<{ serah: Ringkas[] }>(page, "/api/serah?status=MENUNGGU_SETUJU");
   test.skip(daftar.serah.length === 0, "tidak ada serah MENUNGGU_SETUJU");
-  const kode = daftar.serah[0]!.kode;
+  // Utamakan serah bertujuan penerima demo (agar P1 punya serah untuk ditutup).
+  let kode = daftar.serah[0]!.kode;
+  for (const s of daftar.serah) {
+    const d = await api<Detail & { penerima: { nama: string } | null }>(page, `/api/serah/${s.kode}`);
+    if (d.penerima && /Daur Ulang Contoh Mandiri/.test(d.penerima.nama)) {
+      kode = s.kode;
+      break;
+    }
+  }
   await page.goto(`/kawasan/setujui/${kode}`);
   await page.getByRole("button", { name: TEKS.K2_SETUJUI }).click();
   await expect(page.getByText(isi("K2_DISETUJUI", { kode_serah: kode }))).toBeVisible();
@@ -131,20 +177,17 @@ test("P1 nyata: tutup serah (AI tidak tersedia → isi manual) lalu status tertu
   await masuk(page, "PENERIMA");
   const daftar = await api<{ serah: Ringkas[] }>(page, "/api/serah?status=DIANGKUT");
   test.skip(daftar.serah.length === 0, "tidak ada serah DIANGKUT");
-  let sasaran: Detail | null = null;
-  for (const s of daftar.serah) {
-    const d = await api<Detail>(page, `/api/serah/${s.kode}`);
-    if (d.wadah.length > 0 && d.wadah.every((w) => w.beratG !== null)) {
-      sasaran = d;
-      break;
-    }
-  }
-  test.skip(sasaran === null, "tidak ada serah DIANGKUT dengan berat lengkap");
-  const total = sasaran!.wadah.reduce((j, w) => j + (w.beratG ?? 0), 0);
-  // Format kg dengan koma (gram bulat): 42500 → "42,5".
-  const kg = `${Math.trunc(total / 1000)}${total % 1000 === 0 ? "" : `,${String(total % 1000).padStart(3, "0").replace(/0+$/, "")}`}`;
+  // Pilih serah DIANGKUT; berat TPS boleh belum lengkap (wadah dicatat per jumlah) → pakai 10 kg.
+  const sasaran = await api<Detail>(page, `/api/serah/${daftar.serah[0]!.kode}`);
+  const lengkap = sasaran.wadah.length > 0 && sasaran.wadah.every((w) => w.beratG !== null);
+  const total = lengkap ? sasaran.wadah.reduce((j, w) => j + (w.beratG ?? 0), 0) : 10_000;
+  const fmt = (g: number) => `${Math.trunc(g / 1000)}${g % 1000 === 0 ? "" : `,${String(g % 1000).padStart(3, "0").replace(/0+$/, "")}`}`;
+  const kg = fmt(total);
+  const perAliran = new Map<string, number>();
+  if (lengkap) for (const w of sasaran.wadah) perAliran.set(w.aliran, (perAliran.get(w.aliran) ?? 0) + (w.beratG ?? 0));
+  else perAliran.set(sasaran.aliran[0]!, total);
 
-  await page.goto(`/penerima/serah/${sasaran!.kode}`);
+  await page.goto(`/penerima/serah/${sasaran.kode}`);
   const foto = page.getByRole("button", { name: TEKS.P1_FOTO_TIKET }).last();
   await expect(foto).toBeEnabled();
   await foto.click();
@@ -153,16 +196,11 @@ test("P1 nyata: tutup serah (AI tidak tersedia → isi manual) lalu status tertu
   await page.getByLabel(TEKS.P1_BERAT_TIKET).fill(kg);
   await page.getByRole("button", { name: TEKS.P1_KONFIRMASI_AI }).click();
 
-  // Terima semua: isi "diterima" tiap aliran dengan berat TPS-nya.
-  const perAliran = new Map<string, number>();
-  for (const w of sasaran!.wadah) perAliran.set(w.aliran, (perAliran.get(w.aliran) ?? 0) + (w.beratG ?? 0));
-  for (const [aliran, g] of perAliran) {
-    const teksKg = `${Math.trunc(g / 1000)}${g % 1000 === 0 ? "" : `,${String(g % 1000).padStart(3, "0").replace(/0+$/, "")}`}`;
-    await page.locator(`#diterima-${aliran}`).fill(teksKg);
-  }
+  // Terima semua: isi "diterima" tiap aliran; aliran lain (bila ada) dibiarkan 0.
+  for (const [aliran, g] of perAliran) await page.locator(`#diterima-${aliran}`).fill(fmt(g));
   await page.getByRole("button", { name: TEKS.P1_TERIMA }).click();
-  await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: sasaran!.kode }))).toBeVisible();
+  await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: sasaran.kode }))).toBeVisible();
 
-  const sesudah = await api<Detail>(page, `/api/serah/${sasaran!.kode}`);
+  const sesudah = await api<Detail>(page, `/api/serah/${sasaran.kode}`);
   expect(sesudah.status).toBe("DITERIMA");
 });

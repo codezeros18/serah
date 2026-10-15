@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
-import type { KodeAturan } from "@serah/kontrak/enum";
+import { useCallback, useMemo, useState } from "react";
+import type { Aliran, KodeAturan } from "@serah/kontrak/enum";
 import { TEKS, isi, type KunciTeks } from "@serah/kontrak/teks";
 import { BannerGalat, Kartu, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
@@ -15,19 +15,11 @@ import { useMuat } from "@/lib/klien/muat";
 type Langkah = "pindai" | "foto" | "tujuan" | "terkirim";
 type Tolak = { kode: KodeAturan; teks: string };
 
-const KUNCI_JENIS_PENERIMA = {
-  FASILITAS_BERIZIN: "JENIS_PENERIMA_FASILITAS_BERIZIN",
-  TPS3R: "JENIS_PENERIMA_TPS3R",
-  BANK_SAMPAH_INDUK: "JENIS_PENERIMA_BANK_SAMPAH_INDUK",
-  PELAPAK_BERIZIN: "JENIS_PENERIMA_PELAPAK_BERIZIN",
-  TPA_TPST: "JENIS_PENERIMA_TPA_TPST",
-} as const satisfies Record<string, KunciTeks>;
-
-const KUNCI_IZIN = {
-  BELUM_DIAJUKAN: "IZIN_BELUM_DIAJUKAN",
-  MENUNGGU: "IZIN_MENUNGGU",
-  TERVERIFIKASI: "IZIN_TERVERIFIKASI",
-  DITOLAK: "IZIN_DITOLAK",
+const KUNCI_KONTRAK = {
+  USULAN: "KONTRAK_USULAN",
+  AKTIF: "KONTRAK_AKTIF",
+  BERAKHIR: "KONTRAK_BERAKHIR",
+  DIBATALKAN: "KONTRAK_DIBATALKAN",
 } as const satisfies Record<string, KunciTeks>;
 
 /** A2 — ambil serah: pindai QR → foto muatan → kendaraan & penerima → kirim. */
@@ -43,7 +35,20 @@ export default function LayarA2() {
 
   const serah = useMuat(() => panggil("GET", "/api/serah/[kode]", { params: { kode } }));
   const kendaraan = useMuat(() => panggil("GET", "/api/kendaraan"));
-  const mitra = useMuat(() => panggil("GET", "/api/direktori/mitra", { kueri: { jenis: "PENERIMA" } }));
+  // Pengangkut hanya melihat penerima yang berkontrak dengannya (direktori mitra khusus pengelola).
+  const kontrak = useMuat(() => panggil("GET", "/api/kontrak"));
+  const penerimaKontrak = useMemo(() => {
+    if (kontrak.keadaan.status !== "siap") return [];
+    const peta = new Map<string, { id: string; nama: string; aliran: Set<Aliran>; status: keyof typeof KUNCI_KONTRAK }>();
+    for (const k of kontrak.keadaan.data.kontrak) {
+      if (k.status === "BERAKHIR" || k.status === "DIBATALKAN") continue;
+      const ada = peta.get(k.penerima.id) ?? { id: k.penerima.id, nama: k.penerima.nama, aliran: new Set<Aliran>(), status: k.status };
+      k.aliran.forEach((a) => ada.aliran.add(a));
+      if (k.status === "AKTIF") ada.status = "AKTIF";
+      peta.set(k.penerima.id, ada);
+    }
+    return [...peta.values()];
+  }, [kontrak.keadaan]);
 
   const hasilPindai = useCallback(
     (teks: string) => {
@@ -167,37 +172,33 @@ export default function LayarA2() {
           <fieldset className="flex flex-col gap-2">
             <legend className="text-base font-semibold">{TEKS.A2_PENERIMA}</legend>
             <p className="text-sm text-tinta-redup">{TEKS.A2_PENERIMA_PETUNJUK}</p>
-            {mitra.keadaan.status === "siap"
-              ? mitra.keadaan.data.mitra.map((m) => (
-                  <label
-                    key={m.id}
-                    className="flex min-h-12 cursor-pointer items-start gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-3 has-[:checked]:border-aksi"
-                  >
-                    <input
-                      type="radio"
-                      name="penerima"
-                      value={m.id}
-                      checked={penerimaId === m.id}
-                      onChange={() => {
-                        setPenerimaId(m.id);
-                        setTolak(null);
-                      }}
-                      className="mt-1 h-5 w-5"
-                    />
-                    <span className="flex flex-col gap-1">
-                      <span className="text-base font-semibold">{m.nama}</span>
-                      <span className="text-sm text-tinta-redup">
-                        {m.jenisPenerima ? TEKS[KUNCI_JENIS_PENERIMA[m.jenisPenerima]] : null} · {TEKS[KUNCI_IZIN[m.statusIzin]]}
-                      </span>
-                      <span className="flex flex-wrap gap-1">
-                        {m.aliranDiterima.map((a) => (
-                          <LencanaAliran key={a} aliran={a} pendek />
-                        ))}
-                      </span>
-                    </span>
-                  </label>
-                ))
-              : null}
+            {penerimaKontrak.map((m) => (
+              <label
+                key={m.id}
+                className="flex min-h-12 cursor-pointer items-start gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-3 has-[:checked]:border-aksi"
+              >
+                <input
+                  type="radio"
+                  name="penerima"
+                  value={m.id}
+                  checked={penerimaId === m.id}
+                  onChange={() => {
+                    setPenerimaId(m.id);
+                    setTolak(null);
+                  }}
+                  className="mt-1 h-5 w-5"
+                />
+                <span className="flex flex-col gap-1">
+                  <span className="text-base font-semibold">{m.nama}</span>
+                  <span className="text-sm text-tinta-redup">{TEKS[KUNCI_KONTRAK[m.status]]}</span>
+                  <span className="flex flex-wrap gap-1">
+                    {[...m.aliran].map((a) => (
+                      <LencanaAliran key={a} aliran={a} pendek />
+                    ))}
+                  </span>
+                </span>
+              </label>
+            ))}
           </fieldset>
 
           <Tombol onClick={() => void kirim()} disabled={sibuk || kendaraanId === "" || penerimaId === ""}>
