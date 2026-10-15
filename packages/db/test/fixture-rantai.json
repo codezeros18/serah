@@ -1,0 +1,52 @@
+{
+  "keterangan": "hash = SHA-256(prev|jenis|serah_kode atau -|peran atau -|payload_kanonis|diterima_pada ISO UTC ms), hex kecil",
+  "event": [
+    {
+      "jenis": "WADAH_DICATAT",
+      "serahKode": null,
+      "peran": "PETUGAS",
+      "payload": {
+        "wadahId": "w1",
+        "aliran": "KUNING",
+        "beratG": 42500
+      },
+      "diterimaPada": "2026-10-15T01:02:03.004Z",
+      "payloadKanonis": "{\"aliran\":\"KUNING\",\"beratG\":42500,\"wadahId\":\"w1\"}",
+      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "e5e9eec1763cb0f6f6a0f5dbc5a805553e91a9f66b2e4d1b27c1505a988d3d17"
+    },
+    {
+      "jenis": "SERAH_DIBUAT",
+      "serahKode": "SRH-20261015-0001",
+      "peran": "PETUGAS",
+      "payload": {
+        "wadahIds": [
+          "w1",
+          "w2"
+        ],
+        "b": 1,
+        "aa": {
+          "z": null,
+          "é": "Kemayoran \"timur\"",
+          "a": true
+        }
+      },
+      "diterimaPada": "2026-10-15T02:00:00.000Z",
+      "payloadKanonis": "{\"aa\":{\"a\":true,\"z\":null,\"é\":\"Kemayoran \\\"timur\\\"\"},\"b\":1,\"wadahIds\":[\"w1\",\"w2\"]}",
+      "prevHash": "e5e9eec1763cb0f6f6a0f5dbc5a805553e91a9f66b2e4d1b27c1505a988d3d17",
+      "hash": "8a872bda23ca3a18a1365dac16a9ea77048173c6a5393fbdf72c6bb23e8c0b55"
+    },
+    {
+      "jenis": "SERAH_MENGGANTUNG",
+      "serahKode": "SRH-20261015-0001",
+      "peran": null,
+      "payload": {
+        "jam": 13
+      },
+      "diterimaPada": "2026-10-15T14:00:00.000Z",
+      "payloadKanonis": "{\"jam\":13}",
+      "prevHash": "8a872bda23ca3a18a1365dac16a9ea77048173c6a5393fbdf72c6bb23e8c0b55",
+      "hash": "0cd909146d493427f1daa2078f278d30d22726a6e06871a663c23cc9a07a690d"
+    }
+  ]
+}
