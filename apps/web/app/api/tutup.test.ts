@@ -59,6 +59,16 @@ describe("SETUJUI & KEMBALIKAN", () => {
     expect(n.map((x) => x.organisasi_id).sort()).toEqual([d.org.daurUlang, d.org.pengangkut].sort());
   });
 
+  it("dua persetujuan bersamaan (kunci berbeda) → satu 200, satu 409 KONFLIK_VERSI; hanya satu event SERAH_DISETUJUI", async () => {
+    // Tanpa constraint unik yang menolong: hanya cek versi optimistik (§I.2) yang mencegah transisi ganda.
+    const kode = await serahSampai("MENUNGGU_SETUJU");
+    const hasil = await Promise.all([1, 2].map(() => panggil(setujui, { jalur: "/", cookie: pengelola, params: { kode }, body: {} })));
+    expect(hasil.map((h) => h.status).sort()).toEqual([200, 409]);
+    expect(hasil.find((h) => h.status === 409)?.json.galat?.kode).toBe("KONFLIK_VERSI");
+    const n = await satu<{ n: string }>(`SELECT count(*) AS n FROM event e JOIN serah s ON s.id = e.serah_id WHERE s.kode = $1 AND e.jenis = 'SERAH_DISETUJUI'`, [kode]);
+    expect(Number(n.n)).toBe(1);
+  });
+
   it("kembalikan: alasan < 5 karakter ditolak dengan teks; alasan sah → DRAF, pihak dilepas, bisa diambil lagi", async () => {
     const kode = await serahSampai("MENUNGGU_SETUJU");
     const pendek = await panggil(kembalikan, { jalur: "/", cookie: pengelola, params: { kode }, body: { alasan: "abcd" } });
