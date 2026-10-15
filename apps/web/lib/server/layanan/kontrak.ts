@@ -4,7 +4,7 @@ import type { Aliran, Kontrak, StatusKontrak, Yurisdiksi } from "@serah/kontrak"
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import type { Sesi } from "../sesi";
-import { catatNotifikasi } from "./notifikasi";
+import { buatNotifikasi } from "../notifikasi";
 import { rujukan } from "./wadah";
 
 // Layanan kontrak kawasan–pengangkut–penerima (S13): usul → konfirmasi dua pihak → AKTIF (R-11) → akhiri.
@@ -126,11 +126,11 @@ export async function usulKontrak(tx: Tx, sesi: Sesi, m: MasukanKontrak, sekaran
     },
     select: PILIH,
   });
-  await catatNotifikasi(
+  await buatNotifikasi(
     tx,
     [
-      { organisasiId: m.pengangkutId, peranTujuan: ["PENGANGKUT"], jenis: "KONTRAK_PERLU_KONFIRMASI", objekKode: k.id, data: { nama_kawasan: kawasan.nama } },
-      { organisasiId: m.penerimaId, peranTujuan: ["PENERIMA"], jenis: "KONTRAK_PERLU_KONFIRMASI", objekKode: k.id, data: { nama_kawasan: kawasan.nama } },
+      { organisasiId: m.pengangkutId, jenis: "KONTRAK_PERLU_KONFIRMASI", objekKode: k.id, data: { nama_kawasan: kawasan.nama } },
+      { organisasiId: m.penerimaId, jenis: "KONTRAK_PERLU_KONFIRMASI", objekKode: k.id, data: { nama_kawasan: kawasan.nama } },
     ],
     sekarang,
   );

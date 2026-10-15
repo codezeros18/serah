@@ -2,14 +2,14 @@ import { evaluasiAmbil, evaluasiTutup, type HasilAturan, type KontrakAturan } fr
 import { kodeSerah } from "@serah/core/kode";
 import { jenisTutup, type Pelaku, type PerubahanBerat, type RincianTutup, type TiketTutup } from "@serah/core/status";
 import { awalPeriodeWib, akhirPeriodeWib, selisihJam, tanggalWib, tanggalWibKompak } from "@serah/core/waktu";
-import { ALIRAN, type AlasanTolak, type Aliran, type KeyakinanAi, type StatusSerah, type SumberTiket } from "@serah/kontrak";
+import { ALIRAN, TEKS, type AlasanTolak, type Aliran, type KeyakinanAi, type StatusSerah, type SumberTiket } from "@serah/kontrak";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import { nomorBerikut } from "../penomoran";
 import type { Sesi } from "../sesi";
 import { prioritasTps, type PrakiraanTersimpan } from "./cuaca";
 import { evaluasiR04, fotoSerah } from "./foto";
-import { catatNotifikasi } from "./notifikasi";
+import { buatNotifikasi } from "../notifikasi";
 import { layananTransisi, type SerahDb } from "./transisi";
 import { muatTps, rujukan, wajibPeranLayanan, yurisdiksiKawasan } from "./wadah";
 
@@ -153,7 +153,7 @@ export async function ambilSerah(tx: Tx, sesi: Sesi, kode: string, m: { fotoId: 
     idempotencyKey: kunci,
     kontrakId: berlaku?.id ?? null,
   });
-  await catatNotifikasi(tx, [{ organisasiId: h.orgKawasanId, peranTujuan: ["PENGELOLA"], jenis: "SERAH_MENUNGGU_SETUJU", objekKode: h.kode }], sekarang);
+  await buatNotifikasi(tx, [{ organisasiId: h.orgKawasanId, jenis: "SERAH_MENUNGGU_SETUJU", objekKode: h.kode, data: { kode: h.kode } }], sekarang);
   return statusKeluaran(h);
 }
 
@@ -163,11 +163,14 @@ export async function setujuiSerah(tx: Tx, sesi: Sesi, kode: string, kunci: stri
   wajibPeranLayanan(sesi, ["PENGELOLA"]);
   const serah = await muatSerah(tx, kode);
   const h = await layananTransisi(tx, { serah, aksi: { jenis: "SETUJUI" }, konteks: { pelaku: pelaku(sesi) }, sekarang, idempotencyKey: kunci });
-  await catatNotifikasi(
+  // Nama penerima = badan usaha (bukan orang); organisasi PENERIMA terbaca oleh sesi mana pun.
+  const penerima = h.orgPenerimaId ? await tx.organisasi.findUnique({ where: { id: h.orgPenerimaId }, select: { nama: true } }) : null;
+  const dataDiangkut = { kode: h.kode, penerima: penerima?.nama ?? "" };
+  await buatNotifikasi(
     tx,
     [
-      { organisasiId: h.orgPenerimaId, peranTujuan: ["PENERIMA"], jenis: "SERAH_DIANGKUT", objekKode: h.kode },
-      { organisasiId: h.orgPengangkutId, peranTujuan: ["PENGANGKUT"], jenis: "SERAH_DIANGKUT", objekKode: h.kode },
+      { organisasiId: h.orgPenerimaId, jenis: "SERAH_DIANGKUT", objekKode: h.kode, data: dataDiangkut },
+      { organisasiId: h.orgPengangkutId, jenis: "SERAH_DIANGKUT", objekKode: h.kode, data: dataDiangkut },
     ],
     sekarang,
   );
@@ -251,11 +254,12 @@ export async function tutupSerah(tx: Tx, sesi: Sesi, kode: string, m: MasukanTut
       });
     },
   });
-  await catatNotifikasi(
+  const dataTutup = { kode: h.kode, status: TEKS[`STATUS_${h.status}`] };
+  await buatNotifikasi(
     tx,
     [
-      { organisasiId: h.orgKawasanId, peranTujuan: ["PENGELOLA", "PETUGAS"], jenis: "SERAH_DITUTUP", objekKode: h.kode },
-      { organisasiId: h.orgPengangkutId, peranTujuan: ["PENGANGKUT"], jenis: "SERAH_DITUTUP", objekKode: h.kode },
+      { organisasiId: h.orgKawasanId, jenis: "SERAH_DITUTUP", objekKode: h.kode, data: dataTutup },
+      { organisasiId: h.orgPengangkutId, jenis: "SERAH_DITUTUP", objekKode: h.kode, data: dataTutup },
     ],
     sekarang,
   );

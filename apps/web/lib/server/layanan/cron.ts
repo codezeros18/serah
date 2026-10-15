@@ -1,12 +1,12 @@
 import { evaluasiMenggantung } from "@serah/core/aturan";
-import { awalHariWib, tanggalWib } from "@serah/core/waktu";
+import { awalHariWib, selisihJam, tanggalWib } from "@serah/core/waktu";
 import type { Prisma } from "@serah/db";
 import { denganSistem, type Tx } from "../db";
 import { muatEnv } from "../env";
 import { GalatApi } from "../galat";
 import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi-stub";
 import { nowcastBerlaku, prioritasTps, simpanNowcast, simpanPrakiraan, type PrakiraanTersimpan } from "./cuaca";
-import { catatNotifikasi } from "./notifikasi";
+import { buatNotifikasi } from "../notifikasi";
 import { muatSerah } from "./serah";
 import { layananTransisi } from "./transisi";
 import { peringatanTps, yurisdiksiKawasan, type TpsAkses } from "./wadah";
@@ -92,12 +92,13 @@ async function tandaiSatu(tx: Tx, s: { id: string; kode: string; kawasanId: stri
       // Deterministik per serah: satu serah hanya bisa ditandai menggantung sekali.
       idempotencyKey: `cron-r07-${s.id}`,
     });
-    await catatNotifikasi(
+    const dataGantung = { kode: h.kode, jam: Math.max(0, selisihJam(setuju.diterimaPada, sekarang)) };
+    await buatNotifikasi(
       tx,
       [
-        { organisasiId: h.orgKawasanId, peranTujuan: ["PENGELOLA"], jenis: "SERAH_MENGGANTUNG", objekKode: h.kode },
-        { organisasiId: h.orgPengangkutId, peranTujuan: ["PENGANGKUT"], jenis: "SERAH_MENGGANTUNG", objekKode: h.kode },
-        { organisasiId: h.orgPenerimaId, peranTujuan: ["PENERIMA"], jenis: "SERAH_MENGGANTUNG", objekKode: h.kode },
+        { organisasiId: h.orgKawasanId, jenis: "SERAH_MENGGANTUNG", objekKode: h.kode, data: dataGantung },
+        { organisasiId: h.orgPengangkutId, jenis: "SERAH_MENGGANTUNG", objekKode: h.kode, data: dataGantung },
+        { organisasiId: h.orgPenerimaId, jenis: "SERAH_MENGGANTUNG", objekKode: h.kode, data: dataGantung },
       ],
       sekarang,
     );
@@ -135,11 +136,11 @@ async function r10(tx: Tx, sekarang: Date): Promise<number> {
       },
     });
     const pengangkut = await tx.kontrak.findMany({ where: { kawasanId: tps.kawasanId, status: "AKTIF" }, select: { orgPengangkutId: true }, distinct: ["orgPengangkutId"] });
-    await catatNotifikasi(
+    await buatNotifikasi(
       tx,
       [
-        { organisasiId: tps.organisasiId, peranTujuan: ["PETUGAS", "PENGELOLA"], jenis: "PRIORITAS_ANGKUT", objekKode: tps.kode, data: { sumber: p.sumberCuaca, aliran: p.aliran } },
-        ...pengangkut.map((k) => ({ organisasiId: k.orgPengangkutId, peranTujuan: ["PENGANGKUT" as const], jenis: "PRIORITAS_ANGKUT" as const, objekKode: tps.kode, data: { sumber: p.sumberCuaca, aliran: p.aliran } })),
+        { organisasiId: tps.organisasiId, jenis: "PRIORITAS_ANGKUT", objekKode: tps.kode, data: { kode_tps: tps.kode } },
+        ...pengangkut.map((k) => ({ organisasiId: k.orgPengangkutId, jenis: "PRIORITAS_ANGKUT" as const, objekKode: tps.kode, data: { kode_tps: tps.kode } })),
       ],
       sekarang,
     );
@@ -153,7 +154,7 @@ async function peringatanWadah(tx: Tx, sekarang: Date, kode: readonly ("R05" | "
   for (const tps of await tpsAktif(tx)) {
     const hasil = (await peringatanTps(tx, tps, sekarang)).filter((h) => (kode as readonly string[]).includes(h.kode));
     if (hasil.length === 0 || (await sudahHariIni(tx, jenis, tps.kode, sekarang))) continue;
-    n += await catatNotifikasi(tx, [{ organisasiId: tps.organisasiId, peranTujuan: ["PETUGAS", "PENGELOLA"], jenis, objekKode: tps.kode, data: { aturan: hasil.map((h) => h.kode).join(",") } }], sekarang);
+    n += await buatNotifikasi(tx, [{ organisasiId: tps.organisasiId, jenis, objekKode: tps.kode, data: { kode_tps: tps.kode } }], sekarang);
   }
   return n;
 }
