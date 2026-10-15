@@ -23,6 +23,7 @@
     "wt:hapus": "node scripts/wt-hapus.mjs",
     "teks:periksa": "node scripts/teks-dari-blueprint.ts --periksa",
     "db:reset": "node scripts/db-reset.mjs",
+    "demo:reset": "node scripts/demo-reset.mjs",
     "db:migrate": "pnpm --filter @serah/db db:migrate",
     "db:seed": "pnpm --filter @serah/db db:seed"
   },
