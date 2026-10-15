@@ -9,6 +9,7 @@ import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg } from "@/lib/klien/angka";
 import { PilihPeriode } from "@/lib/klien/komponen/pilih-periode";
 import { periodeSekarangWib, tanggalJamWib } from "@/lib/klien/periode";
+import { Pilih } from "./pilih";
 
 type ItemKontrak = z.infer<typeof Kontrak>;
 type TipePratinjau = z.infer<typeof PratinjauTagihanAngkut>;
@@ -110,11 +111,10 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
           <label htmlFor="pilih-kontrak" className="text-sm font-semibold text-tinta">
             {TEKS.KTR_JUDUL}
           </label>
-          <select
+          <Pilih
             id="pilih-kontrak"
             value={kontrakId}
             onChange={(e) => setKontrakId(e.target.value)}
-            className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
           >
             {kontrakList.length === 0 ? (
               <option value="">{TEKS.UMUM_MUAT}</option>
@@ -125,7 +125,7 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
                 </option>
               ))
             )}
-          </select>
+          </Pilih>
         </div>
 
         <PilihPeriode nilai={periode} onUbah={setPeriode} />

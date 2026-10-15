@@ -14,6 +14,7 @@ import { KameraFoto } from "@/lib/klien/komponen/kamera-foto";
 import { LembarKonfirmasi } from "@/lib/klien/komponen/lembar-konfirmasi";
 import { useMuat } from "@/lib/klien/muat";
 import { beratAtauNol, ringkasRincian, type IsianRincian } from "@/lib/klien/rincian";
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 type Hasil = "tutup" | "siap";
 type SaranAi = {
@@ -348,11 +349,10 @@ export default function LayarTutup() {
                         <label htmlFor={`alasan-${r.aliran}`} className="text-sm font-semibold text-tinta">
                           {TEKS.UMUM_ALASAN}
                         </label>
-                        <select
+                        <Pilih
                           id={`alasan-${r.aliran}`}
                           value={r.alasan}
                           onChange={(e) => ubahRincian(i, { alasan: e.target.value as AlasanTolak | "" })}
-                          className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
                         >
                           <option value="" />
                           {ALASAN_TOLAK.map((a) => (
@@ -360,7 +360,7 @@ export default function LayarTutup() {
                               {TEKS[KUNCI_ALASAN[a]]}
                             </option>
                           ))}
-                        </select>
+                        </Pilih>
                       </div>
                       {r.alasan === "LAINNYA" ? (
                         <div className="flex flex-col gap-1.5">

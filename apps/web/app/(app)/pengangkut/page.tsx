@@ -5,6 +5,8 @@ import { useState } from "react";
 import { TEKS, isi } from "@serah/kontrak/teks";
 import { AtribusiBMKG, BannerGalat, Kosong, LencanaAliran, PanelAturan } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
+import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { useMuat } from "@/lib/klien/muat";
 
 const SELANG_MUAT_MS = 30_000;
@@ -28,10 +30,11 @@ export default function LayarA1() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.A1_JUDUL}</h1>
-        <p className="text-sm leading-relaxed text-tinta-redup">{TEKS.A1_URUTAN}</p>
+        <InfoTip judul={TEKS.A1_JUDUL} isi={TEKS.INFO_A1} rata="kanan" />
       </div>
+      <p className="sr-only">{TEKS.A1_URUTAN}</p>
 
       {keadaan.status === "siap" && urut.length > 0 ? (
         <div role="group" aria-label={TEKS.A1_JUDUL} className="flex gap-2">
@@ -65,11 +68,7 @@ export default function LayarA1() {
         </div>
       ) : null}
 
-      {keadaan.status === "memuat" ? (
-        <p role="status" className="p-4 text-sm font-medium text-tinta-redup">
-          {TEKS.UMUM_MUAT}
-        </p>
-      ) : null}
+      {keadaan.status === "memuat" ? <RangkaHalaman jumlah={2} /> : null}
       {keadaan.status === "galat" ? <BannerGalat pesan={keadaan.pesan} onCoba={() => void ulang()} /> : null}
       {keadaan.status === "siap" && keadaan.data.serah.length === 0 ? <Kosong teks={TEKS.K_KOSONG_AMBIL} /> : null}
 

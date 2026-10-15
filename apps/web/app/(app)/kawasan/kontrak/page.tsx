@@ -7,6 +7,7 @@ import { TEKS, isi } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Kartu, Kosong, LencanaAliran, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 type ItemMitra = z.infer<typeof DirektoriMitraKeluaran>["mitra"][number];
 
@@ -225,34 +226,32 @@ export default function HalamanKontrak() {
         <form onSubmit={tanganiTambah} className="flex flex-col gap-4">
           <label className="flex flex-col gap-1 text-sm font-semibold">
             {TEKS.KTR_PENGANGKUT}
-            <select
+            <Pilih
               value={pengangkutId}
               onChange={(e) => setPengangkutId(e.target.value)}
               required
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
             >
               {daftarPengangkut.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.nama}
                 </option>
               ))}
-            </select>
+            </Pilih>
           </label>
 
           <label className="flex flex-col gap-1 text-sm font-semibold">
             {TEKS.KTR_PENERIMA}
-            <select
+            <Pilih
               value={penerimaId}
               onChange={(e) => setPenerimaId(e.target.value)}
               required
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
             >
               {daftarPenerima.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.nama}
                 </option>
               ))}
-            </select>
+            </Pilih>
           </label>
 
           <div className="flex flex-col gap-2">

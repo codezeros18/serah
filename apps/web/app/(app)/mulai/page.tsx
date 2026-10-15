@@ -12,6 +12,7 @@ import { aturPeranMock } from "@/lib/klien/mock";
 import { rutePeran } from "@/lib/klien/rute-peran";
 import { useSesi } from "@/lib/klien/sesi";
 import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 const ALIRAN_OPSI: readonly Aliran[] = ["HIJAU", "KUNING", "MERAH", "ABU"];
 const ALAMAT_DEFAULT = "Jl. Kebon Kosong No. 1";
@@ -262,18 +263,17 @@ export default function HalamanMulai() {
                   <label htmlFor="mulai-jenis-penerima" className="text-sm font-semibold text-tinta">
                     {TEKS.IZN_JUDUL}
                   </label>
-                  <select
+                  <Pilih
                     id="mulai-jenis-penerima"
                     value={jenisPenerima}
                     onChange={(e) => setJenisPenerima(e.target.value as JenisPenerima)}
-                    className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                   >
                     <option value="TPS3R">TPS 3R</option>
                     <option value="BANK_SAMPAH_INDUK">Bank Sampah Induk</option>
                     <option value="PELAPAK_BERIZIN">Pelapak Berizin</option>
                     <option value="FASILITAS_BERIZIN">Fasilitas Berizin</option>
                     <option value="TPA_TPST">TPA / TPST</option>
-                  </select>
+                  </Pilih>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
@@ -481,19 +481,18 @@ export default function HalamanMulai() {
                 <label htmlFor="mulai-undang-peran" className="text-sm font-semibold text-tinta">
                   {TEKS.AGT_PERAN}
                 </label>
-                <select
+                <Pilih
                   id="mulai-undang-peran"
                   value={peranUndang}
                   onChange={(e) =>
                     setPeranUndang(e.target.value as "PETUGAS" | "PENGELOLA" | "PENGANGKUT" | "PENERIMA")
                   }
-                  className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                 >
                   <option value="PETUGAS">{TEKS.PERAN_PETUGAS}</option>
                   <option value="PENGELOLA">{TEKS.PERAN_PENGELOLA}</option>
                   <option value="PENGANGKUT">{TEKS.PERAN_PENGANGKUT}</option>
                   <option value="PENERIMA">{TEKS.PERAN_PENERIMA}</option>
-                </select>
+                </Pilih>
               </div>
             </div>
 

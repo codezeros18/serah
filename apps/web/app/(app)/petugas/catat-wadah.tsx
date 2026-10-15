@@ -9,6 +9,7 @@ import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { antreanBersama } from "@/lib/klien/antrean/bersama";
 import { useAntrean } from "@/lib/klien/antrean/pakai-antrean";
+import { InfoTip } from "@/lib/klien/komponen/info-tip";
 import { PilihTps } from "./pilih-tps";
 import { PitaAntrean } from "./pita-antrean";
 import { bacaTpsTerpilih, type TpsTerpilih } from "./tps-terpilih";
@@ -108,7 +109,10 @@ export function CatatWadah() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T1_JUDUL}</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T1_JUDUL}</h1>
+        <InfoTip judul={TEKS.T1_JUDUL} isi={TEKS.INFO_T1} />
+      </div>
       <PitaAntrean />
 
       {!tps ? (
@@ -156,7 +160,7 @@ export function CatatWadah() {
                     data-aliran-pilih={a}
                     aria-pressed={terpilih}
                     onClick={() => setAliran(a)}
-                    className={`min-h-16 rounded-kartu px-4 py-3 text-base font-bold transition-all duration-150 active:scale-[0.98] shadow-sm ${KELAS_ALIRAN[a]} ${
+                    className={`min-h-20 rounded-3xl px-4 py-3 text-lg font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] shadow-sm ${KELAS_ALIRAN[a]} ${
                       terpilih ? "outline outline-4 outline-offset-2 outline-fokus" : ""
                     }`}
                   >
@@ -187,15 +191,33 @@ export function CatatWadah() {
               <label htmlFor="t1-jumlah" className="text-base font-bold text-tinta">
                 {TEKS.T1_JUMLAH_LABEL}
               </label>
-              <input
-                id="t1-jumlah"
-                type="text"
-                inputMode="numeric"
-                autoComplete="off"
-                value={jumlah}
-                onChange={(e) => setJumlah(e.target.value)}
-                className="min-h-14 rounded-kontrol border-2 border-garis bg-kertas px-4 text-2xl font-mono font-bold tabular-nums text-tinta focus:border-aksi focus:ring-2 focus:ring-aksi/20"
-              />
+              <div className="flex items-stretch gap-2">
+                <button
+                  type="button"
+                  aria-label={TEKS.UMUM_KURANGI}
+                  onClick={() => setJumlah(String(Math.max(0, (Number.parseInt(jumlah, 10) || 0) - 1) || ""))}
+                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-latar text-2xl font-semibold text-tinta transition-all duration-150 hover:bg-aksi-latar hover:text-aksi active:scale-95"
+                >
+                  −
+                </button>
+                <input
+                  id="t1-jumlah"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={jumlah}
+                  onChange={(e) => setJumlah(e.target.value)}
+                  className="min-h-14 min-w-0 flex-1 rounded-2xl border border-garis-halus bg-kertas px-4 text-center font-mono text-2xl font-semibold tabular-nums text-tinta transition-all hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
+                />
+                <button
+                  type="button"
+                  aria-label={TEKS.UMUM_TAMBAH}
+                  onClick={() => setJumlah(String((Number.parseInt(jumlah, 10) || 0) + 1))}
+                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-aksi text-2xl font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-150 hover:bg-aksi-hover active:scale-95"
+                >
+                  +
+                </button>
+              </div>
             </div>
           </div>
 

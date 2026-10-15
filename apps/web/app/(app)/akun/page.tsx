@@ -10,6 +10,7 @@ import { panggil } from "@/lib/klien/api";
 import { rutePeran } from "@/lib/klien/rute-peran";
 import { useSesi } from "@/lib/klien/sesi";
 import { unduhBerkas } from "@/lib/klien/unduh";
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 type DataSaya = z.infer<typeof AkunDataSayaKeluaran>;
 type ItemAnggota = z.infer<typeof AnggotaDaftarKeluaran>["anggota"][number];
@@ -378,20 +379,19 @@ export default function HalamanAkun() {
 
           <label className="flex flex-col gap-1.5 text-sm font-semibold text-tinta">
             {TEKS.AGT_PERAN}
-            <select
+            <Pilih
               value={peranUndang}
               onChange={(e) =>
                 setPeranUndang(
                   e.target.value as "PETUGAS" | "PENGELOLA" | "PENGANGKUT" | "PENERIMA",
                 )
               }
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
             >
               <option value="PETUGAS">PETUGAS</option>
               <option value="PENGELOLA">PENGELOLA</option>
               <option value="PENGANGKUT">PENGANGKUT</option>
               <option value="PENERIMA">PENERIMA</option>
-            </select>
+            </Pilih>
           </label>
 
           <div className="mt-2 flex justify-end gap-2">

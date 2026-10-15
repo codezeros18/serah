@@ -6,6 +6,7 @@ import { TEKS, isi } from "@serah/kontrak/teks";
 import { Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { parseBeratKgKeGram } from "@/lib/klien/angka";
+import { Pilih } from "./pilih";
 
 export interface ItemWadahKoreksi {
   id: string;
@@ -137,18 +138,17 @@ export function TombolAjukanKoreksi({ wadah, rincian, onSelesai }: TombolAjukanK
               <label htmlFor="koreksi-target" className="text-sm font-semibold text-tinta">
                 {TEKS.KOL_STATUS}
               </label>
-              <select
+              <Pilih
                 id="koreksi-target"
                 value={targetPilihan || (opsi[0]?.kunci ?? "")}
                 onChange={(e) => setTargetPilihan(e.target.value)}
-                className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
               >
                 {opsi.map((o) => (
                   <option key={o.kunci} value={o.kunci}>
                     {o.label}
                   </option>
                 ))}
-              </select>
+              </Pilih>
             </div>
 
             <div className="flex flex-col gap-2">

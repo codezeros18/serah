@@ -11,6 +11,7 @@ import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
 import { PilihPeriode } from "@/lib/klien/komponen/pilih-periode";
 import { periodeSekarangWib } from "@/lib/klien/periode";
+import { Pilih } from "./pilih";
 
 type Perbandingan = z.infer<typeof BayanganPerbandinganKeluaran>;
 type BarisPerbandingan = Perbandingan["baris"][number];
@@ -139,18 +140,17 @@ export function LayarModeBayangan() {
             <label htmlFor="byg-aliran" className="text-sm font-semibold text-tinta">
               {TEKS.KOL_ALIRAN}
             </label>
-            <select
+            <Pilih
               id="byg-aliran"
               value={aliran}
               onChange={(e) => setAliran(e.target.value as Aliran)}
-              className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
             >
               {DAFTAR_ALIRAN.map((a) => (
                 <option key={a} value={a}>
                   {TEKS[`ALIRAN_${a}`]}
                 </option>
               ))}
-            </select>
+            </Pilih>
           </div>
 
           <div className="flex flex-col gap-1.5">

@@ -9,7 +9,14 @@ import { AtribusiBMKG, BannerGalat, Kartu, LencanaAliran, PanelAturan, Tabel, ty
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg } from "@/lib/klien/angka";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
-import { PeriksaRantai } from "@/lib/klien/komponen/periksa-rantai";
+import dynamic from "next/dynamic";
+import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { Bertahap, Rangka, RangkaHalaman } from "@/lib/klien/komponen/rangka";
+
+const PeriksaRantai = dynamic(() => import("@/lib/klien/komponen/periksa-rantai").then((m) => m.PeriksaRantai), {
+  ssr: false,
+  loading: () => <Rangka className="h-24 w-full" />,
+});
 import { periodeSekarangWib } from "@/lib/klien/periode";
 
 type Ringkasan = z.infer<typeof RingkasanKeluaran>;
@@ -54,14 +61,17 @@ export function RingkasanKawasan() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.K1_JUDUL}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.K1_JUDUL}</h1>
+            <InfoTip judul={TEKS.K1_JUDUL} isi={TEKS.INFO_K1} />
+          </div>
           {kawasan ? <p className="text-sm font-medium text-tinta-redup">{kawasan.nama}</p> : null}
         </div>
       </div>
 
       {galatKawasan ? <BannerGalat pesan={galatKawasan} /> : null}
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
-      {!data && !galat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+      {!data && !galat ? <RangkaHalaman jumlah={2} /> : null}
 
       {data ? (
         <>
@@ -125,11 +135,15 @@ export function RingkasanKawasan() {
             </Kartu>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.K1_NERACA}</h2>
-            <TabelNeraca judul={TEKS.K1_HARI_INI} total={data.hariIni} />
-            <TabelNeraca judul={TEKS.K1_BULAN_INI} total={data.bulanIni} />
-          </div>
+          <Bertahap tunda={60} rangka={<Rangka className="h-48 w-full" />}>
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold tracking-tight text-tinta">{TEKS.K1_NERACA}</h2>
+              <TabelNeraca judul={TEKS.K1_HARI_INI} total={data.hariIni} />
+              <Bertahap tunda={120} rangka={<Rangka className="h-48 w-full" />}>
+                <TabelNeraca judul={TEKS.K1_BULAN_INI} total={data.bulanIni} />
+              </Bertahap>
+            </div>
+          </Bertahap>
 
           {data.prioritas.length > 0 ? (
             <section className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs" aria-labelledby="k1-prioritas">
@@ -161,9 +175,11 @@ export function RingkasanKawasan() {
       ) : null}
 
       {kawasan ? (
-        <section className="rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs">
-          <PeriksaRantai kawasanId={kawasan.id} />
-        </section>
+        <Bertahap tunda={240} rangka={<Rangka className="h-24 w-full" />}>
+          <section className="rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs">
+            <PeriksaRantai kawasanId={kawasan.id} />
+          </section>
+        </Bertahap>
       ) : null}
     </div>
   );

@@ -8,9 +8,20 @@ import { TEKS, isi, type KunciTeks } from "@serah/kontrak/teks";
 import { BannerGalat, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { unggahFoto } from "@/lib/klien/foto";
-import { KameraFoto } from "@/lib/klien/komponen/kamera-foto";
-import { PemindaiQr } from "@/lib/klien/komponen/pemindai-qr";
+import dynamic from "next/dynamic";
+import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { Rangka } from "@/lib/klien/komponen/rangka";
+
+const KameraFoto = dynamic(() => import("@/lib/klien/komponen/kamera-foto").then((m) => m.KameraFoto), {
+  ssr: false,
+  loading: () => <Rangka className="aspect-[4/3] w-full" />,
+});
+const PemindaiQr = dynamic(() => import("@/lib/klien/komponen/pemindai-qr").then((m) => m.PemindaiQr), {
+  ssr: false,
+  loading: () => <Rangka className="aspect-square w-full" />,
+});
 import { useMuat } from "@/lib/klien/muat";
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 type Langkah = "pindai" | "foto" | "tujuan" | "terkirim";
 type Tolak = { kode: KodeAturan; teks: string };
@@ -212,7 +223,7 @@ export default function LayarA2() {
 
       {langkah === "tujuan" ? (
         <section className="flex flex-col gap-5">
-          {/* Kendaraan: <select> asli (dipakai tes & pembaca layar), digayakan seperti kartu pilihan */}
+          {/* Kendaraan: <Pilih> asli (dipakai tes & pembaca layar), digayakan seperti kartu pilihan */}
           <div className="flex flex-col gap-2 rounded-3xl border border-garis-halus bg-kertas p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
             <label htmlFor="kendaraan" className="flex items-center gap-3 text-sm font-medium text-tinta">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-latar">
@@ -225,11 +236,10 @@ export default function LayarA2() {
               </span>
               {TEKS.A2_KENDARAAN}
             </label>
-            <select
+            <Pilih
               id="kendaraan"
               value={kendaraanId}
               onChange={(e) => setKendaraanId(e.target.value)}
-              className="min-h-14 w-full rounded-2xl border border-garis-halus bg-latar px-4 font-mono text-lg font-semibold text-tinta transition-all hover:border-aksi-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
             >
               <option value="" />
               {kendaraan.keadaan.status === "siap"
@@ -241,13 +251,16 @@ export default function LayarA2() {
                       </option>
                     ))
                 : null}
-            </select>
+            </Pilih>
           </div>
 
           {/* Tujuan (penerima): kartu pilihan bergaya pemilih destinasi */}
           <fieldset className="flex flex-col gap-3">
-            <legend className="text-lg font-semibold tracking-tight text-tinta">{TEKS.A2_PENERIMA}</legend>
-            <p className="text-sm text-tinta-redup">{TEKS.A2_PENERIMA_PETUNJUK}</p>
+            <legend className="flex items-center gap-2 text-lg font-semibold tracking-tight text-tinta">
+              {TEKS.A2_PENERIMA}
+              <InfoTip judul={TEKS.A2_PENERIMA} isi={TEKS.INFO_A2_TUJUAN} />
+            </legend>
+            <p className="sr-only">{TEKS.A2_PENERIMA_PETUNJUK}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {penerimaKontrak.map((m) => {
                 const terpilih = penerimaId === m.id;
@@ -287,6 +300,12 @@ export default function LayarA2() {
                       <span className="inline-flex w-fit rounded-full bg-latar px-2.5 py-0.5 text-[11px] font-medium text-tinta-redup">
                         {TEKS[KUNCI_KONTRAK[m.status]]}
                       </span>
+                      {detail && !detail.aliran.every((a) => m.aliran.has(a)) ? (
+                        <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-peringatan-latar px-2.5 py-0.5 text-[11px] font-medium text-peringatan">
+                          <span aria-hidden="true">▲</span>
+                          {TEKS.TUJUAN_TIDAK_TERIMA}
+                        </span>
+                      ) : null}
                     </span>
                     <span className="flex flex-wrap gap-1.5">
                       {[...m.aliran].map((a) => (

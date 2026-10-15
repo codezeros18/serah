@@ -4,7 +4,14 @@ import { useEffect, useState } from "react";
 import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Kosong } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
-import { PeriksaRantai } from "@/lib/klien/komponen/periksa-rantai";
+import dynamic from "next/dynamic";
+import { Rangka } from "@/lib/klien/komponen/rangka";
+
+const PeriksaRantai = dynamic(() => import("@/lib/klien/komponen/periksa-rantai").then((m) => m.PeriksaRantai), {
+  ssr: false,
+  loading: () => <Rangka className="h-24 w-full" />,
+});
+import { Pilih } from "@/lib/klien/komponen/pilih";
 
 type Pilihan = { id: string; nama: string };
 
@@ -46,18 +53,17 @@ export default function LayarRantai() {
       {kawasan && kawasan.length > 0 ? (
         <>
           {kawasan.length > 1 ? (
-            <select
+            <Pilih
               aria-label={TEKS.RANTAI_JUDUL}
               value={dipilih}
               onChange={(e) => setDipilih(e.target.value)}
-              className="min-h-12 rounded-kontrol border-2 border-garis bg-kertas px-3 text-base"
             >
               {kawasan.map((k) => (
                 <option key={k.id} value={k.id}>
                   {k.nama}
                 </option>
               ))}
-            </select>
+            </Pilih>
           ) : (
             <p className="text-base font-semibold">{kawasan[0]?.nama}</p>
           )}

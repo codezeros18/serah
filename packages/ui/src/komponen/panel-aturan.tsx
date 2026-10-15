@@ -41,21 +41,23 @@ export function PanelAturan({
 }) {
   const tolak = aksi === "TOLAK";
   const gaya = tolak
-    ? "border-4 border-tolak bg-tolak-latar text-tinta"
-    : "border-l-8 border-peringatan-garis bg-peringatan-latar text-tinta";
+    ? "border-[3px] border-tolak bg-tolak-latar text-tinta shadow-[0_12px_32px_rgba(15,23,42,0.10)]"
+    : "border border-l-8 border-peringatan-garis/40 border-l-peringatan-garis bg-peringatan-latar text-tinta";
   return (
     <section
       role={tolak ? "alert" : "note"}
       data-aturan={kode}
       data-aksi={aksi}
-      className={`rounded-kartu p-4 ${gaya}`}
+      className={`rounded-3xl p-4 sm:p-5 ${gaya}`}
     >
-      <h3 className="flex items-center gap-2 text-base font-bold">
-        {tolak ? <Kunci /> : <Segitiga />}
+      <h3 className="flex items-center gap-3 text-base font-semibold">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80">
+          {tolak ? <Kunci /> : <Segitiga />}
+        </span>
         <span>{JUDUL[aksi]}</span>
-        <span className="ml-auto rounded-kontrol border border-current px-2 text-sm">{`R-${kode.slice(1)}`}</span>
+        <span className="ml-auto rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold">{`R-${kode.slice(1)}`}</span>
       </h3>
-      <p className="mt-2 text-base">{teks}</p>
+      <p className="mt-3 text-base leading-relaxed">{teks}</p>
       {sumber ? <p className="mt-2 text-sm text-tinta-redup">{isi("ATURAN_RUJUKAN", { sumber })}</p> : null}
       {aksi === "PRIORITAS" ? <p className="mt-2 text-sm font-semibold">{TEKS.R10_CATATAN}</p> : null}
       {tolak ? <p className="mt-2 text-sm text-tinta-redup">{TEKS.ATURAN_BUKAN_NASIHAT}</p> : null}

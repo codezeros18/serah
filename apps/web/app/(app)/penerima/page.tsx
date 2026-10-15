@@ -6,8 +6,15 @@ import { useCallback, useState } from "react";
 import { TEKS, isi } from "@serah/kontrak/teks";
 import { BannerGalat, Kosong, LencanaAliran, LencanaStatus } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
-import { PemindaiQr } from "@/lib/klien/komponen/pemindai-qr";
+import dynamic from "next/dynamic";
+import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { Rangka, RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { useMuat } from "@/lib/klien/muat";
+
+const PemindaiQr = dynamic(() => import("@/lib/klien/komponen/pemindai-qr").then((m) => m.PemindaiQr), {
+  ssr: false,
+  loading: () => <Rangka className="aspect-square w-full" />,
+});
 
 const POLA_KODE_SERAH = /^SRH-\d{8}-\d{4}$/;
 
@@ -47,7 +54,10 @@ export default function LayarP1() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.P1_JUDUL}</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.P1_JUDUL}</h1>
+          <InfoTip judul={TEKS.P1_JUDUL} isi={TEKS.INFO_P1} />
+        </div>
         <button
           type="button"
           onClick={() => setPindai((v) => !v)}
@@ -111,11 +121,7 @@ export default function LayarP1() {
         </div>
       ) : null}
 
-      {masuk.keadaan.status === "memuat" ? (
-        <p role="status" className="text-sm font-medium text-tinta-redup">
-          {TEKS.UMUM_MUAT}
-        </p>
-      ) : null}
+      {masuk.keadaan.status === "memuat" ? <RangkaHalaman jumlah={2} /> : null}
       {masuk.keadaan.status === "galat" ? <BannerGalat pesan={masuk.keadaan.pesan} onCoba={() => void masuk.ulang()} /> : null}
       {masuk.keadaan.status === "siap" && semua.length === 0 ? <Kosong teks={TEKS.K_KOSONG_MASUK} /> : null}
 

@@ -17,7 +17,7 @@ import { LogoSerah } from "./logo-serah";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
-type ItemNav = { href: string; kunci: KunciTeks; ikon: NamaIkonNav };
+type ItemNav = { href: string; kunci: KunciTeks; pendek: KunciTeks; ikon: NamaIkonNav };
 
 /**
  * Navigasi per peran. `utama` = tampil di bilah bawah HP (maks. 5); semuanya tampil di sidebar desktop.
@@ -25,35 +25,35 @@ type ItemNav = { href: string; kunci: KunciTeks; ikon: NamaIkonNav };
  */
 const NAV: Record<Peran, readonly ItemNav[]> = {
   PETUGAS: [
-    { href: "/petugas", kunci: "T1_JUDUL", ikon: "tps" },
-    { href: "/petugas/serah", kunci: "T2_JUDUL", ikon: "serah" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", ikon: "lonceng" },
-    { href: "/akun", kunci: "AKUN_JUDUL", ikon: "akun" },
+    { href: "/petugas", kunci: "T1_JUDUL", pendek: "NAV_CATAT", ikon: "tps" },
+    { href: "/petugas/serah", kunci: "T2_JUDUL", pendek: "NAV_SERAH", ikon: "serah" },
+    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
+    { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENGANGKUT: [
-    { href: "/pengangkut", kunci: "A1_JUDUL", ikon: "beranda" },
-    { href: "/pengangkut/kendaraan", kunci: "KND_JUDUL", ikon: "truk" },
-    { href: "/pengangkut/laporan", kunci: "LAPORAN_PENGANGKUT", ikon: "laporan" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", ikon: "lonceng" },
-    { href: "/akun", kunci: "AKUN_JUDUL", ikon: "akun" },
+    { href: "/pengangkut", kunci: "A1_JUDUL", pendek: "NAV_AMBIL", ikon: "beranda" },
+    { href: "/pengangkut/kendaraan", kunci: "KND_JUDUL", pendek: "NAV_KENDARAAN", ikon: "truk" },
+    { href: "/pengangkut/laporan", kunci: "LAPORAN_PENGANGKUT", pendek: "NAV_LAPORAN", ikon: "laporan" },
+    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
+    { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENGELOLA: [
-    { href: "/kawasan", kunci: "K1_JUDUL", ikon: "beranda" },
-    { href: "/kawasan/ditolak", kunci: "K3_JUDUL", ikon: "ditolak" },
-    { href: "/kawasan/laporan", kunci: "K4_JUDUL", ikon: "laporan" },
-    { href: "/kawasan/tps", kunci: "TPS_JUDUL", ikon: "tps" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", ikon: "lonceng" },
-    { href: "/akun", kunci: "AKUN_JUDUL", ikon: "akun" },
+    { href: "/kawasan", kunci: "K1_JUDUL", pendek: "NAV_BERANDA", ikon: "beranda" },
+    { href: "/kawasan/ditolak", kunci: "K3_JUDUL", pendek: "NAV_DITOLAK", ikon: "ditolak" },
+    { href: "/kawasan/laporan", kunci: "K4_JUDUL", pendek: "NAV_LAPORAN", ikon: "laporan" },
+    { href: "/kawasan/tps", kunci: "TPS_JUDUL", pendek: "NAV_TPS", ikon: "tps" },
+    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
+    { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENERIMA: [
-    { href: "/penerima", kunci: "P1_JUDUL", ikon: "beranda" },
-    { href: "/penerima/laporan", kunci: "P2_JUDUL", ikon: "laporan" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", ikon: "lonceng" },
-    { href: "/akun", kunci: "AKUN_JUDUL", ikon: "akun" },
+    { href: "/penerima", kunci: "P1_JUDUL", pendek: "NAV_TERIMA", ikon: "beranda" },
+    { href: "/penerima/laporan", kunci: "P2_JUDUL", pendek: "NAV_LAPORAN", ikon: "laporan" },
+    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
+    { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   ADMIN: [
-    { href: "/admin", kunci: "ADM_JUDUL", ikon: "admin" },
-    { href: "/akun", kunci: "AKUN_JUDUL", ikon: "akun" },
+    { href: "/admin", kunci: "ADM_JUDUL", pendek: "NAV_ADMIN", ikon: "admin" },
+    { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
 };
 
@@ -183,7 +183,7 @@ function Isi({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <IkonNav nama={n.ikon} className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="truncate">{TEKS[n.kunci]}</span>
+                  <span className="truncate">{TEKS[n.pendek]}</span>
                 </Link>
               );
             })}
@@ -276,7 +276,7 @@ function Isi({ children }: { children: ReactNode }) {
                   }`}
                 >
                   <IkonNav nama={n.ikon} className="h-5 w-5 shrink-0" />
-                  {aktif ? <span className="truncate">{TEKS[n.kunci]}</span> : null}
+                  {aktif ? <span className="truncate">{TEKS[n.pendek]}</span> : null}
                 </Link>
               </li>
             );
