@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { TEKS } from "@serah/kontrak/teks";
 import { DaftarkanSw } from "@/lib/klien/komponen/daftarkan-sw";
@@ -18,7 +19,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function TataLetakAkar({ children }: { children: ReactNode }) {
+export default async function TataLetakAkar({ children }: { children: ReactNode }) {
+  // CSP ber-nonce (proxy.ts) hanya berlaku pada render dinamis: semua halaman dirender per permintaan (S26-2).
+  await connection();
   return (
     <html lang="id">
       <body className="min-h-dvh antialiased">
