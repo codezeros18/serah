@@ -5,8 +5,7 @@
     "buildCommand": "pnpm --filter @serah/web build"
   },
   "deploy": {
-    "preDeployCommand": ["pnpm --filter @serah/db db:init-prod", "pnpm --filter @serah/db db:migrate"],
-    "startCommand": "pnpm --filter @serah/web start",
+    "startCommand": "pnpm --filter @serah/db db:init-prod && pnpm --filter @serah/db db:migrate && pnpm --filter @serah/web start",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
