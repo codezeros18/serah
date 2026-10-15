@@ -107,3 +107,102 @@ html {
     animation: none;
   }
 }
+
+/* Kotak centang bergaya (tetap <input type="checkbox"> asli: bisa difokus, dibaca screen reader) */
+.kotak-centang {
+  appearance: none;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.05rem;
+  border-radius: 0.4rem;
+  border: 1.5px solid var(--color-garis);
+  background: #fff center / 72% no-repeat;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+.kotak-centang:hover {
+  border-color: var(--color-aksi);
+  box-shadow: 0 0 0 4px rgba(36, 87, 197, 0.1);
+}
+.kotak-centang:checked {
+  background-color: var(--color-aksi);
+  border-color: var(--color-aksi);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7'/%3E%3C/svg%3E");
+}
+@media (prefers-reduced-motion: no-preference) {
+  .kotak-centang:checked {
+    animation: centang-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+@keyframes centang-pop {
+  0% {
+    transform: scale(0.82);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Kursor: semua kontrol yang bisa diklik memberi petunjuk, yang nonaktif memberi tanda berhenti */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+summary,
+label[for],
+select,
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Scrollbar halaman: tipis dan senada dengan tema */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+html::-webkit-scrollbar {
+  width: 10px;
+}
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+html::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  border: 2px solid #fff;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-aksi);
+}
+
+/* Baris yang bisa digulir mendatar (tab responsif): scrollbar tipis, bulat, ber-hover biru */
+.gulir-halus {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+.gulir-halus::-webkit-scrollbar {
+  height: 6px;
+}
+.gulir-halus::-webkit-scrollbar-track {
+  background: var(--color-latar);
+  border-radius: 999px;
+}
+.gulir-halus::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+  transition: background-color 0.2s;
+}
+.gulir-halus::-webkit-scrollbar-thumb:hover {
+  background: var(--color-aksi);
+}

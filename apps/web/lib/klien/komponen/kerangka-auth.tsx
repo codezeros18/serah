@@ -78,3 +78,9 @@ export function KerangkaAuth({
 
 export const KELAS_INPUT =
   "h-12 w-full rounded-xl border border-garis-halus bg-kertas px-4 text-sm text-tinta shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 placeholder:text-garis hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15";
+
+export const KELAS_TOMBOL_UTAMA =
+  "inline-flex h-12 w-full items-center justify-center rounded-xl bg-aksi text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover hover:shadow-[0_12px_28px_rgba(36,87,197,0.38)] active:translate-y-0 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0";
+
+export const KELAS_TOMBOL_TEPI =
+  "inline-flex h-12 w-full items-center justify-center rounded-xl border border-garis-halus bg-kertas text-sm font-medium text-tinta transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi";

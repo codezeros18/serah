@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { LabelDemo } from "@serah/ui";
 import { TEKS } from "@serah/kontrak/teks";
 import { panggil } from "@/lib/klien/api";
 import { Poppins } from "next/font/google";
-import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { NavbarGlass } from "@/lib/klien/komponen/navbar-glass";
 import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
@@ -75,6 +74,71 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
   },
 ] as const;
 
+/** Baris tab yang bisa digulir mendatar: panah kiri/kanan + pudar tepi muncul hanya bila ada isi tersembunyi. */
+function BarisTab({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [adaKiri, setAdaKiri] = useState(false);
+  const [adaKanan, setAdaKanan] = useState(false);
+
+  const periksa = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    setAdaKiri(el.scrollLeft > 4);
+    setAdaKanan(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    periksa();
+    const el = ref.current;
+    const ro = new ResizeObserver(periksa);
+    if (el) ro.observe(el);
+    return () => ro.disconnect();
+  }, [periksa]);
+
+  function geser(arah: -1 | 1) {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: arah * Math.max(160, el.clientWidth * 0.6), behavior: "smooth" });
+  }
+
+  const kelasPanah =
+    "absolute top-[calc(50%-5px)] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-garis-halus bg-white text-tinta shadow-[0_4px_14px_rgba(15,23,42,0.12)] transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi";
+
+  return (
+    <div className="relative">
+      <div ref={ref} onScroll={periksa} className="gulir-halus flex gap-2 overflow-x-auto scroll-smooth pb-2.5">
+        {children}
+      </div>
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white to-transparent transition-opacity duration-200 ${adaKiri ? "opacity-100" : "opacity-0"}`}
+      />
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white to-transparent transition-opacity duration-200 ${adaKanan ? "opacity-100" : "opacity-0"}`}
+      />
+      <button
+        type="button"
+        aria-label="Geser ke kiri"
+        onClick={() => geser(-1)}
+        tabIndex={adaKiri ? 0 : -1}
+        className={`${kelasPanah} left-0 ${adaKiri ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Geser ke kanan"
+        onClick={() => geser(1)}
+        tabIndex={adaKanan ? 0 : -1}
+        className={`${kelasPanah} right-0 ${adaKanan ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+  );
+}
+
 export default function HalamanDemo() {
   const [sedangReset, setSedangReset] = useState(false);
   const [pesanSukses, setPesanSukses] = useState<string | null>(null);
@@ -115,46 +179,58 @@ export default function HalamanDemo() {
     <div className={`${poppins.className} flex min-h-dvh flex-col bg-kertas text-tinta`}>
       <LabelDemo />
 
-      {/* Header kaca sticky, sama dengan beranda */}
-      <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-2.5 shadow-[0_8px_30px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="group flex items-center gap-2" aria-label={TEKS.APP_NAMA}>
-              <LogoSerah ukuran="sm" />
-            </Link>
-            <span className="hidden rounded-full border border-aksi-garis bg-aksi-latar px-2.5 py-0.5 text-xs font-medium text-aksi sm:inline-flex">
-              Demo 4-Layar Interaktif
+      {/* Navbar yang sama persis dengan beranda (lebar & isi); aksi khusus demo ada di bilah di bawahnya. */}
+      <NavbarGlass />
+
+      <div className="px-4 pb-2 pt-10 sm:px-6">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="hero-masuk flex flex-col gap-1.5">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-aksi-garis bg-aksi-latar px-3 py-1 text-xs font-medium text-aksi">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-aksi" aria-hidden="true" />
+              {TEKS.LANDING_NAV_DEMO}
             </span>
+            <h1 className="text-2xl font-semibold tracking-tight text-tinta sm:text-3xl">Demo 4-Layar Interaktif</h1>
+            <p className="max-w-xl text-sm leading-relaxed text-tinta-redup">{TEKS.DEMO_SUB}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleResetDemo}
-              disabled={sedangReset}
-              data-testid="tombol-reset-demo"
-              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-tinta px-3.5 text-sm font-medium text-white transition-all duration-200 hover:bg-aksi hover:shadow-[0_6px_16px_rgba(36,87,197,0.30)] disabled:opacity-60"
-            >
+          <button
+            type="button"
+            onClick={handleResetDemo}
+            disabled={sedangReset}
+            data-testid="tombol-reset-demo"
+            className="group inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-3 rounded-2xl border border-garis-halus bg-kertas py-2 pl-2.5 pr-5 text-sm font-medium text-tinta shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi hover:shadow-[0_12px_28px_rgba(36,87,197,0.16)] active:translate-y-0 active:scale-[0.98] disabled:opacity-60 disabled:hover:translate-y-0 sm:w-auto"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-latar text-aksi transition-colors duration-200 group-hover:bg-white">
               {sedangReset ? (
-                <>
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <span>{TEKS.UMUM_MUAT}</span>
-                </>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
-                <>
-                  <span aria-hidden="true">↺</span>
-                  <span>{TEKS.DEMO_RESET}</span>
-                </>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="none"
+                  aria-hidden="true"
+                  className="transition-transform duration-500 group-hover:-rotate-180"
+                >
+                  <path
+                    d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5M4.5 4.5v4h4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               )}
-            </button>
-          </div>
+            </span>
+            <span>{sedangReset ? TEKS.UMUM_MUAT : TEKS.DEMO_RESET}</span>
+          </button>
         </div>
-      </header>
+      </div>
 
       {/* Feedback Banner */}
       {pesanSukses ? (
         <div
           role="status"
-          className="mx-4 mt-3 flex items-center gap-2 rounded-2xl border border-status-selesai/20 bg-status-selesai-latar px-4 py-3 text-sm font-medium text-status-selesai sm:mx-6"
+          className="mx-auto mt-3 flex w-[calc(100%-2rem)] max-w-6xl items-center gap-2 rounded-2xl border border-status-selesai/20 bg-status-selesai-latar px-4 py-3 text-sm font-medium text-status-selesai sm:w-[calc(100%-3rem)]"
         >
           <span aria-hidden="true">✓</span>
           <span>{pesanSukses}</span>
@@ -164,48 +240,46 @@ export default function HalamanDemo() {
       {pesanGalat ? (
         <div
           role="alert"
-          className="mx-4 mt-3 rounded-2xl border border-peringatan-garis/30 bg-peringatan-latar px-4 py-3 text-sm font-medium text-peringatan sm:mx-6"
+          className="mx-auto mt-3 w-[calc(100%-2rem)] max-w-6xl rounded-2xl border border-peringatan-garis/30 bg-peringatan-latar px-4 py-3 text-sm font-medium text-peringatan sm:w-[calc(100%-3rem)]"
         >
           {pesanGalat}
         </div>
       ) : null}
 
-      {/* Switcher cepat */}
+      {/* Switcher cepat: bisa digulir mendatar di layar sempit */}
       <div className="px-4 pt-6 sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => loncatKePanel(null)}
-            className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
-              sorotanPanel === null
-                ? "border-tinta bg-tinta text-white"
-                : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
-            }`}
-          >
-            Semua Panel (4 Layar)
-          </button>
-          {DAFTAR_PANEL.map((panel) => (
+        <div className="mx-auto max-w-6xl">
+          <BarisTab>
             <button
-              key={panel.id}
               type="button"
-              onClick={() => loncatKePanel(panel.id)}
-              className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
-                sorotanPanel === panel.id
-                  ? "border-tinta bg-tinta text-white"
-                  : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
+              onClick={() => loncatKePanel(null)}
+              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                sorotanPanel === null ? "border-tinta bg-tinta text-white shadow-sm" : "border-garis-halus bg-kertas text-tinta hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
               }`}
             >
-              <IkonLanding nama={panel.ikon} className="h-4 w-4" />
-              <span>{panel.nomorUrut}.</span>
-              <span>{panel.peran}</span>
+              Semua Panel (4 Layar)
             </button>
-          ))}
+            {DAFTAR_PANEL.map((panel) => (
+              <button
+                key={panel.id}
+                type="button"
+                onClick={() => loncatKePanel(panel.id)}
+                className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                  sorotanPanel === panel.id ? "border-tinta bg-tinta text-white shadow-sm" : "border-garis-halus bg-kertas text-tinta hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
+                }`}
+              >
+                <IkonLanding nama={panel.ikon} className="h-4 w-4" />
+                <span>{panel.nomorUrut}.</span>
+                <span>{panel.peran}</span>
+              </button>
+            ))}
+          </BarisTab>
         </div>
       </div>
 
       {/* Main Split Panels */}
       <main className="flex-1 px-4 pb-16 pt-6 sm:px-6">
-        <div className="mx-auto max-w-7xl">
+        <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {DAFTAR_PANEL.map((panel) => {
               const adalahSorot = sorotanPanel === panel.id;
@@ -258,7 +332,7 @@ export default function HalamanDemo() {
                           key={`${panel.id}-${kunciIframe}`}
                           src={panel.url}
                           title={panel.title}
-                          className="h-[620px] w-full border-0 bg-latar"
+                          className="h-[520px] w-full border-0 bg-latar sm:h-[620px]"
                         />
                       </div>
                     </div>
@@ -278,7 +352,7 @@ export default function HalamanDemo() {
                         key={`${panel.id}-${kunciIframe}`}
                         src={panel.url}
                         title={panel.title}
-                        className="h-[620px] w-full border-0 bg-latar"
+                        className="h-[520px] w-full border-0 bg-latar sm:h-[620px]"
                       />
                     </div>
                   )}

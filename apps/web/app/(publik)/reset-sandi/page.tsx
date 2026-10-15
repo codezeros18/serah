@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState, type FormEvent } from "react";
 import { TEKS } from "@serah/kontrak/teks";
-import { BannerGalat, Kartu, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
-import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { KELAS_TOMBOL_UTAMA, KerangkaAuth } from "@/lib/klien/komponen/kerangka-auth";
+import { KolomSandi } from "@/lib/klien/komponen/kolom-sandi";
+import { TumpukanToast, useToast } from "@/lib/klien/komponen/toast";
 
 function IsiResetSandi() {
   const searchParams = useSearchParams();
@@ -14,96 +15,89 @@ function IsiResetSandi() {
   const [sandi, setSandi] = useState("");
   const [memuat, setMemuat] = useState(false);
   const [berhasil, setBerhasil] = useState(false);
-  const [galat, setGalat] = useState<string | null>(null);
+  const { daftar: toast, kirim: kirimToast, tutup: tutupToast } = useToast();
 
   async function simpan(e: FormEvent) {
     e.preventDefault();
-    setGalat(null);
     setMemuat(true);
 
-    const res = await panggil("POST", "/api/auth/reset", { body: { token, sandi } });
+    let res;
+    try {
+      res = await panggil("POST", "/api/auth/reset", { body: { token, sandi } });
+    } catch {
+      setMemuat(false);
+      kirimToast("galat", TEKS.G_SERVER);
+      return;
+    }
     setMemuat(false);
 
     if (!res.ok) {
-      setGalat(res.pesan);
+      kirimToast("galat", res.pesan);
       return;
     }
 
+    kirimToast("sukses", TEKS.RESET_BERHASIL);
     setBerhasil(true);
   }
 
   return (
-    <Kartu className="flex flex-col gap-6 p-6 sm:p-8 border border-garis-halus bg-kertas shadow-md">
-      <div className="border-b border-garis-halus pb-3">
-        <h1 className="text-xl font-black text-tinta">{TEKS.RESET_JUDUL}</h1>
+    <>
+      <TumpukanToast daftar={toast} tutup={tutupToast} />
+
+      <div className="hero-masuk flex flex-col gap-2">
+        <p className="text-sm font-medium text-aksi">{TEKS.RESET_SAPA}</p>
+        <h1 className="text-3xl font-semibold leading-tight tracking-tight text-tinta sm:text-4xl">
+          {TEKS.RESET_JUDUL}
+        </h1>
+        <p className="text-sm leading-relaxed text-tinta-redup">{TEKS.RESET_SUB}</p>
       </div>
 
-      {galat ? <BannerGalat pesan={galat} /> : null}
-
       {berhasil ? (
-        <div className="flex flex-col gap-5 py-4 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-2xl font-bold">
+        <div className="hero-masuk flex flex-col items-center gap-5 rounded-3xl border border-garis-halus bg-latar/60 p-8 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-status-selesai-latar text-2xl text-status-selesai">
             ✓
-          </div>
-          <p className="text-base font-bold text-tinta [text-wrap:balance]">{TEKS.RESET_BERHASIL}</p>
-          <Link href="/masuk" className="mt-2">
-            <Tombol varian="utama" className="w-full bg-aksi hover:bg-aksi-hover text-white shadow-sm">
-              {TEKS.MASUK_TOMBOL}
-            </Tombol>
+          </span>
+          <p className="text-base font-medium text-tinta text-balance">{TEKS.RESET_BERHASIL}</p>
+          <Link href="/masuk" className={KELAS_TOMBOL_UTAMA}>
+            {TEKS.MASUK_TOMBOL}
           </Link>
         </div>
       ) : (
-        <form onSubmit={simpan} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="reset-sandi" className="text-sm font-semibold text-tinta">
+        <form onSubmit={simpan} className="hero-masuk flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label htmlFor="reset-sandi" className="text-sm font-medium text-tinta">
               {TEKS.MASUK_SANDI}
             </label>
-            <input
+            <KolomSandi
               id="reset-sandi"
-              type="password"
-              required
-              minLength={10}
               value={sandi}
-              onChange={(e) => setSandi(e.target.value)}
-              className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
+              onChange={setSandi}
+              minLength={10}
+              autoComplete="new-password"
             />
             <p className="text-xs text-tinta-redup">{TEKS.DAFTAR_SANDI_ATURAN}</p>
           </div>
-
-          <Tombol
-            type="submit"
-            disabled={memuat || !token}
-            className="w-full mt-2 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
-          >
+          <button type="submit" disabled={memuat || !token} className={KELAS_TOMBOL_UTAMA}>
             {memuat ? TEKS.UMUM_MUAT : TEKS.UMUM_SIMPAN}
-          </Tombol>
+          </button>
         </form>
       )}
 
-      <div className="text-center text-sm border-t border-garis-halus pt-4">
-        <Link
-          href="/masuk"
-          className="font-semibold text-tinta-redup hover:text-aksi transition-colors"
-        >
+      <p className="text-center text-sm text-tinta-redup">
+        <Link href="/masuk" className="font-medium text-tinta transition-colors hover:text-aksi hover:underline">
           ← {TEKS.UMUM_KEMBALI}
         </Link>
-      </div>
-    </Kartu>
+      </p>
+    </>
   );
 }
 
 export default function HalamanResetSandi() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4 py-12 text-tinta">
-      {/* Brand Header */}
-      <div className="mb-8 text-center flex flex-col items-center">
-        <Link href="/" className="inline-block group" aria-label={TEKS.APP_NAMA}>
-          <LogoSerah ukuran="md" denganTagline />
-        </Link>
-      </div>
-      <Suspense fallback={<Kartu className="p-8 text-center">{TEKS.UMUM_MUAT}</Kartu>}>
+    <KerangkaAuth visualJudul={TEKS.LANDING_MVP_JUDUL} visualSub={TEKS.LANDING_MVP_SUB}>
+      <Suspense fallback={<p className="text-center text-sm text-tinta-redup">{TEKS.UMUM_MUAT}</p>}>
         <IsiResetSandi />
       </Suspense>
-    </main>
+    </KerangkaAuth>
   );
 }

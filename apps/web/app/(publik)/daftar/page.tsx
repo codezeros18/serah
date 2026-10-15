@@ -127,16 +127,16 @@ export default function HalamanDaftar() {
             <p className="text-xs text-tinta-redup">{TEKS.DAFTAR_SANDI_ATURAN}</p>
           </div>
 
-          <div className="flex items-start gap-3 rounded-2xl border border-garis-halus bg-latar/60 p-4 transition-colors duration-200 hover:border-aksi-garis">
+          <div className="flex items-start gap-3 rounded-2xl border border-garis-halus bg-latar/60 p-4 transition-all duration-200 hover:border-aksi-garis has-[:checked]:border-aksi-garis has-[:checked]:bg-aksi-latar/60">
             <input
               id="daftar-setuju"
               type="checkbox"
               required
               checked={setuju}
               onChange={(e) => setSetuju(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-garis accent-[#2457c5]"
+              className="kotak-centang"
             />
-            <label htmlFor="daftar-setuju" className="cursor-pointer text-xs leading-relaxed text-tinta-redup">
+            <label htmlFor="daftar-setuju" className="cursor-pointer select-none text-xs leading-relaxed text-tinta-redup">
               {TEKS.DAFTAR_SETUJU}
             </label>
           </div>
