@@ -21,3 +21,4 @@ export {
   type PrakiraanAturan,
   type WadahBelumDiserahkan,
 } from "./evaluator";
+export { KUNCI_AMBANG_ATURAN, konfigurasiPada, pilihVersi, validasiAmbang, type HasilAmbang, type VersiAturan } from "./versi";

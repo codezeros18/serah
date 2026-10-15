@@ -1,7 +1,8 @@
-import { evaluasiCuaca, KONFIGURASI_ATURAN, type HasilCuaca, type NowcastAturan, type PrakiraanAturan } from "@serah/core/aturan";
+import { evaluasiCuaca, type HasilCuaca, type NowcastAturan, type PrakiraanAturan } from "@serah/core/aturan";
 import { basi, type TitikE6 } from "@serah/core/cuaca";
 import type { Prisma } from "@serah/db";
 import type { ModeData } from "@serah/kontrak";
+import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import type { NowcastMentah, PrakiraanMentah } from "../integrasi-stub";
@@ -50,7 +51,7 @@ export async function cuacaAdm4(tx: Tx, adm4: string, sekarang: Date) {
     adm4,
     mode: p.mode,
     analysisDate: p.analysisDate.toISOString(),
-    basi: basi(p.analysisDate, sekarang, KONFIGURASI_ATURAN.R10_BASI_JAM),
+    basi: basi(p.analysisDate, sekarang, (await konfigurasiAturan(tx, "DKI", sekarang)).R10_BASI_JAM),
     slot: p.slot.map((s) => ({ slotUtc: s.slotUtc.toISOString(), weatherDesc: s.weatherDesc, weatherDescEn: s.weatherDescEn })),
   };
 }
@@ -71,14 +72,18 @@ export async function prioritasTps(
   }
   const nowcast = cache.nowcast ?? (await nowcastBerlaku(tx, sekarang));
   const belum = await wadahBelumDiserahkan(tx, tps.id);
-  return evaluasiCuaca({
-    yurisdiksi: await yurisdiksiKawasan(tx, tps.kawasanId),
-    sekarang,
-    tps: { kode: tps.kode, latE6: tps.latE6, lonE6: tps.lonE6, namaKelurahan: kawasan.namaKelurahan ?? "" },
-    wadahBelumDiserahkan: belum.map((w) => ({ aliran: w.aliran, terjadiPada: w.terjadiPada })),
-    prakiraan: p,
-    nowcast,
-  });
+  const yurisdiksi = await yurisdiksiKawasan(tx, tps.kawasanId);
+  return evaluasiCuaca(
+    {
+      yurisdiksi,
+      sekarang,
+      tps: { kode: tps.kode, latE6: tps.latE6, lonE6: tps.lonE6, namaKelurahan: kawasan.namaKelurahan ?? "" },
+      wadahBelumDiserahkan: belum.map((w) => ({ aliran: w.aliran, terjadiPada: w.terjadiPada })),
+      prakiraan: p,
+      nowcast,
+    },
+    await konfigurasiAturan(tx, yurisdiksi, sekarang),
+  );
 }
 
 /** GET /api/tps/[id]/prioritas. */

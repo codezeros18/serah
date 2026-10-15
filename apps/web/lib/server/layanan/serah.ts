@@ -3,6 +3,7 @@ import { kodeSerah } from "@serah/core/kode";
 import { jenisTutup, type Pelaku, type PerubahanBerat, type RincianTutup, type TiketTutup } from "@serah/core/status";
 import { awalPeriodeWib, akhirPeriodeWib, selisihJam, tanggalWib, tanggalWibKompak } from "@serah/core/waktu";
 import { ALIRAN, TEKS, type AlasanTolak, type Aliran, type KeyakinanAi, type StatusSerah, type SumberTiket } from "@serah/kontrak";
+import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import { nomorBerikut } from "../penomoran";
@@ -215,11 +216,15 @@ export async function tutupSerah(tx: Tx, sesi: Sesi, kode: string, m: MasukanTut
 
   // R-08: peringatan saja, tidak menolak (berat wadah final, hanya bila semua wadah berberat).
   const finalWadah = await nilaiFinal(tx, serah.wadahIds);
-  const peringatan = evaluasiTutup({
-    yurisdiksi: await yurisdiksiKawasan(tx, serah.kawasanId),
-    beratTiketG: t.beratG,
-    beratWadahG: serah.wadahIds.map((id) => finalWadah.get(`WADAH:${id}`) ?? null),
-  });
+  const yurisdiksiTutup = await yurisdiksiKawasan(tx, serah.kawasanId);
+  const peringatan = evaluasiTutup(
+    {
+      yurisdiksi: yurisdiksiTutup,
+      beratTiketG: t.beratG,
+      beratWadahG: serah.wadahIds.map((id) => finalWadah.get(`WADAH:${id}`) ?? null),
+    },
+    await konfigurasiAturan(tx, yurisdiksiTutup, sekarang),
+  );
 
   const h = await layananTransisi(tx, {
     serah,

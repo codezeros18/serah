@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import { evaluasiFoto, KONFIGURASI_ATURAN, type HasilAturan } from "@serah/core/aturan";
+import { evaluasiFoto, type HasilAturan } from "@serah/core/aturan";
 import type { JenisFoto } from "@serah/kontrak";
+import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
 import { integrasi } from "../integrasi-stub";
@@ -19,15 +20,20 @@ export async function evaluasiR04(
   tx: Tx,
   m: { kawasanId: string; orgPengangkutId: string; dhash: string; kecualiFotoId: string | null; sekarang: Date },
 ): Promise<HasilAturan[]> {
-  const sejak = new Date(m.sekarang.getTime() - KONFIGURASI_ATURAN.R04_JENDELA_HARI * MS_HARI);
+  const yurisdiksi = await yurisdiksiKawasan(tx, m.kawasanId);
+  const konfigurasi = await konfigurasiAturan(tx, yurisdiksi, m.sekarang);
+  const sejak = new Date(m.sekarang.getTime() - konfigurasi.R04_JENDELA_HARI * MS_HARI);
   const pembanding = await tx.$queryRaw<Pembanding[]>`
     SELECT * FROM foto_pembanding_r04(${m.kawasanId}, ${m.orgPengangkutId}, ${sejak}, ${m.kecualiFotoId})`;
-  return evaluasiFoto({
-    yurisdiksi: await yurisdiksiKawasan(tx, m.kawasanId),
-    sekarang: m.sekarang,
-    dhash: m.dhash,
-    pembanding: pembanding.map((p) => ({ dhash: p.p_dhash, kodeSerah: p.p_kode_serah, diambilPada: p.p_diterima_pada })),
-  });
+  return evaluasiFoto(
+    {
+      yurisdiksi,
+      sekarang: m.sekarang,
+      dhash: m.dhash,
+      pembanding: pembanding.map((p) => ({ dhash: p.p_dhash, kodeSerah: p.p_kode_serah, diambilPada: p.p_diterima_pada })),
+    },
+    konfigurasi,
+  );
 }
 
 export type MasukanUnggah = { jenis: JenisFoto; serahKode?: string | undefined; berkas: Blob };
