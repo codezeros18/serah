@@ -234,6 +234,12 @@ describe("S07-3 akun pribadi", () => {
     expect((await masuk(permintaan("/api/auth/masuk", { body: { email: p.email, sandi: SANDI } }))).status).toBe(400);
     expect(await kueriPemilik(`SELECT 1 FROM pengguna WHERE email = $1`, [p.email])).toHaveLength(0);
 
-    expect(await hitung()).toEqual(sebelum);
+    // Tidak ada baris yang hilang. Test lain boleh menambah data kawasan yang sama secara paralel (S08), jadi
+    // tabel operasional dibandingkan "tidak berkurang"; persetujuan milik pengguna ini dibandingkan persis.
+    const sesudah = await hitung();
+    for (const [t, n] of Object.entries(sebelum)) {
+      if (t === "persetujuan_pdp") expect(sesudah[t], t).toBe(n);
+      else expect(sesudah[t], t).toBeGreaterThanOrEqual(n);
+    }
   });
 });

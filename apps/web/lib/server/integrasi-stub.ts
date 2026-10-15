@@ -22,6 +22,8 @@ export interface PemrosesFoto {
 
 export interface Penyimpanan {
   simpan(kunci: string, isi: Uint8Array, mime: string): Promise<void>;
+  /** null bila objek tidak ada. */
+  baca(kunci: string): Promise<Uint8Array | null>;
   hapus(kunci: string): Promise<void>;
   urlBertanda(kunci: string, sekarang: Date): { url: string; kedaluwarsaPada: Date };
 }
@@ -236,6 +238,7 @@ export const penyimpananLokal: Penyimpanan = {
     await mkdir(dirname(jalur), { recursive: true });
     await writeFile(jalur, isi);
   },
+  baca: bacaObjekLokal,
   async hapus(kunci) {
     await rm(jalurLokal(kunci), { force: true });
   },
@@ -249,6 +252,9 @@ export const penyimpananLokal: Penyimpanan = {
 const penyimpananR2Belum: Penyimpanan = {
   async simpan() {
     throw new GalatApi("GALAT_SERVER"); // R2 = adaptor S06
+  },
+  async baca() {
+    throw new GalatApi("GALAT_SERVER");
   },
   async hapus() {
     throw new GalatApi("GALAT_SERVER");
