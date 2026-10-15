@@ -1,9 +1,10 @@
-import { createHash, randomBytes } from "node:crypto";
 import type { OrganisasiPeran, Peran, SesiKeluaran } from "@serah/kontrak";
 import { denganAkses, denganAuth, type KonteksAkses, type Tx } from "./db";
-import { muatEnv } from "./env";
 import { GalatApi } from "./galat";
 import { hakPaket, paketOrganisasi } from "./hak";
+import { buatToken, hashToken } from "./token";
+
+export { hashToken };
 
 // Sesi buatan sendiri (§P.1): token 32 byte acak di cookie __Host-serah; DB hanya menyimpan SHA-256(token + TOKEN_PEPPER).
 
@@ -18,10 +19,6 @@ export type Sesi = {
   organisasiAktifId: string | null;
   peran: Peran | null;
 };
-
-export function hashToken(token: string): string {
-  return createHash("sha256").update(token + muatEnv().TOKEN_PEPPER, "utf8").digest("hex");
-}
 
 export function konteksAkses(sesi: Sesi): KonteksAkses {
   return { penggunaId: sesi.penggunaId, orgIds: sesi.organisasiAktifId ? [sesi.organisasiAktifId] : [], peran: sesi.peran };
@@ -51,7 +48,7 @@ export async function buatSesi(
   data: { penggunaId: string; organisasiAktifId: string | null; peranAktif: Peran | null },
   sekarang: Date = new Date(),
 ): Promise<{ token: string; sesi: Sesi }> {
-  const token = randomBytes(32).toString("base64url");
+  const token = buatToken();
   const baris = await tx.sesi.create({
     data: {
       penggunaId: data.penggunaId,
@@ -102,6 +99,12 @@ export async function wajibSesi(request: Request): Promise<Sesi> {
 
 export async function cabutSesi(sesiId: string): Promise<void> {
   await denganAuth((tx) => tx.sesi.update({ where: { id: sesiId }, data: { dicabutPada: new Date() } }));
+}
+
+/** Cabut semua sesi aktif seorang pengguna (reset sandi, tarik persetujuan, hapus akun). */
+export async function cabutSemuaSesi(tx: Tx, penggunaId: string, sekarang: Date = new Date()): Promise<number> {
+  const r = await tx.sesi.updateMany({ where: { penggunaId, dicabutPada: null }, data: { dicabutPada: sekarang } });
+  return r.count;
 }
 
 /** Daftar organisasi & peran milik pengguna (keanggotaan aktif). */
