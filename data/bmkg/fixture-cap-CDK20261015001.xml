@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<!-- FIXTURE (bukan data BMKG nyata): meniru struktur CAP nowcast -->
+<alert xmlns="urn:oasis:names:tc:emergency:cap:1.2">
+  <identifier>FIXTURE.DKI.001</identifier>
+  <sent>2026-10-15T12:05:00+07:00</sent>
+  <info>
+    <language>id</language>
+    <event>Hujan Lebat dan Petir</event>
+    <effective>2026-10-15T12:06:00+07:00</effective>
+    <expires>2026-10-15T14:00:00+07:00</expires>
+    <headline>Hujan Lebat disertai Petir di DKI Jakarta</headline>
+    <description>Fixture uji.</description>
+    <area>
+      <areaDesc>DKI Jakarta</areaDesc>
+      <polygon>-6.170,106.840 -6.170,106.850 -6.160,106.850 -6.160,106.840 -6.170,106.840</polygon>
+      <polygon>-6.200,106.900 -6.200,106.910 -6.190,106.910 -6.200,106.900</polygon>
+    </area>
+  </info>
+</alert>

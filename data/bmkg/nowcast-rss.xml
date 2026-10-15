@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <?xml-stylesheet type="text/xsl" href="/cap/nowcast-rss-style.xsl"?>
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+        <channel>
+            <title>Peringatan Dini Cuaca BMKG</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/rss.xml</link>
+            <description>Peringatan Dini Cuaca dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)</description>
+            <atom:link href="https://www.bmkg.go.id/alerts/nowcast/id/rss.xml" rel="self" type="application/rss+xml"/>
+            <language>id</language>
+            <copyright>public domain</copyright>
+            <pubDate>Thu, 15 Oct 2026 05:30:10 +0000</pubDate>
+            <lastBuildDate>Thu, 15 Oct 2026 05:30:10 +0000</lastBuildDate>
+            <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+            
+        <item>
+            <title>Hujan Lebat disertai Petir di Maluku Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CMU20261015001_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 14:50 WIT di sebagian wilayah Maluku Utara, khususnya di KOTA MABA, MABA SELATAN, MOROTAI SELATAN BARAT, TABARU, TOBELO BARAT, WASILE SELATAN, WASILE TENGAH, WASILE TIMUR, WASILE UTARA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 16:50 WIT.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.82.001</guid>
+            <pubDate>Thu, 15 Oct 2026 14:19:00 +0900</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Kep. Riau</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CKR20261015003_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 12:06 WIB di sebagian wilayah Kep. Riau, khususnya di BELAT, BURU, KARIMUN, KEPULAUAN POSEK, KUNDUR BARAT, KUNDUR UTARA, MORO.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 14:00 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.21.003</guid>
+            <pubDate>Thu, 15 Oct 2026 12:05:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Gorontalo</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CGT20261015002_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 12:55 WITA di sebagian wilayah Gorontalo, khususnya di BULANGO ULU.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 13:55 WITA.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.75.002</guid>
+            <pubDate>Thu, 15 Oct 2026 12:35:00 +0800</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Sulawesi Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSR20261015001_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 12:32 WITA di sebagian wilayah Sulawesi Utara, khususnya di TOMOHON UTARA, TUMPAAN.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 14:30 WITA.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.71.001</guid>
+            <pubDate>Thu, 15 Oct 2026 12:26:00 +0800</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Kep. Riau</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CKR20261015002_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 10:27 WIB di sebagian wilayah Kep. Riau, khususnya di BINTAN UTARA, GUNUNG KIJANG, MORO, TELOK SEBONG, TELUK BINTAN, TOAPAYA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 12:30 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.21.002</guid>
+            <pubDate>Thu, 15 Oct 2026 10:26:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Papua</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CPU20261015001_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 11:30 WIT di sebagian wilayah Papua, khususnya di ANOTAUREI, BRUYADORI, NUMFOR BARAT, NUMFOR TIMUR, ORKERI, POIRU, SAMOFA, SWANDIWE, TELUK AMPIMOI, YAPEN BARAT.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 14:30 WIT.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.91.001</guid>
+            <pubDate>Thu, 15 Oct 2026 11:25:00 +0900</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Aceh</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CAH20261015001_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 15 October 2026, 09:08 WIB di sebagian wilayah Aceh, khususnya di BANDA ALAM, BANDA MULIA, BENDAHARA, DARUL AMAN, DARUL IHSAN, IDI RAYEUK, IDI TIMUR, IDI TUNONG, MANYAK PAYED, PEUDAWA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 15 October 2026, 12:29 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.10.15.05.11.001</guid>
+            <pubDate>Thu, 15 Oct 2026 08:58:00 +0700</pubDate>
+        </item>
+        </channel>
+    </rss>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FIXTURE (bukan data BMKG nyata) -->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Fixture</title>
+<item><title>Hujan Lebat disertai Petir di DKI Jakarta</title><link>https://www.bmkg.go.id/alerts/nowcast/id/CDK20261015001_alert.xml</link></item>
+<item><title>Hujan Lebat disertai Petir di Papua</title><link>https://www.bmkg.go.id/alerts/nowcast/id/CPU20261015001_alert.xml</link></item>
+</channel></rss>
