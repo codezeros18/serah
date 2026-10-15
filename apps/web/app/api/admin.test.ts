@@ -377,8 +377,8 @@ describe("S21-4 — audit, metrik, reset demo", () => {
     const url = process.env.DATABASE_URL_MIGRASI;
     if (!url) throw new Error("DATABASE_URL_MIGRASI kosong");
     // URL tanpa parameter ?schema= (dipakai pg), lalu skema sementara diatur lewat search_path.
+    // (Di CI URL tidak membawa ?schema= — skema bawaan public; lokal memakai skema worktree.)
     const tanpaSkema = new URL(url);
-    expect(tanpaSkema.searchParams.get("schema")).toBeTruthy();
     tanpaSkema.searchParams.delete("schema");
     const connectionString = tanpaSkema.toString();
     const skema = `uji_reset_${randomBytes(4).toString("hex")}`;
