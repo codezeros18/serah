@@ -8,7 +8,8 @@
     "./teks": "./src/teks.ts",
     "./enum": "./src/enum.ts",
     "./galat": "./src/galat.ts",
-    "./hak": "./src/hak.ts"
+    "./hak": "./src/hak.ts",
+    "./demo": "./src/demo.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

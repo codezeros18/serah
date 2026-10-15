@@ -3,3 +3,4 @@ export * from "./galat";
 export * from "./hak";
 export * from "./teks";
 export * from "./api";
+export * from "./demo";
