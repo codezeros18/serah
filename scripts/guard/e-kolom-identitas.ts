@@ -9,8 +9,8 @@ export const SEGMEN_IDENTITAS = ["nama", "nik", "telepon", "phone", "email", "lo
 /** Model identitas & akun pribadi: semua kolom dikecualikan (identitas hanya boleh di sini). */
 export const MODEL_IDENTITAS = ["pengguna", "sesi", "token_sekali", "persetujuan_pdp", "keanggotaan", "preferensi_notifikasi", "langganan_push"];
 
-/** Model badan usaha/tempat: kolom `nama*` boleh (nama organisasi, kawasan, TPS — bukan orang). */
-export const MODEL_ENTITAS_USAHA = ["organisasi", "kawasan", "tps", "paket"];
+/** Model yang kolom `nama*`-nya bukan nama orang: badan usaha/tempat (organisasi, kawasan, TPS) & sistem (nama pekerjaan cron). */
+export const MODEL_ENTITAS_USAHA = ["organisasi", "kawasan", "tps", "paket", "pekerjaan_cron"];
 
 const identitas = new Set(MODEL_IDENTITAS.map(normalNama));
 const usaha = new Set(MODEL_ENTITAS_USAHA.map(normalNama));

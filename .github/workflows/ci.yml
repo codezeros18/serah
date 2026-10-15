@@ -63,6 +63,9 @@ jobs:
       - name: Migrasi
         run: pnpm --filter @serah/db db:migrate
 
+      - name: Seed global + demo (test integrasi memakai data demo)
+        run: pnpm --filter @serah/db db:seed
+
       - name: Verify (lint + typecheck + test + guard)
         run: pnpm verify
 

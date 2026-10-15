@@ -4,7 +4,7 @@ import { guardBatasImpor } from "../a-batas-impor.ts";
 import { guardKataTerlarang } from "../b-kata-terlarang.ts";
 import { guardLiteralTeks } from "../c-literal-teks.ts";
 import { guardFloatDecimal } from "../d-float-decimal.ts";
-import { guardKolomIdentitas } from "../e-kolom-identitas.ts";
+import { MODEL_ENTITAS_USAHA, MODEL_IDENTITAS, guardKolomIdentitas } from "../e-kolom-identitas.ts";
 import { guardGeolokasi } from "../f-geolokasi.ts";
 import { guardSdkAi } from "../g-sdk-ai.ts";
 import { guardKosakataBayar } from "../h-kosakata-bayar.ts";
@@ -253,6 +253,15 @@ describe("(e) kolom-identitas", () => {
 
   it("tidak salah tuduh: model identitas, nama badan usaha, koordinat _e6, komentar", () => {
     expect(jalankan(guardKolomIdentitas, { "packages/db/prisma/schema.prisma": SKEMA_BERSIH })).toEqual([]);
+  });
+
+  it("T21: schema.prisma sungguhan aktif diperiksa dan bersih; model identitas & usaha yang dikecualikan memang ada", () => {
+    const isi = readFileSync(new URL("../../../packages/db/prisma/schema.prisma", import.meta.url), "utf8");
+    const jalur = "packages/db/prisma/schema.prisma";
+    expect(guardKolomIdentitas.periksa({ berkas: [{ jalur, isi }], tertrack: [] })).toEqual({ status: "diperiksa", temuan: [] });
+    expect(guardFloatDecimal.periksa({ berkas: [{ jalur, isi }], tertrack: [] })).toEqual({ status: "diperiksa", temuan: [] });
+    const map = [...isi.matchAll(/@@map\("([a-z_]+)"\)/g)].map((m) => m[1]);
+    for (const t of [...MODEL_IDENTITAS, ...MODEL_ENTITAS_USAHA]) expect(map, t).toContain(t);
   });
 });
 

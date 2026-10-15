@@ -151,6 +151,7 @@ pnpm guard           # pemeriksaan struktural (batas impor, teks, privasi, tabel
 pnpm build           # build produksi Next.js
 pnpm db:up           # PostgreSQL 16 lokal di Docker
 pnpm db:down         # hentikan PostgreSQL lokal
+pnpm db:reset        # bangun ulang skema DB lokal dari migrasi + seed (menghapus semua data lokal)
 ```
 
 ## Sumber data & atribusi
