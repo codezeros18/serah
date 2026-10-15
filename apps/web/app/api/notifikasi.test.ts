@@ -6,6 +6,7 @@ import { PengirimRekam } from "@/lib/adaptor/email";
 import type { HasilPush, LanggananPush, PayloadPush, PengirimPush } from "@/lib/adaptor/push";
 import { denganSistem } from "@/lib/server/db";
 import { buatNotifikasi, kalimatNotifikasi, placeholderNotifikasi, setelKanalNotifikasiUji } from "@/lib/server/notifikasi";
+import { orgBaru } from "@/lib/server/uji/akun";
 import { data, demo, denganPemilik, masuk, panggil, satu, semua, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as bacaSatu } from "./notifikasi/[id]/baca/route";
 import { POST as bacaSemua } from "./notifikasi/baca-semua/route";
@@ -218,10 +219,18 @@ describe("API notifikasi (S17-3)", () => {
     const belum = data<Daftar>(await panggil(daftar, { jalur: "/api/notifikasi?belumDibaca=true", cookie: pengelola })).notifikasi;
     expect(belum.some((x) => x.objekKode === kode)).toBe(false);
 
-    await denganSistem((tx) => buatNotifikasi(tx, [{ jenis: "SERAH_MENUNGGU_SETUJU", organisasiId: d.org.kawasan, objekKode: kodeUnik(), data: { kode: "X" } }], new Date()));
-    expect(data<{ jumlah: number }>(await panggil(bacaSemua, { jalur: "/", cookie: pengelola, kunci: null, body: {} })).jumlah).toBeGreaterThanOrEqual(1);
-    expect(data<Daftar>(await panggil(daftar, { jalur: "/api/notifikasi?belumDibaca=true", cookie: pengelola })).notifikasi).toEqual([]);
-    expect(data<{ jumlah: number }>(await panggil(bacaSemua, { jalur: "/", cookie: pengelola, kunci: null, body: {} })).jumlah).toBe(0);
+  });
+
+  it("baca-semua: menandai semua yang belum dibaca, idempoten (organisasi terisolasi: test paralel lain tidak ikut menambah)", async () => {
+    // Organisasi demo dipakai bersama berkas test lain yang berjalan paralel, sehingga notifikasi baru bisa muncul di
+    // antara dua panggilan. Kawasan baru milik test ini saja membuat hitungan pasti.
+    const o = await orgBaru(new PengirimRekam(), { jenis: "KAWASAN" });
+    for (let i = 0; i < 2; i++) {
+      await denganSistem((tx) => buatNotifikasi(tx, [{ jenis: "SERAH_MENUNGGU_SETUJU", organisasiId: o.organisasiId, objekKode: kodeUnik(), data: { kode: "X" } }], new Date()));
+    }
+    expect(data<{ jumlah: number }>(await panggil(bacaSemua, { jalur: "/", cookie: o.cookie, kunci: null, body: {} })).jumlah).toBe(2);
+    expect(data<Daftar>(await panggil(daftar, { jalur: "/api/notifikasi?belumDibaca=true", cookie: o.cookie })).notifikasi).toEqual([]);
+    expect(data<{ jumlah: number }>(await panggil(bacaSemua, { jalur: "/", cookie: o.cookie, kunci: null, body: {} })).jumlah).toBe(0);
   });
 
   it("tanpa sesi → 401; mutasi tanpa Origin → 400", async () => {
