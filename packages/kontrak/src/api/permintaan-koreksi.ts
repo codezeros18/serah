@@ -31,7 +31,7 @@ export const PermintaanKoreksiPutusMasukan = z.object({ keputusan: KeputusanPerm
 export const PermintaanKoreksiPutusKeluaran = z.object({ permintaan: PermintaanKoreksi });
 
 export const RUTE_PERMINTAAN_KOREKSI = [
-  rute({ metode: "POST", jalur: "/api/permintaan-koreksi", akses: ["PETUGAS", "PENGELOLA", "PENGANGKUT", "PENERIMA"], masukan: PermintaanKoreksiBuatMasukan, keluaran: PermintaanKoreksiBuatKeluaran, idempoten: true }),
+  rute({ metode: "POST", jalur: "/api/permintaan-koreksi", akses: ["PETUGAS", "PENGELOLA", "PENERIMA"], masukan: PermintaanKoreksiBuatMasukan, keluaran: PermintaanKoreksiBuatKeluaran, idempoten: true }),
   rute({ metode: "GET", jalur: "/api/permintaan-koreksi", akses: ["PETUGAS", "PENGELOLA", "PENGANGKUT", "PENERIMA"], kueri: PermintaanKoreksiDaftarKueri, masukan: TanpaMasukan, keluaran: PermintaanKoreksiDaftarKeluaran }),
   rute({ metode: "POST", jalur: "/api/permintaan-koreksi/[id]/putus", akses: ["PENGELOLA", "PENERIMA"], params: PermintaanKoreksiParams, masukan: PermintaanKoreksiPutusMasukan, keluaran: PermintaanKoreksiPutusKeluaran }),
 ] as const;

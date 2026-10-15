@@ -13,6 +13,7 @@ import { guardKodePaket } from "../j-kode-paket.ts";
 import { guardConsoleLog } from "../k-console-log.ts";
 import { guardAmbangAturan } from "../l-ambang-aturan.ts";
 import { guardEnvTertrack } from "../m-env-tertrack.ts";
+import { IZIN_TANPA_PERAN, guardRuteMutasi, jalurRute } from "../n-rute-mutasi.ts";
 import { DAFTAR_GUARD } from "../daftar.ts";
 import { IZIN_KATA } from "../izin-kata.ts";
 import type { Guard, Temuan } from "../jenis.ts";
@@ -27,8 +28,8 @@ function jalankan(g: Guard, berkas: Record<string, string>, tertrack: string[] =
 }
 
 describe("daftar guard", () => {
-  it("berisi 13 guard (a)–(m) berurutan", () => {
-    expect(DAFTAR_GUARD.map((g) => g.kode).join("")).toBe("abcdefghijklm");
+  it("berisi 14 guard (a)–(n) berurutan", () => {
+    expect(DAFTAR_GUARD.map((g) => g.kode).join("")).toBe("abcdefghijklmn");
   });
 });
 
@@ -405,5 +406,64 @@ describe("(m) env-tertrack", () => {
 
   it("tidak salah tuduh: .env.example, envelope.ts, berkas tak ter-track", () => {
     expect(jalankan(guardEnvTertrack, { ".env": "RAHASIA=1" }, [".env.example", "packages/kontrak/src/env.ts", ".envrc.md"])).toEqual([]);
+  });
+});
+
+describe("(n) rute-mutasi", () => {
+  const kontrak = {
+    "packages/kontrak/src/api/x.ts": [
+      'rute({ metode: "POST", jalur: "/api/serah", akses: ["PETUGAS", "PENGELOLA"], masukan: A, keluaran: B }),',
+      'rute({ metode: "POST", jalur: "/api/admin/paket", akses: ["ADMIN"], masukan: A, keluaran: B }),',
+      'rute({ metode: "POST", jalur: "/api/akun/hapus", akses: ["SESI"], masukan: A, keluaran: B }),',
+      'rute({ metode: "POST", jalur: "/api/webhook/midtrans", akses: ["WEBHOOK"], masukan: A, keluaran: B }),',
+      'rute({ metode: "POST", jalur: "/api/cron/harian", akses: ["CRON"], masukan: A, keluaran: B }),',
+      'rute({ metode: "POST", jalur: "/api/baru", akses: ["SESI"], masukan: A, keluaran: B }),',
+    ].join("\n"),
+  };
+  const sah = {
+    "apps/web/app/api/serah/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); const sesi = await wajibSesi(r); wajibPeran(sesi, "PETUGAS", "PENGELOLA"); });
+export const GET = tanganiRute(async (r) => { const sesi = await wajibSesi(r); });`,
+    "apps/web/app/api/admin/paket/route.ts": `export const POST = tanganiRute(async (r) => dalamAdmin(r, {}, () => 1));`,
+    "apps/web/app/api/akun/hapus/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); await wajibSesi(r); });`,
+    "apps/web/app/api/webhook/midtrans/route.ts": `export const POST = tanganiRute(async (r) => terimaNotifikasi(r));`,
+    "apps/web/app/api/cron/harian/route.ts": `export const POST = tanganiRute(async (r) => { wajibCron(r); });`,
+  };
+  // Hanya izin yang relevan untuk fixture ini; entri izin lain dilaporkan "tidak ada sebagai handler".
+  const relevan = (t: Temuan[]) => t.filter((x) => !x.pesan.startsWith("IZIN_TANPA_PERAN memuat"));
+
+  it("jalurRute membuang grup rute dan akhiran route.ts", () => {
+    expect(jalurRute("apps/web/app/api/serah/[kode]/tutup/route.ts")).toBe("/api/serah/[kode]/tutup");
+    expect(jalurRute("apps/web/app/(app)/kawasan/page.tsx")).toBeNull();
+  });
+
+  it("tidak salah tuduh: peran persis kontrak, dalamAdmin, SESI dengan izin, webhook & cron", () => {
+    expect(relevan(jalankan(guardRuteMutasi, { ...kontrak, ...sah }))).toEqual([]);
+  });
+
+  it("menggigit: tanpa wajibPeran, peran berbeda dari kontrak, tanpa cekAsal, tanpa wajibSesi/wajibCron, tidak di kontrak, tanpa izin", () => {
+    const pesan = (berkas: Record<string, string>) => relevan(jalankan(guardRuteMutasi, { ...kontrak, ...sah, ...berkas })).map((t) => t.pesan);
+    expect(pesan({ "apps/web/app/api/serah/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); await wajibSesi(r); });` })).toEqual([
+      "POST /api/serah: tanpa wajibPeran (kontrak: PETUGAS, PENGELOLA)",
+    ]);
+    expect(pesan({ "apps/web/app/api/serah/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); wajibPeran(sesi, "PETUGAS"); });` })[0]).toMatch(/≠ kontrak/);
+    expect(pesan({ "apps/web/app/api/serah/route.ts": `export const POST = tanganiRute(async (r) => { wajibPeran(sesi, "PENGELOLA", "PETUGAS"); });` })).toEqual([
+      "POST /api/serah: mutasi tanpa cekAsal (CSRF Origin)",
+    ]);
+    expect(pesan({ "apps/web/app/api/akun/hapus/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); });` })).toEqual([
+      "POST /api/akun/hapus: akses SESI/PENGURUS tanpa wajibSesi",
+    ]);
+    expect(pesan({ "apps/web/app/api/cron/harian/route.ts": `export const POST = tanganiRute(async (r) => 1);` })).toEqual(["POST /api/cron/harian: rute CRON tanpa wajibCron"]);
+    expect(pesan({ "apps/web/app/api/liar/route.ts": `export const DELETE = tanganiRute(async (r) => 1);` })).toEqual([
+      "DELETE /api/liar: tidak ada di kontrak (packages/kontrak/src/api)",
+    ]);
+    expect(pesan({ "apps/web/app/api/baru/route.ts": `export const POST = tanganiRute(async (r) => { cekAsal(r); await wajibSesi(r); });` })).toEqual([
+      "POST /api/baru: tanpa peran di kontrak (SESI) tetapi tidak tercantum di IZIN_TANPA_PERAN",
+    ]);
+  });
+
+  it("daftar izin hanya berisi rute tanpa peran yang nyata (dilaporkan bila basi)", () => {
+    expect(Object.keys(IZIN_TANPA_PERAN).length).toBeGreaterThan(0);
+    const t = jalankan(guardRuteMutasi, { ...kontrak, ...sah }).filter((x) => x.pesan.startsWith("IZIN_TANPA_PERAN memuat"));
+    expect(t.map((x) => x.pesan)).toContain("IZIN_TANPA_PERAN memuat POST /api/auth/masuk yang tidak ada sebagai handler");
   });
 });

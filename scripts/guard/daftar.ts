@@ -11,6 +11,7 @@ import { guardKodePaket } from "./j-kode-paket.ts";
 import { guardConsoleLog } from "./k-console-log.ts";
 import { guardAmbangAturan } from "./l-ambang-aturan.ts";
 import { guardEnvTertrack } from "./m-env-tertrack.ts";
+import { guardRuteMutasi } from "./n-rute-mutasi.ts";
 import type { Guard } from "./jenis.ts";
 
 export const DAFTAR_GUARD: readonly Guard[] = [
@@ -27,4 +28,5 @@ export const DAFTAR_GUARD: readonly Guard[] = [
   guardConsoleLog,
   guardAmbangAturan,
   guardEnvTertrack,
+  guardRuteMutasi,
 ];
