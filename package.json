@@ -37,5 +37,11 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "mysql2": "^3.23.1",
+      "deepmerge-ts": "^8.0.0"
+    }
   }
 }

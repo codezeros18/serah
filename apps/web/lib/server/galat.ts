@@ -1,5 +1,7 @@
 import { STATUS_HTTP_GALAT, TEKS, type AmplopGagal, type KodeGalat, type KunciTeks, type RujukanAturan } from "@serah/kontrak";
 import type { z } from "zod";
+import { log } from "./log";
+import { laporGalat } from "./sentry";
 
 // Galat API beramplop (§K.1). Pesan selalu dari teks.ts.
 
@@ -65,7 +67,8 @@ export function tanganiRute<A extends unknown[]>(fn: (...args: A) => Promise<Res
       if (e instanceof GalatApi) return responsGalat(e);
       const nama = e instanceof Error ? e.name : "unknown";
       const kode = typeof e === "object" && e !== null && "code" in e ? String((e as { code: unknown }).code) : "-";
-      process.stderr.write(`[serah] galat tak tertangani: ${nama} ${kode}\n`);
+      log().error("galat tak tertangani", { nama, kode });
+      laporGalat(e);
       return responsGalat(new GalatApi("GALAT_SERVER"));
     }
   };

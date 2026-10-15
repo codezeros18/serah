@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TanpaMasukan, rute } from "./primitif";
+import { TanpaMasukan, WaktuIso, rute } from "./primitif";
 
 // Cron (Bearer CRON_SECRET) & health.
 
@@ -16,6 +16,8 @@ export const HealthKeluaran = z.object({
   db: z.enum(["ok", "galat"]).optional(),
   /** Umur data prakiraan BMKG terbaru dalam jam (S05/S08). */
   bmkgUmurJam: z.number().int().min(0).nullable().optional(),
+  /** Selesai terakhir tiap pekerjaan cron (S26-4); null = belum pernah selesai. */
+  cron: z.array(z.object({ nama: z.string(), selesaiPada: WaktuIso.nullable() })).optional(),
 });
 export type HealthKeluaran = z.infer<typeof HealthKeluaran>;
 
