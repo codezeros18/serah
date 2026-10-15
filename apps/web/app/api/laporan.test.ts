@@ -302,6 +302,15 @@ describe("S11-5 — akses per pihak", () => {
     }
   });
 
+  it("lapis kedua: peran PENGELOLA pada organisasi non-kawasan yang berkontrak (RLS membuka kawasan A) tetap 404, bukan data kawasan A", async () => {
+    // RLS memperlihatkan kawasan A kepada organisasi pengangkut (ada kontrak). Hanya pemeriksaan kepemilikan di layanan
+    // yang mencegah peran PENGELOLA di organisasi itu membaca ringkasan/laporan kawasan A.
+    const cookie = await masuk("PENGELOLA", d.org.pengangkut);
+    expect((await rk(cookie, a)).status).toBe(404);
+    expect((await lap(cookie, "kawasan", q())).status).toBe(404);
+    expect((await panggil(ditolak, { jalur: `/api/kawasan/${a.kawasan}/ditolak?periode=${periode}`, cookie, params: { id: a.kawasan } })).status).toBe(404);
+  });
+
   it("masukan tidak sah: periode salah / field tak dikenal → 400; PDF belum tersedia → 404", async () => {
     expect((await lap(c.pengelolaA, "kawasan", "periode=2026-13")).status).toBe(400);
     expect((await lap(c.pengelolaA, "kawasan", "")).status).toBe(400);

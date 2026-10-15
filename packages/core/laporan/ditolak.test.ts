@@ -99,6 +99,14 @@ describe("pilihHargaAcuan", () => {
     expect(pilihHargaAcuan([baru, kembar])).toBe(kembar);
   });
 
+  it("bertanggal sah tetap ditolak bila tanpa harga kotor atau harga bersih ≤ kotor", () => {
+    const tanpaKotor: HargaMaterialMasukan = { sumberKode: "R-HM-11", bersihIdrPerKg: 9_000, kotorIdrPerKg: null, tanggalSumber: "2026-01-01" };
+    const terbalik: HargaMaterialMasukan = { sumberKode: "R-HM-12", bersihIdrPerKg: 1_000, kotorIdrPerKg: 1_500, tanggalSumber: "2026-01-01" };
+    const sama: HargaMaterialMasukan = { sumberKode: "R-HM-13", bersihIdrPerKg: 1_000, kotorIdrPerKg: 1_000, tanggalSumber: "2026-01-01" };
+    expect(pilihHargaAcuan([tanpaKotor, terbalik, sama])).toBeNull();
+    expect(pilihHargaAcuan([tanpaKotor, terbalik, sama, PET])).toBe(PET);
+  });
+
   it("tidak ada kandidat → null", () => {
     expect(pilihHargaAcuan([])).toBeNull();
     expect(pilihHargaAcuan(SEED.filter((h) => h !== PET))).toBeNull();
