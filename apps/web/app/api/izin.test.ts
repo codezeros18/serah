@@ -1,4 +1,5 @@
 import { TEKS } from "@serah/kontrak";
+import { namaUnik } from "@/lib/server/uji/nama";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
 import { denganAdmin, denganAkses, denganSistem } from "@/lib/server/db";
@@ -159,7 +160,7 @@ describe("evaluasiUlangKontrakMenunggu — R-11 dinilai ulang oleh evaluator cor
     const p = await orgBaru(rekam, { jenis: "PENERIMA", jenisPenerima: "BANK_SAMPAH_INDUK", aliranDiterima: ["KUNING"] });
     await ajukanIzin(p, { nomorIzin: "IZIN-BSI-1" }); // MENUNGGU
     const kawasan = await orgBaru(rekam, { jenis: "KAWASAN" });
-    const kws = await buatKawasan(permintaan("/api/kawasan", { cookie: kawasan.cookie, body: { nama: "Pasar R11 Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
+    const kws = await buatKawasan(permintaan("/api/kawasan", { cookie: kawasan.cookie, body: { nama: namaUnik("Pasar R11 Uji"), jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
     const kawasanId = (await kws.json()).data.kawasan.id as string;
     const angkut = await orgBaru(rekam, { jenis: "PENGANGKUT" });
     const u = await usulKontrak(
@@ -181,7 +182,7 @@ describe("evaluasiUlangKontrakMenunggu — R-11 dinilai ulang oleh evaluator cor
 describe("T12 lengkap — MENUNGGU → TERVERIFIKASI → kontrak bisa AKTIF", () => {
   async function dunia() {
     const k = await orgBaru(rekam, { jenis: "KAWASAN" });
-    const r = await buatKawasan(permintaan("/api/kawasan", { cookie: k.cookie, body: { nama: "Pasar Izin Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
+    const r = await buatKawasan(permintaan("/api/kawasan", { cookie: k.cookie, body: { nama: namaUnik("Pasar Izin Uji"), jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
     const kawasanId = (await r.json()).data.kawasan.id as string;
     const pengangkut = await orgBaru(rekam, { jenis: "PENGANGKUT" });
     const penerima = await orgBaru(rekam, { jenis: "PENERIMA", jenisPenerima: "PELAPAK_BERIZIN", aliranDiterima: ["KUNING"] });

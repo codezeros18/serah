@@ -1,4 +1,5 @@
 import { TEKS } from "@serah/kontrak";
+import { namaUnik } from "@/lib/server/uji/nama";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
 import { denganAkses } from "@/lib/server/db";
@@ -24,6 +25,9 @@ const rekam = new PengirimRekam();
 beforeAll(() => setelPengirimUji(rekam));
 afterAll(() => setelPengirimUji(null));
 
+// Nama kawasan unik per run: generator kode kawasan hanya mencoba 200 kandidat per nama di skema yang dipakai berulang.
+const NAMA_KAWASAN = namaUnik("Pasar Kontrak Uji");
+
 const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
 const TANGGAL = { berlakuDari: "2026-10-01", berlakuSampai: "2027-09-30" };
 
@@ -32,7 +36,7 @@ type Dunia = { kawasan: OrgUji & { kawasanId: string }; pengangkut: OrgUji; pene
 /** Satu kawasan (dengan kawasan terdaftar), satu pengangkut, satu penerima FASILITAS_BERIZIN (izin BELUM_DIAJUKAN). */
 async function dunia(): Promise<Dunia> {
   const k = await orgBaru(rekam, { jenis: "KAWASAN" });
-  const r = await buatKawasan(permintaan("/api/kawasan", { cookie: k.cookie, body: { nama: "Pasar Kontrak Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
+  const r = await buatKawasan(permintaan("/api/kawasan", { cookie: k.cookie, body: { nama: NAMA_KAWASAN, jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }));
   expect(r.status).toBe(200);
   const kawasanId = (await r.json()).data.kawasan.id as string;
   return {
@@ -68,7 +72,7 @@ describe("S13-4 kontrak: usul", () => {
       tarifPerKgIdr: 500,
       dikonfirmasiPengangkutPada: null,
       dikonfirmasiPenerimaPada: null,
-      kawasan: { id: d.kawasan.kawasanId, nama: "Pasar Kontrak Uji" },
+      kawasan: { id: d.kawasan.kawasanId, nama: NAMA_KAWASAN },
       pengangkut: { id: d.pengangkut.organisasiId },
       penerima: { id: d.penerima.organisasiId },
     });
@@ -80,7 +84,7 @@ describe("S13-4 kontrak: usul", () => {
     expect(n.map((x) => [x.organisasi_id, x.peran_tujuan]).sort()).toEqual(
       [[d.pengangkut.organisasiId, "{PENGANGKUT}"], [d.penerima.organisasiId, "{PENERIMA}"]].sort(),
     );
-    expect(n.every((x) => x.data.nama_kawasan === "Pasar Kontrak Uji")).toBe(true);
+    expect(n.every((x) => x.data.nama_kawasan === NAMA_KAWASAN)).toBe(true);
   });
 
   it("menolak: tarif pecahan, rentang terbalik, pengangkut/penerima bukan jenisnya, kawasan organisasi lain, bukan PENGELOLA", async () => {

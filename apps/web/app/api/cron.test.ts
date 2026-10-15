@@ -6,6 +6,7 @@ import { jalankanCron } from "@/lib/server/layanan/cron";
 import { asal, data, demo, denganPemilik, formFoto, masuk, panggil, pngContoh, satu, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as cronHarian } from "./cron/harian/route";
 import { POST as cronSepuluh } from "./cron/sepuluh-menit/route";
+import { POST as cronTigaJam } from "./cron/tiga-jam/route";
 import { POST as unggah } from "./foto/route";
 import { GET as health } from "./health/route";
 import { POST as ambil } from "./serah/[kode]/ambil/route";
@@ -83,12 +84,14 @@ describe("Rute cron — Bearer CRON_SECRET & pekerjaan_cron", () => {
     expect((await cron(cronSepuluh, "salah-salah-salah-salah-salah-salah")).status).toBe(401);
     const rahasia = muatEnv().CRON_SECRET;
     expect(rahasia, "CRON_SECRET wajib di .env untuk test ini").toBeTruthy();
-    const a = await cron(cronSepuluh, rahasia!);
-    const b = await cron(cronSepuluh, rahasia!);
+    // Rute tiga-jam (ringan): mekanisme jendela & klaim pekerjaan_cron sama untuk semua rute cron. Rute sepuluh-menit
+    // memindai seluruh TPS di skema (mahal di skema uji yang menumpuk); logikanya diuji lewat jalankanCron di atas.
+    const a = await cron(cronTigaJam, rahasia!);
+    const b = await cron(cronTigaJam, rahasia!);
     expect(a.status).toBe(200);
     const [ia, ib] = [(await a.json()).data, (await b.json()).data];
-    expect(ib).toEqual({ pekerjaan: "sepuluh-menit", jendela: ia.jendela, dilewati: true });
-    const row = await satu<{ selesai: boolean }>(`SELECT selesai_pada IS NOT NULL AS selesai FROM pekerjaan_cron WHERE nama = 'sepuluh-menit' AND jendela = $1`, [ia.jendela]);
+    expect(ib).toEqual({ pekerjaan: "tiga-jam", jendela: ia.jendela, dilewati: true });
+    const row = await satu<{ selesai: boolean }>(`SELECT selesai_pada IS NOT NULL AS selesai FROM pekerjaan_cron WHERE nama = 'tiga-jam' AND jendela = $1`, [ia.jendela]);
     expect(row.selesai).toBe(true);
   });
 

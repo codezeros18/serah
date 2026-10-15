@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { namaUnik } from "@/lib/server/uji/nama";
 import { periodeWib } from "@serah/core/waktu";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
@@ -44,7 +45,7 @@ beforeAll(async () => {
 
   const o = await orgBaru(rekam, { jenis: "KAWASAN" });
   const kws = data<{ kawasan: { id: string } }>(
-    await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: o.cookie, body: { nama: "Kawasan Tagihan Angkut Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
+    await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: o.cookie, body: { nama: namaUnik("Kawasan Tagihan Angkut Uji"), jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
   ).kawasan;
   const tps = data<{ tps: { id: string } }>(await panggil(buatTps, { jalur: "/api/tps", cookie: o.cookie, body: { kawasanId: kws.id, nama: "TPS 1", latE6: -6_161_234, lonE6: 106_845_678 } })).tps;
   k = { ...o, kawasanId: kws.id, tps: tps.id };
@@ -184,7 +185,7 @@ describe("S24-4 — mode bayangan", () => {
   beforeAll(async () => {
     const baru = await orgBaru(rekam, { jenis: "KAWASAN" });
     const kws = data<{ kawasan: { id: string } }>(
-      await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: baru.cookie, body: { nama: "Kawasan Bayangan Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
+      await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: baru.cookie, body: { nama: namaUnik("Kawasan Bayangan Uji"), jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
     ).kawasan;
     const tps = data<{ tps: { id: string } }>(await panggil(buatTps, { jalur: "/api/tps", cookie: baru.cookie, body: { kawasanId: kws.id, nama: "TPS B", latE6: -6_161_234, lonE6: 106_845_678 } })).tps;
     o = { ...baru, kawasanId: kws.id, tps: tps.id };
