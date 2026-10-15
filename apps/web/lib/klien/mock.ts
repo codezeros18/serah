@@ -123,7 +123,8 @@ function sesiPenuh(peran: Peran) {
     organisasiAktif: { id: o.id, kode: o.kode, nama: o.nama, jenis: o.jenis },
     peran,
     paket: peran === "PENGELOLA" || peran === "PETUGAS" ? PAKET[0]?.kode ?? null : null,
-    hak: PAKET[0]?.hak ?? [],
+    // Skenario uji "tanpaHak": paket tanpa hak berbayar (uji G_HAK_PAKET).
+    hak: skenario("tanpaHak") === "1" ? [] : (PAKET[0]?.hak ?? []),
   };
 }
 const PERAN_URUTAN: Record<Peran, number> = { PETUGAS: 1, PENGELOLA: 2, PENGANGKUT: 3, PENERIMA: 4, ADMIN: 5 };

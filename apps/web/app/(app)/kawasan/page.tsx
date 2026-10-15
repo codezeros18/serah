@@ -1,5 +1,5 @@
-import { HalamanKosong } from "@/lib/klien/komponen/halaman-kosong";
+import { RingkasanKawasan } from "./ringkasan-kawasan";
 
 export default function Halaman() {
-  return <HalamanKosong judul="K1_JUDUL" kosong="K_KOSONG_BULAN" />;
+  return <RingkasanKawasan />;
 }

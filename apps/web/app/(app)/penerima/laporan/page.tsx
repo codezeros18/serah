@@ -1,5 +1,5 @@
-import { HalamanKosong } from "@/lib/klien/komponen/halaman-kosong";
+import { LaporanSatuPihak } from "@/lib/klien/komponen/laporan-satu-pihak";
 
 export default function Halaman() {
-  return <HalamanKosong judul="P2_JUDUL" kosong="K_KOSONG_BULAN" />;
+  return <LaporanSatuPihak pihak="penerima" judul="P2_JUDUL" />;
 }

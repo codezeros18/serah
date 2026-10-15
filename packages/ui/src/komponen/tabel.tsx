@@ -21,7 +21,7 @@ export function Tabel<T>({
   kunciBaris: (baris: T) => string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas">
+    <div role="region" aria-label={keterangan} tabIndex={0} className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas">
       <table className="w-full border-collapse text-left text-base">
         <caption className="sr-only">{keterangan}</caption>
         <thead>

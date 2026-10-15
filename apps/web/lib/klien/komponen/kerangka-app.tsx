@@ -21,11 +21,13 @@ const NAV: Record<Peran, readonly ItemNav[]> = {
   PENGANGKUT: [
     { href: "/pengangkut", kunci: "A1_JUDUL" },
     { href: "/pengangkut/kendaraan", kunci: "KND_JUDUL" },
+    { href: "/pengangkut/laporan", kunci: "LAPORAN_PENGANGKUT" },
     { href: "/notifikasi", kunci: "NTF_JUDUL" },
     { href: "/akun", kunci: "AKUN_JUDUL" },
   ],
   PENGELOLA: [
     { href: "/kawasan", kunci: "K1_JUDUL" },
+    { href: "/kawasan/ditolak", kunci: "K3_JUDUL" },
     { href: "/kawasan/laporan", kunci: "K4_JUDUL" },
     { href: "/kawasan/tps", kunci: "TPS_JUDUL" },
     { href: "/notifikasi", kunci: "NTF_JUDUL" },

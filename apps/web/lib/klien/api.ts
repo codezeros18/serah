@@ -128,7 +128,7 @@ function galatJaringan(): HasilApi<never> {
   return { ok: false, galat: { kode: "GALAT_SERVER", pesan: "jaringan" }, pesan: TEKS.G_OFFLINE };
 }
 
-function isiJalur(jalur: string, params: Record<string, string> | undefined): string {
+export function isiJalur(jalur: string, params: Record<string, string> | undefined): string {
   return jalur.replace(/\[([a-zA-Z0-9_]+)\]/g, (_c, nama: string) => {
     const v = params?.[nama];
     if (v === undefined) throw new Error(`Parameter ${nama} untuk ${jalur} tidak diisi`);
@@ -136,7 +136,7 @@ function isiJalur(jalur: string, params: Record<string, string> | undefined): st
   });
 }
 
-function kueriKeString(kueri: Record<string, unknown> | undefined): string {
+export function kueriKeString(kueri: Record<string, unknown> | undefined): string {
   if (!kueri) return "";
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(kueri)) {
