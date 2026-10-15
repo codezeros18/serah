@@ -90,6 +90,8 @@ function periksaSigma(jenis: JenisTutup, beratTiketG: number, rincian: readonly 
     case "TUTUP_TOLAK":
       if (diterima !== 0) return "DITERIMA_ADA";
       if (rincian.some((r) => !r.alasan)) return "ALASAN_TOLAK_KURANG";
+      // Keputusan pemilik 15 Okt 2026 (S08): tolak penuh juga wajib seimbang dengan tiket.
+      if (ditolak !== beratTiketG) return "JUMLAH_TIDAK_SAMA";
       return null;
   }
 }

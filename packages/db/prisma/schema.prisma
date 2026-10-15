@@ -219,10 +219,12 @@ enum KeyakinanAi {
   RENDAH
 }
 
+/// RINCIAN dipecah per kolom (S08): satu baris koreksi = satu nilai.
 enum TargetKoreksi {
   WADAH
   TIKET
-  RINCIAN
+  RINCIAN_DITERIMA
+  RINCIAN_DITOLAK
 }
 
 enum KeputusanPermintaan {
@@ -365,6 +367,7 @@ model Organisasi {
   ekspor              Ekspor[]
   langganan           Langganan?
   tagihan             Tagihan[]
+  responsIdempoten    ResponsIdempoten[]
 
   @@map("organisasi")
 }
@@ -1095,6 +1098,21 @@ model PekerjaanCron {
 
   @@id([nama, jendela])
   @@map("pekerjaan_cron")
+}
+
+/// Cermin respons sukses per Idempotency-Key (S08): kiriman ganda → satu efek, respons sama. Bukan catat-saja.
+model ResponsIdempoten {
+  kunci         String   @id
+  organisasiId  String   @map("organisasi_id")
+  rute          String
+  statusHttp    Int      @map("status_http")
+  isi           Json
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+
+  @@index([organisasiId, dibuatPada])
+  @@map("respons_idempoten")
 }
 
 /// Untuk kode terbaca manusia; dikunci FOR UPDATE.

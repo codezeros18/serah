@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { JenisFoto } from "../enum";
-import { Id, rute } from "./primitif";
+import { Id, KodeSerah, rute } from "./primitif";
 
-// Unggah foto (S08). Multipart: field `jenis` + `berkas`. Server me-re-encode ke webp tanpa EXIF dan menghitung dHash.
+// Unggah foto (S08). Multipart: field `jenis` + `berkas` (+ `serahKode`, wajib untuk MUATAN & TIKET agar foto terkait serah). Server me-re-encode ke webp tanpa EXIF dan menghitung dHash.
 
 export const FOTO_UKURAN_MAKS_BYTE = 5 * 1024 * 1024;
 export const FOTO_MIME_DITERIMA = ["image/jpeg", "image/png", "image/webp"] as const;
@@ -10,6 +10,7 @@ export const FOTO_MIME_DITERIMA = ["image/jpeg", "image/png", "image/webp"] as c
 export const FotoUnggahMasukan = z
   .object({
     jenis: JenisFoto,
+    serahKode: KodeSerah.optional(),
     berkas: z
       .instanceof(Blob)
       .refine((b) => b.size > 0 && b.size <= FOTO_UKURAN_MAKS_BYTE, { message: "G_FOTO_TERLALU_BESAR" })

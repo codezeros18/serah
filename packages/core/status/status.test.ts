@@ -309,6 +309,9 @@ describe("T13 baris 7: guard TUTUP_TOLAK", () => {
   it("setiap aliran wajib beralasan", () => {
     expect(coba([tolak[0]!, { aliran: "ABU", diterimaG: 0, ditolakG: 200_000 }])).toMatchObject({ kode: "VALIDASI_GAGAL", sebab: "ALASAN_TOLAK_KURANG" });
   });
+  it("Σditolak ≠ berat tiket (keputusan pemilik S08: tolak penuh juga seimbang)", () => {
+    expect(coba([tolak[0]!, { aliran: "ABU", diterimaG: 0, ditolakG: 199_999, alasan: "JENIS_TIDAK_SESUAI" }])).toMatchObject({ kode: "VALIDASI_GAGAL", sebab: "JUMLAH_TIDAK_SAMA" });
+  });
   it("penerima bukan tujuan", () => {
     const g = gagal(terapkanTransisi(serah("DIANGKUT"), tutup("TUTUP_TOLAK", tolak), { pelaku: { peran: "PENERIMA", orgIds: [ORG_LAIN] } }, SEKARANG));
     expect(g.sebab).toBe("BUKAN_PIHAK");

@@ -145,10 +145,39 @@ export const SerahTutupMasukan = z
 export type SerahTutupMasukan = z.infer<typeof SerahTutupMasukan>;
 export const SerahTutupKeluaran = SerahStatus.extend({ peringatan: z.array(RujukanAturan) });
 
+/** Sasaran koreksi berat oleh penerima: tiket, atau kolom diterima/ditolak satu baris rincian. */
+export const TargetKoreksiBerat = z.enum(["TIKET", "RINCIAN_DITERIMA", "RINCIAN_DITOLAK"]);
+export const KOREKSI_PERUBAHAN_MAKS = 9;
+
+// Keputusan pemilik (S08): koreksi = daftar perubahan yang diterapkan bersama, karena berat tiket harus tetap
+// sama dengan Σ rincian. Satu baris koreksi per perubahan, satu event KOREKSI_BERAT.
 export const SerahKoreksiMasukan = z
-  .object({ target: z.enum(["TIKET", "RINCIAN"]), targetId: Id, nilaiFinalG: BeratGBolehNol, alasan: Alasan })
+  .object({
+    alasan: Alasan,
+    perubahan: z
+      .array(z.object({ target: TargetKoreksiBerat, targetId: Id, nilaiFinalG: BeratGBolehNol }).strict())
+      .min(1)
+      .max(KOREKSI_PERUBAHAN_MAKS),
+  })
   .strict();
-export const SerahKoreksiKeluaran = z.object({ koreksiId: Id, nilaiAsliG: BeratGBolehNol, nilaiFinalG: BeratGBolehNol });
+export type SerahKoreksiMasukan = z.infer<typeof SerahKoreksiMasukan>;
+export const KoreksiTercatat = z.object({
+  koreksiId: Id,
+  target: TargetKoreksiBerat,
+  targetId: Id,
+  nilaiAsliG: BeratGBolehNol,
+  nilaiFinalG: BeratGBolehNol,
+});
+/** Field puncak = perubahan pertama (kompatibel); `koreksi` = semua perubahan (selalu diisi server). */
+export const SerahKoreksiKeluaran = z.object({
+  koreksiId: Id,
+  nilaiAsliG: BeratGBolehNol,
+  nilaiFinalG: BeratGBolehNol,
+  kode: KodeSerah.optional(),
+  status: StatusSerah.optional(),
+  versi: z.number().int().min(0).optional(),
+  koreksi: z.array(KoreksiTercatat).optional(),
+});
 
 export const RUTE_SERAH = [
   rute({ metode: "POST", jalur: "/api/serah", akses: ["PETUGAS", "PENGELOLA"], masukan: SerahBuatMasukan, keluaran: SerahBuatKeluaran, idempoten: true }),

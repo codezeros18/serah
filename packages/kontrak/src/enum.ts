@@ -149,7 +149,8 @@ export const KEYAKINAN_AI = ["TINGGI", "SEDANG", "RENDAH"] as const;
 export const KeyakinanAi = z.enum(KEYAKINAN_AI);
 export type KeyakinanAi = z.infer<typeof KeyakinanAi>;
 
-export const TARGET_KOREKSI = ["WADAH", "TIKET", "RINCIAN"] as const;
+/** RINCIAN dipecah per kolom: satu baris koreksi = satu nilai (keputusan pemilik S08). */
+export const TARGET_KOREKSI = ["WADAH", "TIKET", "RINCIAN_DITERIMA", "RINCIAN_DITOLAK"] as const;
 export const TargetKoreksi = z.enum(TARGET_KOREKSI);
 export type TargetKoreksi = z.infer<typeof TargetKoreksi>;
 
