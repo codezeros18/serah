@@ -22,7 +22,7 @@ export default defineConfig({
           name: "web",
           include: ["apps/web/**/*.test.{ts,tsx}"],
           exclude: ["**/node_modules/**", "apps/web/e2e/**", "apps/web/.next/**"],
-          maxWorkers: 3,
+          fileParallelism: false,
           sequence: { groupOrder: 1 },
           testTimeout: 20_000,
           hookTimeout: 30_000,

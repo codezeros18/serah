@@ -13,7 +13,7 @@
     "start": "pnpm --filter @serah/web start",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "pnpm -r --parallel typecheck && tsc -p scripts/tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --project=kontrak --project=core --project=db --project=ui --project=scripts && vitest run --project=web",
     "test:e2e": "pnpm --filter @serah/web test:e2e",
     "guard": "node scripts/guard/index.ts",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm guard",
