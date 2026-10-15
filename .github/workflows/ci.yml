@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_ci
+          POSTGRES_DB: serah
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d serah"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 30
+
+    # Nilai uji CI saja — bukan rahasia, tidak dipakai di lingkungan mana pun selain job ini.
+    env:
+      DATABASE_URL: postgresql://serah_app:serah_app_dev@localhost:5432/serah
+      DATABASE_URL_MIGRASI: postgresql://serah_migrasi:serah_migrasi_dev@localhost:5432/serah
+      BASE_URL: http://localhost:3000
+      TOKEN_PEPPER: ci-token-pepper-bukan-rahasia-000000000000
+      SESI_SECRET: ci-sesi-secret-bukan-rahasia-0000000000000
+      CRON_SECRET: ci-cron-secret-bukan-rahasia-0000000000000
+      DEMO_MODE: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Role & hak basis data (db-init.sql)
+        env:
+          PGPASSWORD: postgres_ci
+        run: psql -h localhost -U postgres -d serah -v ON_ERROR_STOP=1 -f scripts/db-init.sql
+
+      - name: Migrasi
+        run: pnpm --filter @serah/db db:migrate
+
+      - name: Verify (lint + typecheck + test + guard)
+        run: pnpm verify
+
+      - name: Audit dependensi produksi
+        run: pnpm audit --prod --audit-level critical
