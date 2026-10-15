@@ -34,6 +34,31 @@ export function kodeKawasan(huruf: string): HasilKode {
   return POLA_HURUF_KAWASAN.test(h) ? { ok: true, kode: `KWS-${h}` } : FORMAT;
 }
 
+const ALFABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+/**
+ * Usulan 3–5 huruf kode kawasan dari nama. Percobaan 0: huruf awal tiap kata (≥3; kurang → lanjut dari huruf
+ * kata pertama; maks 5). Percobaan n>0 mengganti huruf terakhir (atau menambah huruf) agar unik. Deterministik.
+ */
+export function hurufKodeKawasan(nama: string, percobaan = 0): string {
+  const bersih = nama
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9 ]+/g, " ")
+    .trim();
+  const kata = bersih.split(/\s+/).filter((k) => /[A-Z]/.test(k)).map((k) => k.replace(/[^A-Z]/g, ""));
+  let huruf = kata.map((k) => k[0] ?? "").join("").slice(0, 5);
+  const semua = kata.join("");
+  for (let i = 1; huruf.length < 3 && i <= semua.length; i++) huruf = (huruf + (kata[0]?.[i] ?? "")).slice(0, 5);
+  while (huruf.length < 3) huruf += "X";
+  if (percobaan <= 0) return huruf;
+  const pangkal = huruf.length >= 5 ? huruf.slice(0, 4) : huruf;
+  const tambahan = ALFABET[(percobaan - 1) % 26] ?? "A";
+  const putaran = Math.floor((percobaan - 1) / 26);
+  return putaran === 0 ? (pangkal + tambahan).slice(0, 5) : (pangkal.slice(0, 3) + (ALFABET[putaran % 26] ?? "A") + tambahan).slice(0, 5);
+}
+
 /** `TPS-<KWS>-NN` dari kode kawasan `KWS-<KWS>`. */
 export function kodeTps(kodeKawasan: string, n: number): HasilKode {
   const m = POLA_KODE_KAWASAN.exec(kodeKawasan);
