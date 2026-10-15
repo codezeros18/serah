@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   // Paket workspace diekspor sebagai sumber TypeScript.
-  transpilePackages: ["@serah/core", "@serah/kontrak", "@serah/ui"],
+  transpilePackages: ["@serah/core", "@serah/db", "@serah/kontrak", "@serah/ui"],
   outputFileTracingRoot: akarRepo,
   turbopack: { root: akarRepo },
 };

@@ -1,0 +1,1099 @@
+// Skema SERAH (BLUEPRINT §H). Angka bisnis selalu Int: _g gram, _idr rupiah, _bp basis poin, _e6 koordinat ×10⁶.
+// Tabel catat-saja (🔒) dijaga trigger + REVOKE di migrasi SQL; RLS & fungsi rantai juga di migrasi SQL.
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Enum (§H.2 + pendukung kolom) ──────────────────────────────────────────
+
+enum Aliran {
+  HIJAU
+  KUNING
+  MERAH
+  ABU
+}
+
+enum Peran {
+  PETUGAS
+  PENGELOLA
+  PENGANGKUT
+  PENERIMA
+  ADMIN
+}
+
+enum JenisOrganisasi {
+  KAWASAN
+  PENGANGKUT
+  PENERIMA
+  INTERNAL
+}
+
+enum JenisKawasan {
+  KOMERSIAL
+  PERMUKIMAN
+}
+
+enum JenisPenerima {
+  FASILITAS_BERIZIN
+  TPS3R
+  BANK_SAMPAH_INDUK
+  PELAPAK_BERIZIN
+  TPA_TPST
+}
+
+enum StatusIzin {
+  BELUM_DIAJUKAN
+  MENUNGGU
+  TERVERIFIKASI
+  DITOLAK
+}
+
+enum StatusSerah {
+  DRAF
+  MENUNGGU_SETUJU
+  DIANGKUT
+  DITERIMA
+  DITERIMA_SEBAGIAN
+  DITOLAK
+  MENGGANTUNG
+}
+
+enum StatusKontrak {
+  USULAN
+  AKTIF
+  BERAKHIR
+  DIBATALKAN
+}
+
+enum JenisFoto {
+  MUATAN
+  TIKET
+  BUKTI_TRANSFER
+  DOKUMEN_IZIN
+}
+
+enum SumberTiket {
+  AI_DIKONFIRMASI
+  AI_DIKOREKSI
+  MANUAL
+}
+
+enum AlasanTolak {
+  TERCAMPUR_ORGANIK
+  BASAH_KOTOR
+  JENIS_TIDAK_SESUAI
+  RESIDU_BERLEBIH
+  LAINNYA
+}
+
+enum JenisEvent {
+  SERAH_DIBUAT
+  SERAH_DIAMBIL
+  SERAH_DISETUJUI
+  SERAH_DIKEMBALIKAN
+  SERAH_DITERIMA
+  SERAH_DITERIMA_SEBAGIAN
+  SERAH_DITOLAK
+  SERAH_MENGGANTUNG
+  KOREKSI_BERAT
+  PERMINTAAN_KOREKSI_DIAJUKAN
+  PERMINTAAN_KOREKSI_DISETUJUI
+  PERMINTAAN_KOREKSI_DITOLAK
+  WADAH_DICATAT
+}
+
+enum AksiAturan {
+  TOLAK
+  PERINGATAN
+  PRIORITAS
+  STATUS
+}
+
+enum KodeAturan {
+  R01
+  R02
+  R03
+  R04
+  R05
+  R06
+  R07
+  R08
+  R09
+  R10
+  R11
+}
+
+enum SumberCuaca {
+  PRAKIRAAN
+  NOWCAST
+}
+
+enum ModeData {
+  LIVE
+  SNAPSHOT
+}
+
+enum StatusLangganan {
+  UJI_COBA
+  AKTIF
+  MENUNGGAK
+  BERAKHIR
+}
+
+enum StatusTagihan {
+  TERBIT
+  MENUNGGU_KONFIRMASI
+  LUNAS
+  KEDALUWARSA
+  DIBATALKAN
+}
+
+enum Penyedia {
+  MIDTRANS
+  MANUAL
+}
+
+enum StatusPermintaan {
+  DIAJUKAN
+  DISETUJUI
+  DITOLAK
+}
+
+enum JenisNotifikasi {
+  SERAH_MENUNGGU_SETUJU
+  SERAH_DIANGKUT
+  SERAH_DITUTUP
+  SERAH_MENGGANTUNG
+  PRIORITAS_ANGKUT
+  WADAH_LEWAT_BATAS
+  CATATAN_HARIAN_BELUM
+  KONTRAK_PERLU_KONFIRMASI
+  PERMINTAAN_KOREKSI
+  IZIN_DIPUTUS
+  TAGIHAN_TERBIT
+  UJI_COBA_BERAKHIR
+}
+
+enum JenisTokenSekali {
+  VERIFIKASI_EMAIL
+  RESET_SANDI
+  UNDANGAN
+}
+
+enum JenisPersetujuan {
+  LAYANAN
+  TARIK
+}
+
+enum Yurisdiksi {
+  DKI
+  NASIONAL
+}
+
+enum KeputusanIzin {
+  TERVERIFIKASI
+  DITOLAK
+}
+
+enum KeyakinanAi {
+  TINGGI
+  SEDANG
+  RENDAH
+}
+
+enum TargetKoreksi {
+  WADAH
+  TIKET
+  RINCIAN
+}
+
+enum KeputusanPermintaan {
+  DISETUJUI
+  DITOLAK
+}
+
+enum PihakEkspor {
+  KAWASAN
+  PENGANGKUT
+  PENERIMA
+  LEMBAR_NERACA
+}
+
+enum FormatEkspor {
+  CSV
+  PDF
+}
+
+enum KeputusanKonfirmasi {
+  SETUJUI
+  TOLAK
+}
+
+// ── Identitas & akses (identitas hanya di sini) ───────────────────────────
+
+model Pengguna {
+  id                      String    @id @default(cuid(2))
+  /// Huruf kecil; dikosongkan permanen saat akun dihapus.
+  email                   String?   @unique
+  sandiHash               String?   @map("sandi_hash")
+  emailTerverifikasiPada  DateTime? @map("email_terverifikasi_pada") @db.Timestamptz(3)
+  dibuatPada              DateTime  @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+  dihapusPada             DateTime? @map("dihapus_pada") @db.Timestamptz(3)
+
+  sesi             Sesi[]
+  tokenSekali      TokenSekali[]
+  persetujuan      PersetujuanPdp[]
+  keanggotaan      Keanggotaan[]
+  notifikasiDibaca NotifikasiDibaca[]
+  langgananPush    LanggananPush[]
+  preferensi       PreferensiNotifikasi[]
+
+  @@map("pengguna")
+}
+
+model Sesi {
+  id                 String     @id @default(cuid(2))
+  penggunaId         String     @map("pengguna_id")
+  tokenHash          String     @unique @map("token_hash") @db.Char(64)
+  organisasiAktifId  String?    @map("organisasi_aktif_id")
+  /// Peran aktif dalam organisasi aktif (POST /api/sesi/organisasi).
+  peranAktif         Peran?     @map("peran_aktif")
+  dibuatPada         DateTime   @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+  kedaluwarsaPada    DateTime   @map("kedaluwarsa_pada") @db.Timestamptz(3)
+  dicabutPada        DateTime?  @map("dicabut_pada") @db.Timestamptz(3)
+
+  pengguna        Pengguna    @relation(fields: [penggunaId], references: [id])
+  organisasiAktif Organisasi? @relation(fields: [organisasiAktifId], references: [id])
+
+  @@index([penggunaId])
+  @@map("sesi")
+}
+
+model TokenSekali {
+  id               String           @id @default(cuid(2))
+  jenis            JenisTokenSekali
+  tokenHash        String           @unique @map("token_hash") @db.Char(64)
+  penggunaId       String?          @map("pengguna_id")
+  organisasiId     String?          @map("organisasi_id")
+  peran            Peran?
+  /// Undangan menyimpan hash email tujuan, bukan email.
+  emailTujuanHash  String           @map("email_tujuan_hash") @db.Char(64)
+  kedaluwarsaPada  DateTime         @map("kedaluwarsa_pada") @db.Timestamptz(3)
+  dipakaiPada      DateTime?        @map("dipakai_pada") @db.Timestamptz(3)
+  dibuatPada       DateTime         @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  pengguna   Pengguna?   @relation(fields: [penggunaId], references: [id])
+  organisasi Organisasi? @relation(fields: [organisasiId], references: [id])
+
+  @@map("token_sekali")
+}
+
+/// 🔒
+model TeksPersetujuan {
+  versi        String   @id
+  isi          String
+  berlakuDari  DateTime @map("berlaku_dari") @db.Timestamptz(3)
+
+  persetujuan PersetujuanPdp[]
+
+  @@map("teks_persetujuan")
+}
+
+/// 🔒 Tarik persetujuan = baris baru jenis TARIK.
+model PersetujuanPdp {
+  id          String           @id @default(cuid(2))
+  penggunaId  String           @map("pengguna_id")
+  versi       String
+  jenis       JenisPersetujuan
+  pada        DateTime         @default(now()) @db.Timestamptz(3)
+
+  pengguna Pengguna        @relation(fields: [penggunaId], references: [id])
+  teks     TeksPersetujuan @relation(fields: [versi], references: [versi])
+
+  @@index([penggunaId])
+  @@map("persetujuan_pdp")
+}
+
+/// Nama organisasi = badan usaha, bukan orang.
+model Organisasi {
+  id              String          @id @default(cuid(2))
+  kode            String          @unique
+  nama            String
+  jenis           JenisOrganisasi
+  jenisPenerima   JenisPenerima?  @map("jenis_penerima")
+  aliranDiterima  Aliran[]        @map("aliran_diterima")
+  nomorIzin       String?         @map("nomor_izin")
+  statusIzin      StatusIzin      @default(BELUM_DIAJUKAN) @map("status_izin")
+  yurisdiksi      Yurisdiksi      @default(DKI)
+  demo            Boolean         @default(false)
+  dibuatPada      DateTime        @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  sesiAktif           Sesi[]
+  tokenSekali         TokenSekali[]
+  keanggotaan         Keanggotaan[]
+  izinPutusan         IzinPutusan[]
+  kawasan             Kawasan[]
+  tps                 Tps[]
+  kendaraan           Kendaraan[]
+  kontrakKawasan      Kontrak[]              @relation("KontrakKawasan")
+  kontrakPengangkut   Kontrak[]              @relation("KontrakPengangkut")
+  kontrakPenerima     Kontrak[]              @relation("KontrakPenerima")
+  serahKawasan        Serah[]                @relation("SerahKawasan")
+  serahPengangkut     Serah[]                @relation("SerahPengangkut")
+  serahPenerima       Serah[]                @relation("SerahPenerima")
+  foto                Foto[]
+  notifikasi          Notifikasi[]
+  preferensi          PreferensiNotifikasi[]
+  ekspor              Ekspor[]
+  langganan           Langganan?
+  tagihan             Tagihan[]
+
+  @@map("organisasi")
+}
+
+model Keanggotaan {
+  id            String   @id @default(cuid(2))
+  penggunaId    String   @map("pengguna_id")
+  organisasiId  String   @map("organisasi_id")
+  peran         Peran
+  pengurus      Boolean  @default(false)
+  aktif         Boolean  @default(true)
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  pengguna   Pengguna   @relation(fields: [penggunaId], references: [id])
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+
+  @@unique([penggunaId, organisasiId, peran])
+  @@index([organisasiId])
+  @@map("keanggotaan")
+}
+
+/// 🔒 Putusan admin atas izin organisasi.
+model IzinPutusan {
+  id            String        @id @default(cuid(2))
+  organisasiId  String        @map("organisasi_id")
+  nomorIzin     String        @map("nomor_izin")
+  keputusan     KeputusanIzin
+  alasan        String
+  fotoId        String?       @map("foto_id")
+  diputusPada   DateTime      @default(now()) @map("diputus_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+  foto       Foto?      @relation(fields: [fotoId], references: [id])
+
+  @@map("izin_putusan")
+}
+
+// ── Kawasan & mitra ────────────────────────────────────────────────────────
+
+model Kawasan {
+  id              String       @id @default(cuid(2))
+  organisasiId    String       @map("organisasi_id")
+  kode            String       @unique
+  nama            String
+  jenis           JenisKawasan
+  alamat          String
+  /// Kode wilayah kelurahan BMKG, mis. 31.71.03.1001.
+  adm4            String
+  kodeKecamatan   String?      @map("kode_kecamatan")
+  namaKelurahan   String?      @map("nama_kelurahan")
+  namaKecamatan   String?      @map("nama_kecamatan")
+  kota            String
+  dibuatPada      DateTime     @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi        Organisasi           @relation(fields: [organisasiId], references: [id])
+  tps               Tps[]
+  kontrak           Kontrak[]
+  wadah             WadahCatat[]
+  serah             Serah[]
+  event             Event[]
+  koreksi           Koreksi[]
+  permintaanKoreksi PermintaanKoreksi[]
+  prioritas         PrioritasTercatat[]
+  bayangan          BayanganEntri[]
+
+  @@index([organisasiId])
+  @@map("kawasan")
+}
+
+/// Koordinat = lokasi tetap TPS yang diisi pengelola, bukan lokasi perangkat.
+model Tps {
+  id            String   @id @default(cuid(2))
+  kawasanId     String   @map("kawasan_id")
+  organisasiId  String   @map("organisasi_id")
+  kode          String   @unique
+  nama          String
+  latE6         Int      @map("lat_e6")
+  lonE6         Int      @map("lon_e6")
+  qrTokenHash   String   @unique @map("qr_token_hash") @db.Char(64)
+  qrVersi       Int      @default(1) @map("qr_versi")
+  aktif         Boolean  @default(true)
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  kawasan    Kawasan             @relation(fields: [kawasanId], references: [id])
+  organisasi Organisasi          @relation(fields: [organisasiId], references: [id])
+  wadah      WadahCatat[]
+  serah      Serah[]
+  prioritas  PrioritasTercatat[]
+
+  @@index([kawasanId])
+  @@map("tps")
+}
+
+/// Tanpa nama sopir.
+model Kendaraan {
+  id            String   @id @default(cuid(2))
+  organisasiId  String   @map("organisasi_id")
+  plat          String
+  aktif         Boolean  @default(true)
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+  serah      Serah[]
+
+  @@unique([organisasiId, plat])
+  @@map("kendaraan")
+}
+
+model Kontrak {
+  id                          String        @id @default(cuid(2))
+  kawasanId                   String        @map("kawasan_id")
+  orgKawasanId                String        @map("org_kawasan_id")
+  orgPengangkutId             String        @map("org_pengangkut_id")
+  orgPenerimaId               String        @map("org_penerima_id")
+  aliran                      Aliran[]
+  berlakuDari                 DateTime      @map("berlaku_dari") @db.Date
+  berlakuSampai               DateTime      @map("berlaku_sampai") @db.Date
+  tarifPerRitIdr              Int?          @map("tarif_per_rit_idr")
+  tarifPerKgIdr               Int?          @map("tarif_per_kg_idr")
+  status                      StatusKontrak @default(USULAN)
+  dikonfirmasiPengangkutPada  DateTime?     @map("dikonfirmasi_pengangkut_pada") @db.Timestamptz(3)
+  dikonfirmasiPenerimaPada    DateTime?     @map("dikonfirmasi_penerima_pada") @db.Timestamptz(3)
+  dibuatPada                  DateTime      @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  kawasan       Kawasan         @relation(fields: [kawasanId], references: [id])
+  orgKawasan    Organisasi      @relation("KontrakKawasan", fields: [orgKawasanId], references: [id])
+  orgPengangkut Organisasi      @relation("KontrakPengangkut", fields: [orgPengangkutId], references: [id])
+  orgPenerima   Organisasi      @relation("KontrakPenerima", fields: [orgPenerimaId], references: [id])
+  serah         Serah[]
+  tagihanAngkut TagihanAngkut[]
+
+  @@index([kawasanId])
+  @@index([orgPengangkutId])
+  @@index([orgPenerimaId])
+  @@map("kontrak")
+}
+
+// ── Inti serah ─────────────────────────────────────────────────────────────
+
+/// 🔒 Satu catatan berat/jumlah wadah satu aliran di satu TPS.
+model WadahCatat {
+  id              String    @id @default(cuid(2))
+  tpsId           String    @map("tps_id")
+  kawasanId       String    @map("kawasan_id")
+  orgKawasanId    String    @map("org_kawasan_id")
+  aliran          Aliran
+  beratG          Int?      @map("berat_g")
+  jumlahWadah     Int?      @map("jumlah_wadah")
+  /// Waktu perangkat; tidak pernah menimpa waktu server.
+  terjadiPada     DateTime  @map("terjadi_pada") @db.Timestamptz(3)
+  /// Waktu server.
+  diterimaPada    DateTime  @default(now()) @map("diterima_pada") @db.Timestamptz(3)
+  idempotencyKey  String    @unique @map("idempotency_key")
+  offline         Boolean   @default(false)
+
+  tps        Tps         @relation(fields: [tpsId], references: [id])
+  kawasan    Kawasan     @relation(fields: [kawasanId], references: [id])
+  serahWadah SerahWadah?
+
+  @@index([tpsId, diterimaPada])
+  @@index([orgKawasanId])
+  @@map("wadah_catat")
+}
+
+/// Proyeksi dari event; hanya layananTransisi yang mengubah.
+model Serah {
+  id               String      @id @default(cuid(2))
+  kode             String      @unique
+  tpsId            String      @map("tps_id")
+  kawasanId        String      @map("kawasan_id")
+  orgKawasanId     String      @map("org_kawasan_id")
+  orgPengangkutId  String?     @map("org_pengangkut_id")
+  orgPenerimaId    String?     @map("org_penerima_id")
+  kontrakId        String?     @map("kontrak_id")
+  kendaraanId      String?     @map("kendaraan_id")
+  status           StatusSerah @default(DRAF)
+  versi            Int         @default(0)
+  dibuatPada       DateTime    @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+  diperbaruiPada   DateTime    @default(now()) @map("diperbarui_pada") @db.Timestamptz(3)
+
+  tps           Tps                 @relation(fields: [tpsId], references: [id])
+  kawasan       Kawasan             @relation(fields: [kawasanId], references: [id])
+  orgKawasan    Organisasi          @relation("SerahKawasan", fields: [orgKawasanId], references: [id])
+  orgPengangkut Organisasi?         @relation("SerahPengangkut", fields: [orgPengangkutId], references: [id])
+  orgPenerima   Organisasi?         @relation("SerahPenerima", fields: [orgPenerimaId], references: [id])
+  kontrak       Kontrak?            @relation(fields: [kontrakId], references: [id])
+  kendaraan     Kendaraan?          @relation(fields: [kendaraanId], references: [id])
+  wadah         SerahWadah[]
+  event         Event[]
+  foto          Foto[]
+  tiket         TiketTimbang[]
+  rincian       PenutupanRincian[]
+  koreksi       Koreksi[]
+
+  @@index([kawasanId, status])
+  @@index([orgPengangkutId, status])
+  @@index([orgPenerimaId, status])
+  @@map("serah")
+}
+
+/// Satu wadah hanya di satu serah.
+model SerahWadah {
+  serahId       String @map("serah_id")
+  wadahCatatId  String @unique @map("wadah_catat_id")
+
+  serah Serah      @relation(fields: [serahId], references: [id])
+  wadah WadahCatat @relation(fields: [wadahCatatId], references: [id])
+
+  @@id([serahId, wadahCatatId])
+  @@map("serah_wadah")
+}
+
+/// 🔒 Rantai hash per kawasan (§F.3). `urutan` = sequence global; `urutan_rantai` naik 1 per kawasan.
+model Event {
+  id               String     @id @default(cuid(2))
+  urutan           BigInt     @unique @default(autoincrement())
+  kawasanId        String     @map("kawasan_id")
+  urutanRantai     Int        @map("urutan_rantai")
+  serahId          String?    @map("serah_id")
+  orgKawasanId     String     @map("org_kawasan_id")
+  orgPengangkutId  String?    @map("org_pengangkut_id")
+  orgPenerimaId    String?    @map("org_penerima_id")
+  jenis            JenisEvent
+  /// Null = sistem (cron).
+  peran            Peran?
+  payload          Json
+  prevHash         String     @map("prev_hash") @db.Char(64)
+  hash             String     @db.Char(64)
+  idempotencyKey   String     @unique @map("idempotency_key")
+  terjadiPada      DateTime   @map("terjadi_pada") @db.Timestamptz(3)
+  diterimaPada     DateTime   @default(now()) @map("diterima_pada") @db.Timestamptz(3)
+
+  kawasan Kawasan @relation(fields: [kawasanId], references: [id])
+  serah   Serah?  @relation(fields: [serahId], references: [id])
+
+  @@unique([kawasanId, urutanRantai])
+  @@index([serahId])
+  @@map("event")
+}
+
+/// 🔒 Kecuali dihapus_retensi_pada lewat fungsi retensi SECURITY DEFINER.
+model Foto {
+  id                  String    @id @default(cuid(2))
+  jenis               JenisFoto
+  organisasiId        String    @map("organisasi_id")
+  serahId             String?   @map("serah_id")
+  objectKey           String    @map("object_key")
+  dhash               String    @db.Char(16)
+  ukuranByte          Int       @map("ukuran_byte")
+  lebar               Int
+  tinggi              Int
+  diambilPada         DateTime? @map("diambil_pada") @db.Timestamptz(3)
+  diterimaPada        DateTime  @default(now()) @map("diterima_pada") @db.Timestamptz(3)
+  dihapusRetensiPada  DateTime? @map("dihapus_retensi_pada") @db.Timestamptz(3)
+
+  organisasi        Organisasi         @relation(fields: [organisasiId], references: [id])
+  serah             Serah?             @relation(fields: [serahId], references: [id])
+  tiket             TiketTimbang[]
+  izinPutusan       IzinPutusan[]
+  konfirmasiManual  KonfirmasiManual[]
+
+  @@index([organisasiId, jenis, diterimaPada])
+  @@index([serahId])
+  @@map("foto")
+}
+
+/// 🔒
+model TiketTimbang {
+  id            String       @id @default(cuid(2))
+  serahId       String       @map("serah_id")
+  fotoId        String?      @map("foto_id")
+  nomor         String?
+  beratG        Int          @map("berat_g")
+  sumber        SumberTiket
+  aiModel       String?      @map("ai_model")
+  aiKeyakinan   KeyakinanAi? @map("ai_keyakinan")
+  dibuatPada    DateTime     @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  serah Serah @relation(fields: [serahId], references: [id])
+  foto  Foto? @relation(fields: [fotoId], references: [id])
+
+  @@index([serahId])
+  @@map("tiket_timbang")
+}
+
+/// 🔒 Satu baris per aliran.
+model PenutupanRincian {
+  id          String       @id @default(cuid(2))
+  serahId     String       @map("serah_id")
+  aliran      Aliran
+  diterimaG   Int          @map("diterima_g")
+  ditolakG    Int          @map("ditolak_g")
+  alasan      AlasanTolak?
+  keterangan  String?
+  dibuatPada  DateTime     @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  serah Serah @relation(fields: [serahId], references: [id])
+
+  @@unique([serahId, aliran])
+  @@map("penutupan_rincian")
+}
+
+/// 🔒 Nilai final dibaca lewat view v_nilai_final. kawasan_id/org_kawasan_id untuk RLS.
+model Koreksi {
+  id             String        @id @default(cuid(2))
+  targetJenis    TargetKoreksi @map("target_jenis")
+  targetId       String        @map("target_id")
+  serahId        String?       @map("serah_id")
+  kawasanId      String        @map("kawasan_id")
+  orgKawasanId   String        @map("org_kawasan_id")
+  nilaiAsliG     Int           @map("nilai_asli_g")
+  nilaiFinalG    Int           @map("nilai_final_g")
+  alasan         String
+  peran          Peran
+  permintaanId   String?       @map("permintaan_id")
+  dibuatPada     DateTime      @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  serah      Serah?             @relation(fields: [serahId], references: [id])
+  kawasan    Kawasan            @relation(fields: [kawasanId], references: [id])
+  permintaan PermintaanKoreksi? @relation(fields: [permintaanId], references: [id])
+
+  @@index([targetJenis, targetId])
+  @@map("koreksi")
+}
+
+/// 🔒
+model PermintaanKoreksi {
+  id             String        @id @default(cuid(2))
+  kode           String        @unique
+  targetJenis    TargetKoreksi @map("target_jenis")
+  targetId       String        @map("target_id")
+  kawasanId      String        @map("kawasan_id")
+  orgKawasanId   String        @map("org_kawasan_id")
+  orgPenerimaId  String?       @map("org_penerima_id")
+  nilaiUsulanG   Int           @map("nilai_usulan_g")
+  alasan         String
+  peranPengaju   Peran         @map("peran_pengaju")
+  dibuatPada     DateTime      @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  kawasan Kawasan                    @relation(fields: [kawasanId], references: [id])
+  putusan PermintaanKoreksiPutusan?
+  koreksi Koreksi[]
+
+  @@map("permintaan_koreksi")
+}
+
+/// 🔒 DISETUJUI → membuat baris koreksi dalam transaksi yang sama.
+model PermintaanKoreksiPutusan {
+  id            String              @id @default(cuid(2))
+  permintaanId  String              @unique @map("permintaan_id")
+  keputusan     KeputusanPermintaan
+  alasan        String
+  peran         Peran
+  dibuatPada    DateTime            @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  permintaan PermintaanKoreksi @relation(fields: [permintaanId], references: [id])
+
+  @@map("permintaan_koreksi_putusan")
+}
+
+// ── Aturan, cuaca, harga ───────────────────────────────────────────────────
+
+/// 🔒 Seed dari core/aturan/daftar.ts; admin menambah versi.
+model AturanVersi {
+  id           String     @id @default(cuid(2))
+  kode         KodeAturan
+  yurisdiksi   Yurisdiksi
+  versi        Int
+  sumber       String
+  aksi         AksiAturan
+  ambang       Json
+  kunciTeks    String     @map("kunci_teks")
+  berlakuDari  DateTime   @map("berlaku_dari") @db.Timestamptz(3)
+  dibuatPada   DateTime   @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  @@unique([kode, yurisdiksi, versi])
+  @@map("aturan_versi")
+}
+
+/// 🔒
+model PrakiraanCuaca {
+  id             String   @id @default(cuid(2))
+  adm4           String
+  analysisDate   DateTime @map("analysis_date") @db.Timestamptz(3)
+  slotUtc        DateTime @map("slot_utc") @db.Timestamptz(3)
+  weatherDesc    String   @map("weather_desc")
+  weatherDescEn  String?  @map("weather_desc_en")
+  mode           ModeData
+  diambilPada    DateTime @default(now()) @map("diambil_pada") @db.Timestamptz(3)
+
+  @@unique([adm4, analysisDate, slotUtc])
+  @@map("prakiraan_cuaca")
+}
+
+/// 🔒
+model PeringatanCuaca {
+  id             String   @id @default(cuid(2))
+  identifierCap  String   @unique @map("identifier_cap")
+  provinsi       String
+  event          String
+  headline       String
+  deskripsi      String
+  effective      DateTime @db.Timestamptz(3)
+  expires        DateTime @db.Timestamptz(3)
+  poligonE6      Json     @map("poligon_e6")
+  diambilPada    DateTime @default(now()) @map("diambil_pada") @db.Timestamptz(3)
+
+  @@map("peringatan_cuaca")
+}
+
+/// 🔒 Untuk indikator "kg terangkut sebelum hujan".
+model PrioritasTercatat {
+  id              String      @id @default(cuid(2))
+  tpsId           String      @map("tps_id")
+  kawasanId       String      @map("kawasan_id")
+  orgKawasanId    String      @map("org_kawasan_id")
+  sumber          SumberCuaca
+  /// slot_utc (PRAKIRAAN) atau identifier CAP (NOWCAST).
+  acuan           String
+  weatherDesc     String      @map("weather_desc")
+  aliran          Aliran
+  umurJam         Int         @map("umur_jam")
+  ditetapkanPada  DateTime    @default(now()) @map("ditetapkan_pada") @db.Timestamptz(3)
+
+  tps     Tps     @relation(fields: [tpsId], references: [id])
+  kawasan Kawasan @relation(fields: [kawasanId], references: [id])
+
+  @@index([kawasanId, ditetapkanPada])
+  @@map("prioritas_tercatat")
+}
+
+/// 🔒 Hanya dari RISET R-HM-*.
+model HargaMaterial {
+  id                     String   @id @default(cuid(2))
+  kunci                  String
+  aliran                 Aliran
+  hargaBersihIdrPerKg    Int      @map("harga_bersih_idr_per_kg")
+  hargaKotorIdrPerKg     Int?     @map("harga_kotor_idr_per_kg")
+  sumberKode             String   @map("sumber_kode")
+  /// Label tanggal sumber apa adanya dari RISET (tidak selalu tanggal lengkap).
+  tanggalSumber          String?  @map("tanggal_sumber")
+  dibuatPada             DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  @@map("harga_material")
+}
+
+/// Teks di teks.ts (ALASAN_*).
+model AlasanTolakBaris {
+  kode    AlasanTolak @id
+  urutan  Int
+
+  @@map("alasan_tolak")
+}
+
+// ── Notifikasi & live ──────────────────────────────────────────────────────
+
+/// Ditujukan ke peran dalam organisasi, bukan orang.
+model Notifikasi {
+  id            String          @id @default(cuid(2))
+  organisasiId  String          @map("organisasi_id")
+  peranTujuan   Peran[]         @map("peran_tujuan")
+  jenis         JenisNotifikasi
+  objekKode     String          @map("objek_kode")
+  data          Json
+  dibuatPada    DateTime        @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi         @relation(fields: [organisasiId], references: [id])
+  dibaca     NotifikasiDibaca[]
+
+  @@index([organisasiId, dibuatPada])
+  @@map("notifikasi")
+}
+
+/// Status baca pribadi; tidak pernah ditampilkan ke orang lain.
+model NotifikasiDibaca {
+  notifikasiId  String   @map("notifikasi_id")
+  penggunaId    String   @map("pengguna_id")
+  dibacaPada    DateTime @default(now()) @map("dibaca_pada") @db.Timestamptz(3)
+
+  notifikasi Notifikasi @relation(fields: [notifikasiId], references: [id])
+  pengguna   Pengguna   @relation(fields: [penggunaId], references: [id])
+
+  @@id([notifikasiId, penggunaId])
+  @@map("notifikasi_dibaca")
+}
+
+model LanggananPush {
+  id          String   @id @default(cuid(2))
+  penggunaId  String   @map("pengguna_id")
+  endpoint    String   @unique
+  p256dh      String
+  auth        String
+  dibuatPada  DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  pengguna Pengguna @relation(fields: [penggunaId], references: [id])
+
+  @@map("langganan_push")
+}
+
+model PreferensiNotifikasi {
+  penggunaId    String  @map("pengguna_id")
+  organisasiId  String  @map("organisasi_id")
+  email         Boolean @default(true)
+  push          Boolean @default(true)
+
+  pengguna   Pengguna   @relation(fields: [penggunaId], references: [id])
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+
+  @@id([penggunaId, organisasiId])
+  @@map("preferensi_notifikasi")
+}
+
+// ── Laporan, ekspor, bayangan, tagihan angkut ──────────────────────────────
+
+/// 🔒
+model Ekspor {
+  id            String       @id @default(cuid(2))
+  organisasiId  String       @map("organisasi_id")
+  pihak         PihakEkspor
+  /// YYYY-MM
+  periode       String
+  format        FormatEkspor
+  sidikIsi      String       @map("sidik_isi") @db.Char(64)
+  jumlahBaris   Int          @map("jumlah_baris")
+  dibuatPada    DateTime     @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi @relation(fields: [organisasiId], references: [id])
+
+  @@map("ekspor")
+}
+
+/// 🔒
+model BayanganEntri {
+  id             String   @id @default(cuid(2))
+  kawasanId      String   @map("kawasan_id")
+  orgKawasanId   String   @map("org_kawasan_id")
+  periode        String
+  aliran         Aliran
+  beratG         Int      @map("berat_g")
+  /// Teks pendek: "buku TPS", "laporan bulanan lama".
+  sumberCatatan  String   @map("sumber_catatan")
+  dibuatPada     DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  kawasan Kawasan @relation(fields: [kawasanId], references: [id])
+
+  @@index([kawasanId, periode])
+  @@map("bayangan_entri")
+}
+
+/// 🔒 Dari serah DITERIMA/DITERIMA_SEBAGIAN saja.
+model TagihanAngkut {
+  id                String   @id @default(cuid(2))
+  kode              String   @unique
+  kontrakId         String   @map("kontrak_id")
+  orgKawasanId      String   @map("org_kawasan_id")
+  orgPengangkutId   String   @map("org_pengangkut_id")
+  periode           String
+  ritTertutup       Int      @map("rit_tertutup")
+  kgDiterimaG       Int      @map("kg_diterima_g")
+  totalIdr          Int      @map("total_idr")
+  rincian           Json
+  diterbitkanPada   DateTime @default(now()) @map("diterbitkan_pada") @db.Timestamptz(3)
+
+  kontrak Kontrak @relation(fields: [kontrakId], references: [id])
+
+  @@map("tagihan_angkut")
+}
+
+// ── Langganan & pembayaran ─────────────────────────────────────────────────
+
+model Paket {
+  kode             String          @id
+  urutan           Int
+  hargaPerTpsIdr   Int             @map("harga_per_tps_idr")
+  berlakuUntuk     JenisOrganisasi @map("berlaku_untuk")
+  aktif            Boolean         @default(true)
+
+  entitlement Entitlement[]
+  langganan   Langganan[]
+
+  @@map("paket")
+}
+
+model Entitlement {
+  paketKode  String @map("paket_kode")
+  kunci      String
+  nilai      Json
+
+  paket Paket @relation(fields: [paketKode], references: [kode])
+
+  @@id([paketKode, kunci])
+  @@map("entitlement")
+}
+
+/// 🔒
+model PerubahanPaket {
+  id          String   @id @default(cuid(2))
+  paketKode   String   @map("paket_kode")
+  kunci       String?
+  nilaiLama   Json?    @map("nilai_lama")
+  nilaiBaru   Json     @map("nilai_baru")
+  alasan      String
+  dibuatPada  DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  @@map("perubahan_paket")
+}
+
+/// Perubahan hanya lewat layananLangganan + peristiwa_langganan.
+model Langganan {
+  id                       String          @id @default(cuid(2))
+  organisasiId             String          @unique @map("organisasi_id")
+  paketKode                String          @map("paket_kode")
+  status                   StatusLangganan
+  ujiCobaMulai             DateTime?       @map("uji_coba_mulai") @db.Timestamptz(3)
+  ujiCobaSelesai           DateTime?       @map("uji_coba_selesai") @db.Timestamptz(3)
+  hargaDibekukanPerTpsIdr  Int?            @map("harga_dibekukan_per_tps_idr")
+  /// YYYY-MM
+  periodeBerjalan          String?         @map("periode_berjalan")
+  diperbaruiPada           DateTime        @default(now()) @map("diperbarui_pada") @db.Timestamptz(3)
+
+  organisasi Organisasi           @relation(fields: [organisasiId], references: [id])
+  paket      Paket                @relation(fields: [paketKode], references: [kode])
+  peristiwa  PeristiwaLangganan[]
+
+  @@map("langganan")
+}
+
+/// 🔒
+model PeristiwaLangganan {
+  id           String           @id @default(cuid(2))
+  langgananId  String           @map("langganan_id")
+  dari         StatusLangganan?
+  ke           StatusLangganan
+  sebab        String
+  dibuatPada   DateTime         @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  langganan Langganan @relation(fields: [langgananId], references: [id])
+
+  @@map("peristiwa_langganan")
+}
+
+model Tagihan {
+  id              String        @id @default(cuid(2))
+  nomor           String        @unique
+  organisasiId    String        @map("organisasi_id")
+  periode         String
+  jumlahTps       Int           @map("jumlah_tps")
+  hargaPerTpsIdr  Int           @map("harga_per_tps_idr")
+  totalIdr        Int           @map("total_idr")
+  status          StatusTagihan @default(TERBIT)
+  jatuhTempo      DateTime      @map("jatuh_tempo") @db.Date
+  dibuatPada      DateTime      @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  organisasi       Organisasi         @relation(fields: [organisasiId], references: [id])
+  peristiwaBayar   PeristiwaBayar[]
+  konfirmasiManual KonfirmasiManual[]
+
+  @@index([organisasiId, periode])
+  @@map("tagihan")
+}
+
+/// 🔒 Idempotensi webhook: unik (penyedia, kunci_peristiwa).
+model PeristiwaBayar {
+  id              String   @id @default(cuid(2))
+  penyedia        Penyedia
+  kunciPeristiwa  String   @map("kunci_peristiwa")
+  tagihanId       String?  @map("tagihan_id")
+  jenis           String
+  jumlahIdr       Int?     @map("jumlah_idr")
+  payload         Json
+  terverifikasi   Boolean
+  diterimaPada    DateTime @default(now()) @map("diterima_pada") @db.Timestamptz(3)
+
+  tagihan Tagihan? @relation(fields: [tagihanId], references: [id])
+
+  @@unique([penyedia, kunciPeristiwa])
+  @@map("peristiwa_bayar")
+}
+
+/// 🔒 Oleh ADMIN.
+model KonfirmasiManual {
+  id           String              @id @default(cuid(2))
+  tagihanId    String              @map("tagihan_id")
+  fotoBuktiId  String?             @map("foto_bukti_id")
+  keputusan    KeputusanKonfirmasi
+  alasan       String
+  dibuatPada   DateTime            @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  tagihan   Tagihan @relation(fields: [tagihanId], references: [id])
+  fotoBukti Foto?   @relation(fields: [fotoBuktiId], references: [id])
+
+  @@map("konfirmasi_manual")
+}
+
+// ── Sistem ─────────────────────────────────────────────────────────────────
+
+/// 🔒 Peran, bukan nama. Peran null = sistem.
+model AuditLog {
+  id            String   @id @default(cuid(2))
+  organisasiId  String?  @map("organisasi_id")
+  peran         Peran?
+  aksi          String
+  objekJenis    String   @map("objek_jenis")
+  objekId       String   @map("objek_id")
+  alasan        String?
+  data          Json
+  dibuatPada    DateTime @default(now()) @map("dibuat_pada") @db.Timestamptz(3)
+
+  @@index([organisasiId, dibuatPada])
+  @@map("audit_log")
+}
+
+/// Kunci = jenis + hash(IP/organisasi). Dibersihkan setelah 24 jam.
+model BatasLaju {
+  kunci         String
+  jendelaMulai  DateTime @map("jendela_mulai") @db.Timestamptz(3)
+  hitungan      Int
+
+  @@id([kunci, jendelaMulai])
+  @@map("batas_laju")
+}
+
+model PekerjaanCron {
+  nama         String
+  jendela      String
+  mulaiPada    DateTime  @default(now()) @map("mulai_pada") @db.Timestamptz(3)
+  selesaiPada  DateTime? @map("selesai_pada") @db.Timestamptz(3)
+  hasil        Json?
+
+  @@id([nama, jendela])
+  @@map("pekerjaan_cron")
+}
+
+/// Untuk kode terbaca manusia; dikunci FOR UPDATE.
+model Penomoran {
+  jenis              String
+  tanggalAtauPeriode String @map("tanggal_atau_periode")
+  nomorTerakhir      Int    @map("nomor_terakhir")
+
+  @@id([jenis, tanggalAtauPeriode])
+  @@map("penomoran")
+}

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@serah/core": "workspace:*",
+    "@serah/db": "workspace:*",
     "@serah/kontrak": "workspace:*",
     "@serah/ui": "workspace:*",
     "jsqr": "^1",

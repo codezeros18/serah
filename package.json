@@ -21,7 +21,10 @@
     "db:down": "docker compose down",
     "wt:baru": "node scripts/wt-baru.mjs",
     "wt:hapus": "node scripts/wt-hapus.mjs",
-    "teks:periksa": "node scripts/teks-dari-blueprint.ts --periksa"
+    "teks:periksa": "node scripts/teks-dari-blueprint.ts --periksa",
+    "db:reset": "node scripts/db-reset.mjs",
+    "db:migrate": "pnpm --filter @serah/db db:migrate",
+    "db:seed": "pnpm --filter @serah/db db:seed"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

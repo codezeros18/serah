@@ -41,6 +41,9 @@ importers:
       '@serah/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@serah/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@serah/kontrak':
         specifier: workspace:*
         version: link:../../packages/kontrak

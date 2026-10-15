@@ -4,12 +4,16 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./url": "./url.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "db:migrate": "node ../../scripts/db-migrate.mjs",
-    "db:seed": "node ../../scripts/db-seed.mjs"
+    "db:seed": "node ../../scripts/db-seed.mjs",
+    "db:reset": "node ../../scripts/db-reset.mjs",
+    "generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
