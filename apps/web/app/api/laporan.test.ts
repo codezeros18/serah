@@ -311,13 +311,15 @@ describe("S11-5 — akses per pihak", () => {
     expect((await panggil(ditolak, { jalur: `/api/kawasan/${a.kawasan}/ditolak?periode=${periode}`, cookie, params: { id: a.kawasan } })).status).toBe(404);
   });
 
-  it("masukan tidak sah: periode salah / field tak dikenal → 400; PDF belum tersedia → 404", async () => {
+  it("masukan tidak sah: periode salah / field tak dikenal → 400; format tak dikenal → 400", async () => {
     expect((await lap(c.pengelolaA, "kawasan", "periode=2026-13")).status).toBe(400);
     expect((await lap(c.pengelolaA, "kawasan", "")).status).toBe(400);
     const asing = await lap(c.pengelolaA, "kawasan", `periode=${periode}&userId=x`);
     expect([asing.status, asing.json.galat?.kode]).toEqual([400, "FIELD_TIDAK_DIKENAL"]);
     expect((await panggil(laporan, { jalur: "/", cookie: c.pengelolaA, params: { pihak: "admin" } })).status).toBe(400);
-    expect((await unduh(c.pengelolaA, "kawasan", `periode=${periode}&format=pdf`)).status).toBe(404);
+    // PDF (S23) butuh hak ekspor.pdf; organisasi uji ini dibuat lewat SQL tanpa langganan → tanpa hak (CSV tetap bisa).
+    const pdf = await unduh(c.pengelolaA, "kawasan", `periode=${periode}&format=pdf`);
+    expect([pdf.status, (await pdf.json()).galat.kode]).toEqual([403, "HAK_PAKET_TIDAK_ADA"]);
     expect((await unduh(c.pengelolaA, "kawasan", `periode=${periode}&format=xlsx`)).status).toBe(400);
   });
 });
