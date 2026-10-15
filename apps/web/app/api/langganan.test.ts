@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { namaUnik } from "@/lib/server/uji/nama";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { periodeWib } from "@serah/core/waktu";
@@ -61,7 +62,7 @@ type Kawasan = OrgUji & { kawasanId: string; tps: string[] };
 async function kawasanBaru(jumlahTps: number): Promise<Kawasan> {
   const o = await orgBaru(rekam, { jenis: "KAWASAN" });
   const k = data<{ kawasan: { id: string } }>(
-    await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: o.cookie, body: { nama: "Kawasan Langganan Uji", jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
+    await panggil(buatKawasan, { jalur: "/api/kawasan", cookie: o.cookie, body: { nama: namaUnik("Kawasan Langganan Uji"), jenis: "KOMERSIAL", alamat: "Alamat uji", adm4: "31.71.03.1001", kota: "Jakarta Pusat" } }),
   ).kawasan;
   const tps: string[] = [];
   for (let i = 0; i < jumlahTps; i++) {

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 import { bukaAliran, pendengar } from "@/lib/server/sse";
 import { asal, data, demo, formFoto, masuk, panggil, pngContoh, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as unggah } from "./foto/route";
@@ -11,6 +11,9 @@ import { POST as catatWadah } from "./wadah/route";
 
 // T28 — SSE: transisi di transaksi A → event diterima klien organisasi terkait, tidak oleh organisasi lain.
 // Notifikasi hanya ke peran tujuan dalam organisasi. Heartbeat & pembersihan LISTEN saat klien putus.
+
+// Alur pertama memakai tujuh panggilan API + menunggu event hingga 10 dtk: beri ruang di suite yang padat.
+vi.setConfig({ testTimeout: 60_000 });
 
 type Event = { event: string; data: { jenis: string; kode: string; versi: number } };
 type Aliran = { events: Event[]; header: Headers; batal: () => void; selesai: Promise<void> };

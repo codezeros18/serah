@@ -34,7 +34,8 @@ function sel(nilai: string): string {
 const kg = (g: number) => formatGramKeKg(g);
 const baris = (sel_: readonly string[]) => sel_.join(PEMISAH_CSV) + AKHIR_BARIS_CSV;
 
-const HEADER = [
+/** Kolom tabel laporan (Ps. 23(3)); dipakai CSV dan PDF agar keduanya identik. */
+export const HEADER_TABEL = [
   TEKS.KOL_TANGGAL,
   TEKS.KOL_KODE_SERAH,
   TEKS.KOL_ALIRAN,
@@ -50,40 +51,43 @@ const HEADER = [
   TEKS.KOL_SIDIK,
 ] as const;
 
+/** Sel mentah (tanpa kutip/penangkal rumus) satu baris laporan. */
+export function selBaris(b: BarisLaporan): string[] {
+  return [
+    b.tanggalWib,
+    b.kodeSerah,
+    TEKS[`ALIRAN_${b.aliran}`],
+    kg(b.beratTpsG),
+    kg(b.beratDiterimaG),
+    kg(b.beratDitolakG),
+    b.alasanTolak ? TEKS[`ALASAN_${b.alasanTolak}`] : "",
+    `${b.tpsKode}, ${b.kawasanNama}, ${b.kawasanAlamat}`,
+    b.pengangkutNama ?? "",
+    b.plat ?? "",
+    b.penerimaNama ? `${b.penerimaNama}${b.penerimaJenis ? ` (${TEKS[`JENIS_PENERIMA_${b.penerimaJenis}`]})` : ""}` : "",
+    TEKS[`STATUS_${b.status}`],
+    b.sidikEvent,
+  ];
+}
+
+/** Sel mentah satu baris total per aliran (Ps. 23(3) huruf d). */
+export function selTotal(t: TotalAliran): string[] {
+  return [TEKS.LAPORAN_TOTAL, "", TEKS[`ALIRAN_${t.aliran}`], kg(t.beratTpsG), kg(t.beratDiterimaG), kg(t.beratDitolakG), ...Array<string>(HEADER_TABEL.length - 6).fill("")];
+}
+
+/**
+ * Isi CSV tanpa BOM dan tanpa baris catatan (CRLF per baris) — satu-satunya dasar sidik. PDF memakai sidik yang sama
+ * untuk periode & pihak yang sama, sehingga totalnya terbukti sama dengan CSV.
+ */
+export function isiCsvTanpaCatatan(data: readonly BarisLaporan[], total: readonly TotalAliran[]): string {
+  let isiCsv = baris(HEADER_TABEL.map(sel));
+  for (const b of data) isiCsv += baris(selBaris(b).map(sel));
+  for (const t of total) isiCsv += baris(selTotal(t).map(sel));
+  return isiCsv;
+}
+
 export function susunCsv(data: readonly BarisLaporan[], total: readonly TotalAliran[]): HasilCsv {
-  let isiCsv = baris(HEADER.map(sel));
-
-  for (const b of data) {
-    isiCsv += baris([
-      sel(b.tanggalWib),
-      sel(b.kodeSerah),
-      sel(TEKS[`ALIRAN_${b.aliran}`]),
-      kg(b.beratTpsG),
-      kg(b.beratDiterimaG),
-      kg(b.beratDitolakG),
-      sel(b.alasanTolak ? TEKS[`ALASAN_${b.alasanTolak}`] : ""),
-      sel(`${b.tpsKode}, ${b.kawasanNama}, ${b.kawasanAlamat}`),
-      sel(b.pengangkutNama ?? ""),
-      sel(b.plat ?? ""),
-      sel(b.penerimaNama ? `${b.penerimaNama}${b.penerimaJenis ? ` (${TEKS[`JENIS_PENERIMA_${b.penerimaJenis}`]})` : ""}` : ""),
-      sel(TEKS[`STATUS_${b.status}`]),
-      sel(b.sidikEvent),
-    ]);
-  }
-
-  // Total (Ps. 23(3) huruf d) dari baris yang sama.
-  for (const t of total) {
-    isiCsv += baris([
-      sel(TEKS.LAPORAN_TOTAL),
-      "",
-      sel(TEKS[`ALIRAN_${t.aliran}`]),
-      kg(t.beratTpsG),
-      kg(t.beratDiterimaG),
-      kg(t.beratDitolakG),
-      ...Array<string>(HEADER.length - 6).fill(""),
-    ]);
-  }
-
+  const isiCsv = isiCsvTanpaCatatan(data, total);
   const sidikIsi = sha256Hex(isiCsv);
   const catatan = sel(isi("EKSPOR_CATATAN", { sidik_isi: sidikIsi })) + AKHIR_BARIS_CSV;
   return { teks: BOM_UTF8 + isiCsv + catatan, sidikIsi, jumlahBaris: data.length };

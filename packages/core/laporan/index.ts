@@ -3,7 +3,7 @@ import { periodeWib, tanggalWib } from "../waktu";
 import { STATUS_TERTUTUP, type FilterPihak, type SerahTertutup } from "./jenis";
 
 export * from "./jenis";
-export { susunCsv, BOM_UTF8, PEMISAH_CSV, AKHIR_BARIS_CSV, type HasilCsv } from "./csv";
+export { susunCsv, isiCsvTanpaCatatan, selBaris, selTotal, HEADER_TABEL, BOM_UTF8, PEMISAH_CSV, AKHIR_BARIS_CSV, type HasilCsv } from "./csv";
 export { pilihHargaAcuan, ringkasDitolak, LABEL_SUMBER_HARGA, type HargaMaterialMasukan, type HasilDitolak } from "./ditolak";
 
 // Tiga laporan wajib (Pergub 102/2021 Ps. 23(3) huruf a–h; BLUEPRINT §L.4) dari SATU fungsi: kawasan, pengangkut,

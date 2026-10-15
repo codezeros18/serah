@@ -15,6 +15,9 @@ export function samarkanEmail(email: string): string {
 /** Pengembangan: cetak ke terminal (isi tautan dibutuhkan untuk mencoba alur verifikasi/reset). */
 export class PengirimTerminal implements Pengirim {
   async kirim(p: PesanEmail): Promise<void> {
+    // Di bawah test: tidak mencetak (fan-out notifikasi ke ratusan akun uji membanjiri keluaran & memperlambat suite).
+    // Test yang butuh isi email memasang PengirimRekam lewat setelPengirimUji.
+    if (process.env.NODE_ENV === "test") return;
     process.stdout.write(`\n[email dev] ke ${samarkanEmail(p.ke)} · ${p.subjek}\n${p.teks}\n\n`);
   }
 }

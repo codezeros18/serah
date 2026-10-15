@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { evaluasiTPS, type HasilAturan, type WadahBelumDiserahkan } from "@serah/core/aturan";
 import { selisihJam } from "@serah/core/waktu";
 import type { Aliran, Peran, RujukanAturan, StatusSerah, Yurisdiksi } from "@serah/kontrak";
+import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { muatEnv } from "../env";
 import { GalatApi } from "../galat";
@@ -64,14 +65,18 @@ export async function peringatanTps(tx: Tx, tps: TpsAkses, sekarang: Date): Prom
   const belum: WadahBelumDiserahkan[] = (await wadahBelumDiserahkan(tx, tps.id)).map((w) => ({ aliran: w.aliran, terjadiPada: w.terjadiPada }));
   const sejak = new Date(sekarang.getTime() - 2 * 86_400_000);
   const catatan = await tx.wadahCatat.findMany({ where: { tpsId: tps.id, terjadiPada: { gte: sejak } }, select: { terjadiPada: true } });
-  return evaluasiTPS({
-    yurisdiksi: await yurisdiksiKawasan(tx, tps.kawasanId),
-    sekarang,
-    kodeTps: tps.kode,
-    aktif: tps.aktif,
-    wadahBelumDiserahkan: belum,
-    waktuCatatan: catatan.map((c) => c.terjadiPada),
-  });
+  const yurisdiksi = await yurisdiksiKawasan(tx, tps.kawasanId);
+  return evaluasiTPS(
+    {
+      yurisdiksi,
+      sekarang,
+      kodeTps: tps.kode,
+      aktif: tps.aktif,
+      wadahBelumDiserahkan: belum,
+      waktuCatatan: catatan.map((c) => c.terjadiPada),
+    },
+    await konfigurasiAturan(tx, yurisdiksi, sekarang),
+  );
 }
 
 /** GET /api/tps/[id]/menunggu: wadah yang belum masuk serah + peringatan. */

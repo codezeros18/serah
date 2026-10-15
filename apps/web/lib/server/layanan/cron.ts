@@ -2,6 +2,7 @@ import { evaluasiMenggantung } from "@serah/core/aturan";
 import { awalHariWib, selisihJam, tanggalWib } from "@serah/core/waktu";
 import type { Prisma } from "@serah/db";
 import { denganSistem, type Tx } from "../db";
+import { konfigurasiAturan } from "../aturan";
 import { muatEnv } from "../env";
 import { GalatApi } from "../galat";
 import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi-stub";
@@ -85,7 +86,10 @@ async function tandaiSatu(tx: Tx, s: { id: string; kode: string; kawasanId: stri
   {
     const setuju = await tx.event.findFirst({ where: { serahId: s.id, jenis: "SERAH_DISETUJUI" }, orderBy: { urutanRantai: "desc" }, select: { diterimaPada: true } });
     if (!setuju) return false;
-    const hasil = evaluasiMenggantung({ yurisdiksi: await yurisdiksiKawasan(tx, s.kawasanId), sekarang, kodeSerah: s.kode, status: "DIANGKUT", disetujuiPada: setuju.diterimaPada });
+    const yurisdiksi = await yurisdiksiKawasan(tx, s.kawasanId);
+    // Ambang menurut versi aturan yang berlaku pada saat KEJADIAN (persetujuan), bukan saat cron berjalan.
+    const konfigurasi = await konfigurasiAturan(tx, yurisdiksi, setuju.diterimaPada);
+    const hasil = evaluasiMenggantung({ yurisdiksi, sekarang, kodeSerah: s.kode, status: "DIANGKUT", disetujuiPada: setuju.diterimaPada }, konfigurasi);
     if (hasil.length === 0) return false;
     const h = await layananTransisi(tx, {
       serah: await muatSerah(tx, s.kode),

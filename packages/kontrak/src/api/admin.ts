@@ -4,7 +4,7 @@ import { Hak, KunciHak, NilaiHak } from "../hak";
 import { Organisasi } from "./organisasi";
 import { Paket } from "./langganan";
 import { Tagihan } from "./tagihan";
-import { Alasan, Bp, Id, Idr, Oke, TanpaMasukan, Tanggal, WaktuIso, rute } from "./primitif";
+import { Alasan, Bp, Id, Idr, NomorTagihan, Oke, TanpaMasukan, Tanggal, WaktuIso, rute } from "./primitif";
 
 // Admin internal (S21). Setiap mutasi & pembukaan data organisasi wajib header X-Alasan (≥15 karakter),
 // dicatat di audit_log. Alasan itu TIDAK ada di body.
@@ -26,6 +26,17 @@ export const AdminIzinPutusKeluaran = z.object({ organisasi: Organisasi });
 export const AdminPembayaranKueri = z.object({ status: StatusTagihan.optional() }).strict();
 export const AdminPembayaranKeluaran = z.object({
   tagihan: z.array(Tagihan.extend({ organisasiId: Id, organisasiNama: z.string(), fotoBuktiId: Id.nullable() })),
+  /** Antrean tinjauan: uang ganda/lebih/kurang/terlambat/dikembalikan. Status tagihan tidak berubah sampai admin memutus. Bawaan kosong (mock lama). */
+  perluTinjauan: z.array(
+    z.object({
+      tagihanId: Id,
+      nomor: NomorTagihan,
+      organisasiId: Id,
+      sebab: z.string(),
+      jumlahIdr: Idr.nullable(),
+      dicatatPada: WaktuIso,
+    }),
+  ).default([]),
 });
 export const AdminPembayaranParams = z.object({ tagihanId: Id });
 export const AdminKonfirmasiMasukan = z.object({ keputusan: KeputusanKonfirmasi, alasan: Alasan }).strict();
@@ -71,7 +82,9 @@ export const AdminAturanBuatMasukan = z
   .strict();
 export const AdminAturanKeluaran = z.object({ aturan: AturanVersi });
 
-export const AdminAuditKueri = z.object({ dari: Tanggal.optional(), sampai: Tanggal.optional(), organisasiId: Id.optional() }).strict();
+export const AdminAuditKueri = z
+  .object({ dari: Tanggal.optional(), sampai: Tanggal.optional(), organisasiId: Id.optional(), aksi: z.string().trim().min(1).max(60).optional() })
+  .strict();
 export const AdminAuditKeluaran = z.object({
   audit: z.array(
     z.object({

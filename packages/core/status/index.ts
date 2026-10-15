@@ -102,6 +102,19 @@ const TUTUP_UNTUK_STATUS: Partial<Record<StatusSerah, JenisTutup>> = {
   DITOLAK: "TUTUP_TOLAK",
 };
 
+/**
+ * Syarat Σ status tertutup saat ini bagi nilai final tertentu (dipakai penerapan permintaan koreksi).
+ * Mengembalikan sebab gagal atau null bila konsisten / status bukan status tertutup.
+ */
+export function periksaKonsistensiTertutup(
+  status: StatusSerah,
+  beratTiketG: number,
+  rincian: readonly { diterimaG: number; ditolakG: number; alasan?: string | null | undefined }[],
+): SebabTransisi | null {
+  const jenis = TUTUP_UNTUK_STATUS[status];
+  return jenis ? periksaSigma(jenis, beratTiketG, rincian) : null;
+}
+
 /** Server menurunkan jenis penutupan dari rincian (klien tidak mengirim status hasil). */
 export function jenisTutup(rincian: readonly RincianTutup[]): JenisTutup {
   const diterima = jumlah(rincian.map((r) => r.diterimaG));
