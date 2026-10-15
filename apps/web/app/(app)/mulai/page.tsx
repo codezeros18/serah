@@ -142,7 +142,7 @@ export default function HalamanMulai() {
         <Link href="/" className="inline-block group mb-3" aria-label={TEKS.APP_NAMA}>
           <LogoSerah ukuran="sm" />
         </Link>
-        <h1 className="text-2xl font-black tracking-tight text-tinta sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-tinta sm:text-3xl">
           {TEKS.MULAI_JUDUL}
         </h1>
         <p className="mt-1 text-sm text-tinta-redup">
@@ -172,7 +172,7 @@ export default function HalamanMulai() {
                   selesai
                     ? "bg-aksi text-aksi-teks"
                     : aktif
-                      ? "border-2 border-aksi bg-aksi-latar text-aksi font-black"
+                      ? "border-2 border-aksi bg-aksi-latar text-aksi font-semibold"
                       : "border border-garis-halus bg-latar text-tinta-redup"
                 }`}
               >
@@ -519,7 +519,7 @@ export default function HalamanMulai() {
               ✓
             </div>
             <div className="flex flex-col gap-1.5">
-              <h2 className="text-xl font-black text-tinta">{TEKS.MULAI_SELESAI}</h2>
+              <h2 className="text-xl font-semibold text-tinta">{TEKS.MULAI_SELESAI}</h2>
               <p className="text-sm text-tinta-redup font-medium">{TEKS.MULAI_UJI_COBA}</p>
             </div>
             <Tombol

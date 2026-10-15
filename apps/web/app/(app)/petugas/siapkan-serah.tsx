@@ -78,7 +78,7 @@ export function SiapkanSerah() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-black tracking-tight text-tinta">{TEKS.T2_JUDUL}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T2_JUDUL}</h1>
       <PitaAntrean />
 
       {!tps ? (
@@ -89,9 +89,9 @@ export function SiapkanSerah() {
           data-testid="serah-dibuat"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-status-selesai bg-status-selesai-latar text-status-selesai">
-            <span className="text-2xl font-black">✓</span>
+            <span className="text-2xl font-semibold">✓</span>
           </div>
-          <p role="status" className="text-xl font-black text-tinta">
+          <p role="status" className="text-xl font-semibold text-tinta">
             {isi("T2_DIBUAT", { kode_serah: dibuat.kode })}
           </p>
           <div className="rounded-kartu border-2 border-garis bg-white p-3 shadow-inner">
@@ -99,7 +99,7 @@ export function SiapkanSerah() {
           </div>
           <div className="flex flex-col items-center gap-1">
             <p
-              className="rounded-kontrol border-2 border-garis bg-latar px-4 py-2 font-mono text-3xl font-black tracking-widest text-aksi"
+              className="rounded-kontrol border-2 border-garis bg-latar px-4 py-2 font-mono text-3xl font-semibold tracking-widest text-aksi"
               data-testid="kode-serah"
             >
               {dibuat.kode}
@@ -141,7 +141,7 @@ export function SiapkanSerah() {
           ))}
 
           <fieldset className="flex flex-col gap-3">
-            <legend className="flex items-center gap-2.5 text-lg font-black text-tinta">
+            <legend className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
                 1
               </span>
@@ -193,7 +193,7 @@ export function SiapkanSerah() {
           <Tombol
             disabled={sibuk}
             onClick={() => void buat()}
-            className="min-h-14 w-full text-lg font-black bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
+            className="min-h-14 w-full text-lg font-semibold bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
           >
             {sibuk ? TEKS.UMUM_MUAT : TEKS.T2_BUAT}
           </Tombol>

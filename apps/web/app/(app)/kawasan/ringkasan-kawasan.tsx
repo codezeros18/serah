@@ -52,9 +52,9 @@ export function RingkasanKawasan() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.K1_JUDUL}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.K1_JUDUL}</h1>
           {kawasan ? <p className="text-sm font-medium text-tinta-redup">{kawasan.nama}</p> : null}
         </div>
       </div>
@@ -68,7 +68,7 @@ export function RingkasanKawasan() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Kartu
               data-testid="menunggu-setuju"
-              className={`flex flex-col justify-between gap-4 border-2 border-t-4 p-5 transition-all duration-150 hover:shadow-md ${
+              className={`flex flex-col justify-between gap-4 border border-t-4 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] ${
                 data.menungguSetuju > 0
                   ? "border-garis-halus border-t-aksi bg-gradient-to-b from-blue-50/40 to-kertas shadow-sm"
                   : "border-garis-halus border-t-slate-300"
@@ -79,11 +79,11 @@ export function RingkasanKawasan() {
                   <span className="text-xs font-bold uppercase tracking-wider text-tinta-redup">
                     {TEKS.K1_MENUNGGU_SETUJU}
                   </span>
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aksi-latar text-xs font-black text-aksi">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aksi-latar text-xs font-semibold text-aksi">
                     !
                   </span>
                 </div>
-                <p className="text-4xl sm:text-5xl font-black tracking-tight tabular-nums text-tinta">
+                <p className="text-4xl sm:text-5xl font-semibold tracking-tight tabular-nums text-tinta">
                   {data.menungguSetuju}
                 </p>
               </div>
@@ -100,7 +100,7 @@ export function RingkasanKawasan() {
 
             <Kartu
               data-testid="menggantung"
-              className={`flex flex-col justify-between gap-4 border-2 border-t-4 p-5 transition-all duration-150 hover:shadow-md ${
+              className={`flex flex-col justify-between gap-4 border border-t-4 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] ${
                 data.menggantung > 0
                   ? "border-garis-halus border-t-amber-500 bg-gradient-to-b from-amber-50/40 to-kertas shadow-sm"
                   : "border-garis-halus border-t-slate-300"
@@ -111,11 +111,11 @@ export function RingkasanKawasan() {
                   <span className="text-xs font-bold uppercase tracking-wider text-tinta-redup">
                     {TEKS.K1_MENGGANTUNG}
                   </span>
-                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-black text-amber-800">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-amber-100 text-xs font-semibold text-amber-800">
                     ⏱
                   </span>
                 </div>
-                <p className="text-4xl sm:text-5xl font-black tracking-tight tabular-nums text-tinta">
+                <p className="text-4xl sm:text-5xl font-semibold tracking-tight tabular-nums text-tinta">
                   {data.menggantung}
                 </p>
               </div>

@@ -56,8 +56,8 @@
   --color-galat-latar: #f1f5f9;
 
   /* Bentuk */
-  --radius-kartu: 1rem;
-  --radius-kontrol: 0.625rem;
+  --radius-kartu: 1.5rem;
+  --radius-kontrol: 0.875rem;
 }
 
 @layer base {

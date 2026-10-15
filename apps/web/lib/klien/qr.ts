@@ -48,3 +48,31 @@ export function buatPemindai(): (video: HTMLVideoElement) => Promise<string | nu
     return jsQR(gambar.data, gambar.width, gambar.height, { inversionAttempts: "dontInvert" })?.data ?? null;
   };
 }
+
+/** Baca QR dari berkas gambar (pilihan "Unggah gambar"). Isi tetap divalidasi server oleh pemanggil. */
+export async function pindaiGambar(berkas: File): Promise<string | null> {
+  try {
+    const bitmap = await createImageBitmap(berkas);
+    const skala = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+    const kanvas = document.createElement("canvas");
+    kanvas.width = Math.round(bitmap.width * skala);
+    kanvas.height = Math.round(bitmap.height * skala);
+    const ctx = kanvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(bitmap, 0, 0, kanvas.width, kanvas.height);
+    bitmap.close();
+    const bawaan = bangunDetektorBawaan();
+    if (bawaan) {
+      try {
+        const hasil = await bawaan.detect(kanvas);
+        if (hasil[0]?.rawValue) return hasil[0].rawValue;
+      } catch {
+        /* jatuh ke jsqr */
+      }
+    }
+    const gambar = ctx.getImageData(0, 0, kanvas.width, kanvas.height);
+    return jsQR(gambar.data, gambar.width, gambar.height, { inversionAttempts: "attemptBoth" })?.data ?? null;
+  } catch {
+    return null;
+  }
+}

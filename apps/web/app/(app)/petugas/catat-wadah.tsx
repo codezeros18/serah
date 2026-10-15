@@ -108,7 +108,7 @@ export function CatatWadah() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-black tracking-tight text-tinta">{TEKS.T1_JUDUL}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T1_JUDUL}</h1>
       <PitaAntrean />
 
       {!tps ? (
@@ -140,7 +140,7 @@ export function CatatWadah() {
           ))}
 
           <fieldset className="flex flex-col gap-3">
-            <legend className="flex items-center gap-2.5 text-lg font-black text-tinta">
+            <legend className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
                 1
               </span>
@@ -172,7 +172,7 @@ export function CatatWadah() {
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
                 2
               </span>
-              <span className="text-lg font-black text-tinta">{TEKS.T1_BERAT_LABEL}</span>
+              <span className="text-lg font-semibold text-tinta">{TEKS.T1_BERAT_LABEL}</span>
             </div>
 
             <IsianBerat
@@ -202,13 +202,13 @@ export function CatatWadah() {
           {galat ? <BannerGalat pesan={galat} /> : null}
           <Tombol
             onClick={() => void simpan()}
-            className="min-h-14 w-full text-lg font-black bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
+            className="min-h-14 w-full text-lg font-semibold bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
           >
             {TEKS.T1_SIMPAN}
           </Tombol>
           {hasil ? (
             <div className="flex items-center gap-3 rounded-kartu border-2 border-status-selesai bg-status-selesai-latar p-4 text-status-selesai shadow-xs">
-              <span aria-hidden="true" className="text-2xl font-black">
+              <span aria-hidden="true" className="text-2xl font-semibold">
                 ✓
               </span>
               <p role="status" data-testid="hasil-simpan" className="text-base font-bold">
@@ -218,7 +218,7 @@ export function CatatWadah() {
           ) : null}
 
           <section className="flex flex-col gap-2.5 pt-2" aria-labelledby="t1-terakhir">
-            <h2 id="t1-terakhir" className="text-lg font-black text-tinta">
+            <h2 id="t1-terakhir" className="text-lg font-semibold text-tinta">
               {TEKS.T1_TERAKHIR}
             </h2>
             {baris.length === 0 ? (
@@ -254,7 +254,7 @@ export function CatatWadah() {
             className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-kontrol border-2 border-aksi bg-aksi-latar px-5 text-base font-bold text-aksi shadow-xs transition-all hover:bg-aksi hover:text-aksi-teks active:scale-[0.98]"
           >
             <span>{TEKS.T1_KE_SERAH}</span>
-            <span aria-hidden="true" className="text-lg font-black">
+            <span aria-hidden="true" className="text-lg font-semibold">
               →
             </span>
           </Link>

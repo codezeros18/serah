@@ -32,7 +32,7 @@ export function Kartu({ className, ...sisa }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={gabung(
-        "rounded-kartu border border-garis-halus bg-kertas p-4 sm:p-5 shadow-xs transition-shadow duration-150",
+        "muncul rounded-kartu border border-garis-halus bg-kertas p-4 sm:p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] transition-all duration-300",
         className,
       )}
       {...sisa}

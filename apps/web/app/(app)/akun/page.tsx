@@ -182,7 +182,7 @@ export default function HalamanAkun() {
   return (
     <div className="flex flex-col gap-6 text-tinta">
       <div className="border-b border-garis-halus pb-4">
-        <h1 className="text-2xl font-black text-tinta sm:text-3xl">{TEKS.AKUN_JUDUL}</h1>
+        <h1 className="text-2xl font-semibold text-tinta sm:text-3xl">{TEKS.AKUN_JUDUL}</h1>
       </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}

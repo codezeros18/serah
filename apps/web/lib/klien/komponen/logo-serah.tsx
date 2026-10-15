@@ -47,7 +47,7 @@ export function LogoSerah({
 
       {denganTeks ? (
         <div className="flex flex-col text-left">
-          <span className={`${teksUkuran} font-black tracking-tight text-tinta leading-none`}>
+          <span className={`${teksUkuran} font-semibold tracking-tight text-tinta leading-none`}>
             {TEKS.APP_NAMA}
           </span>
           {denganTagline ? (

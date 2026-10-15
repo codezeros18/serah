@@ -162,7 +162,7 @@ export default function HalamanNotifikasi() {
       {/* Header Notifikasi */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black text-tinta sm:text-3xl">{TEKS.NTF_JUDUL}</h1>
+          <h1 className="text-2xl font-semibold text-tinta sm:text-3xl">{TEKS.NTF_JUDUL}</h1>
           {adaBelumDibaca ? (
             <span className="rounded-full bg-aksi px-2.5 py-0.5 text-xs font-bold text-white shadow-xs">
               {daftar.filter((n) => !n.dibaca).length}

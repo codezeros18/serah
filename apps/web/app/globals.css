@@ -206,3 +206,41 @@ html::-webkit-scrollbar-thumb:hover {
 .gulir-halus::-webkit-scrollbar-thumb:hover {
   background: var(--color-aksi);
 }
+
+/* Pemindai QR: garis hijau menyapu bingkai */
+@keyframes qr-sapu {
+  0% {
+    top: 4%;
+  }
+  100% {
+    top: 96%;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .qr-garis {
+    animation: qr-sapu 2.2s ease-in-out infinite alternate;
+  }
+}
+
+/* Radio bulat bergaya untuk kartu pilihan (tetap <input type="radio"> asli) */
+.radio-pilih {
+  appearance: none;
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-garis);
+  background: #fff center / 70% no-repeat;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+.radio-pilih:hover {
+  border-color: var(--color-aksi);
+}
+.radio-pilih:checked {
+  background-color: var(--color-aksi);
+  border-color: var(--color-aksi);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7'/%3E%3C/svg%3E");
+}

@@ -68,7 +68,7 @@ export default function HalamanKendaraan() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-black tracking-tight text-tinta">{TEKS.KND_JUDUL}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.KND_JUDUL}</h1>
         <Tombol
           onClick={() => setTambahTerbuka(true)}
           className="min-h-12 bg-aksi text-aksi-teks hover:bg-aksi-hover font-bold px-5 active:scale-[0.98] transition-all shadow-sm"
@@ -88,7 +88,7 @@ export default function HalamanKendaraan() {
           >
             <div className="flex flex-col gap-2">
               <div className="inline-flex w-fit items-center rounded-kontrol border-2 border-garis bg-latar px-3.5 py-1.5 shadow-inner">
-                <span className="font-mono text-xl sm:text-2xl font-black tracking-widest text-tinta">{k.plat}</span>
+                <span className="font-mono text-xl sm:text-2xl font-semibold tracking-widest text-tinta">{k.plat}</span>
               </div>
               <div>
                 {k.aktif ? (

@@ -23,7 +23,7 @@ export function PitaAntrean() {
           data-pita="offline"
           className="flex items-center gap-3 rounded-kartu border-2 border-peringatan-garis bg-peringatan-latar p-3.5 text-peringatan shadow-sm"
         >
-          <span aria-hidden="true" className="text-xl font-black">
+          <span aria-hidden="true" className="text-xl font-semibold">
             ▲
           </span>
           <p className="text-base font-bold tracking-wide">{TEKS.G_OFFLINE}</p>
@@ -46,7 +46,7 @@ export function PitaAntrean() {
           className="flex items-center justify-between gap-3 rounded-kartu border-2 border-status-selesai bg-status-selesai-latar p-3.5 text-status-selesai shadow-sm"
         >
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="text-lg font-black">
+            <span aria-hidden="true" className="text-lg font-semibold">
               ✓
             </span>
             <p className="text-base font-bold">{TEKS.G_ANTREAN_TERKIRIM}</p>
@@ -67,7 +67,7 @@ export function PitaAntrean() {
           className="flex items-center justify-between gap-3 rounded-kartu border-2 border-status-tolak bg-status-tolak-latar p-3.5 text-status-tolak shadow-sm"
         >
           <div className="flex items-center gap-2.5">
-            <span aria-hidden="true" className="text-lg font-black">
+            <span aria-hidden="true" className="text-lg font-semibold">
               !
             </span>
             <p className="text-base font-bold">{TEKS.G_SINKRON_TOLAK}</p>
