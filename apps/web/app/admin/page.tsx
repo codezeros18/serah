@@ -44,7 +44,11 @@ export default function HalamanAdmin() {
   const [daftarOrg, setDaftarOrg] = useState<OrgItem[]>([]);
   const [orgDetail, setOrgDetail] = useState<OrgDetail | null>(null);
   const [targetDetailId, setTargetDetailId] = useState<string | null>(null);
-  const [dialogAlasanTerbuka, setDialogAlasanTerbuka] = useState(false);
+  // Semua rute admin wajib X-Alasan (S21): alasan akses diminta sekali sebelum data dimuat; membuka detail
+  // organisasi meminta alasannya sendiri.
+  const [alasanAkses, setAlasanAkses] = useState<string | null>(null);
+  const [tujuanDialog, setTujuanDialog] = useState<"akses" | "detail">("akses");
+  const [dialogAlasanTerbuka, setDialogAlasanTerbuka] = useState(true);
 
   const [daftarTagihan, setDaftarTagihan] = useState<TagihanAdmin[]>([]);
   const [daftarPaket, setDaftarPaket] = useState<PaketItem[]>([]);
@@ -52,21 +56,22 @@ export default function HalamanAdmin() {
   const [daftarAudit, setDaftarAudit] = useState<AuditItem[]>([]);
   const [metrik, setMetrik] = useState<MetrikItem | null>(null);
 
-  const muatData = useCallback(async () => {
+  const muatData = useCallback(async (alasan: string) => {
     setSedangMuat(true);
     setGalat(null);
 
     const [resOrg, resBayar, resPaket, resAturan, resAudit, resMetrik] =
       await Promise.all([
-        panggil("GET", "/api/admin/organisasi"),
-        panggil("GET", "/api/admin/pembayaran"),
-        panggil("GET", "/api/admin/paket"),
-        panggil("GET", "/api/admin/aturan"),
-        panggil("GET", "/api/admin/audit"),
-        panggil("GET", "/api/admin/metrik"),
+        panggil("GET", "/api/admin/organisasi", { alasan }),
+        panggil("GET", "/api/admin/pembayaran", { alasan }),
+        panggil("GET", "/api/admin/paket", { alasan }),
+        panggil("GET", "/api/admin/aturan", { alasan }),
+        panggil("GET", "/api/admin/audit", { alasan }),
+        panggil("GET", "/api/admin/metrik", { alasan }),
       ]);
 
     setSedangMuat(false);
+    if (!resOrg.ok) setGalat(resOrg.pesan);
 
     if (resOrg.ok) setDaftarOrg(resOrg.data.organisasi);
     if (resBayar.ok) setDaftarTagihan(resBayar.data.tagihan);
@@ -77,12 +82,22 @@ export default function HalamanAdmin() {
   }, []);
 
   useEffect(() => {
-    void muatData();
-  }, [muatData]);
+    if (alasanAkses) void muatData(alasanAkses);
+  }, [alasanAkses, muatData]);
+
+  function konfirmasiDialog(alasan: string) {
+    if (tujuanDialog === "detail") {
+      void konfirmasiAlasanDetail(alasan);
+      return;
+    }
+    setDialogAlasanTerbuka(false);
+    setAlasanAkses(alasan);
+  }
 
   // S22-1: Alur buka detail organisasi dengan dialog alasan wajib >= 15 karakter
   function mintaBukaDetail(id: string) {
     setTargetDetailId(id);
+    setTujuanDialog("detail");
     setDialogAlasanTerbuka(true);
   }
 
@@ -93,25 +108,15 @@ export default function HalamanAdmin() {
     setSedangMuat(true);
     const res = await panggil("GET", "/api/admin/organisasi/[id]", {
       params: { id: targetDetailId },
+      alasan,
     });
     setSedangMuat(false);
 
     if (res.ok) {
       setOrgDetail(res.data);
-      // Catat ke log audit lokal
-      setDaftarAudit((prev) => [
-        {
-          id: `aud-${Date.now()}`,
-          organisasiId: targetDetailId,
-          peran: "ADMIN",
-          aksi: "BUKA_DATA_ORGANISASI",
-          objekJenis: "organisasi",
-          objekId: targetDetailId,
-          alasan,
-          dibuatPada: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
+      // Jejak audit dicatat server; muat ulang agar baris barunya tampil.
+      const audit = await panggil("GET", "/api/admin/audit", { alasan });
+      if (audit.ok) setDaftarAudit(audit.data.audit);
     } else {
       setGalat(res.pesan);
     }
@@ -122,6 +127,7 @@ export default function HalamanAdmin() {
     setGalat(null);
     const res = await panggil("POST", "/api/admin/izin/[organisasiId]/putus", {
       params: { organisasiId },
+      alasan: alasanAkses ?? "",
       body: {
         keputusan,
         alasan:
@@ -151,6 +157,7 @@ export default function HalamanAdmin() {
       "/api/admin/pembayaran/[tagihanId]/konfirmasi",
       {
         params: { tagihanId },
+        alasan: alasanAkses ?? "",
         body: {
           keputusan: "SETUJUI",
           alasan: TEKS.ADM_KONFIRMASI_BAYAR,
@@ -172,14 +179,16 @@ export default function HalamanAdmin() {
   async function tambahVersiAturan() {
     setGalat(null);
     const res = await panggil("POST", "/api/admin/aturan", {
+      alasan: alasanAkses ?? "",
       body: {
         kode: "R05",
         yurisdiksi: "DKI",
         sumber: "Pergub DKI Jakarta No. 102 Tahun 2021 Pasal 8 ayat (1) huruf g (Pembaruan)",
         aksi: "PERINGATAN",
-        ambang: { jam: 48 },
+        // Kunci ambang = nama di core/aturan/konfigurasi.ts; berlaku_dari tidak boleh di masa lalu (S21-3).
+        ambang: { R05_JAM: 48 },
         kunciTeks: "ATURAN_R05",
-        berlakuDari: new Date().toISOString(),
+        berlakuDari: new Date(Date.now() + 86_400_000).toISOString(),
       },
     });
 
@@ -194,10 +203,11 @@ export default function HalamanAdmin() {
   // S22-2: Reset demo
   async function resetDemo() {
     setGalat(null);
-    const res = await panggil("POST", "/api/admin/demo/reset", { body: {} });
+    const res = await panggil("POST", "/api/admin/demo/reset", { body: {}, alasan: alasanAkses ?? "" });
     if (res.ok) {
       setSuksesPesan(TEKS.DEMO_RESET_SELESAI);
-      void muatData();
+      // Reset mengembalikan SELURUH data ke seed, termasuk sesi admin ini → masuk lagi lewat /demo.
+      window.location.assign("/demo");
     } else {
       setGalat(res.pesan);
     }
@@ -212,7 +222,24 @@ export default function HalamanAdmin() {
         </Tombol>
       </div>
 
-      {galat ? <BannerGalat pesan={galat} onCoba={() => void muatData()} /> : null}
+      {galat ? (
+        <BannerGalat
+          pesan={galat}
+          onCoba={() => (alasanAkses ? void muatData(alasanAkses) : setDialogAlasanTerbuka(true))}
+        />
+      ) : null}
+      {!alasanAkses && !dialogAlasanTerbuka ? (
+        <div>
+          <Tombol
+            onClick={() => {
+              setTujuanDialog("akses");
+              setDialogAlasanTerbuka(true);
+            }}
+          >
+            {TEKS.ADM_ALASAN}
+          </Tombol>
+        </div>
+      ) : null}
       {suksesPesan ? (
         <div className="rounded-kontrol border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">
           {suksesPesan}
@@ -510,7 +537,7 @@ export default function HalamanAdmin() {
       <DialogAlasan
         terbuka={dialogAlasanTerbuka}
         onBatal={() => setDialogAlasanTerbuka(false)}
-        onKonfirmasi={konfirmasiAlasanDetail}
+        onKonfirmasi={konfirmasiDialog}
       />
     </div>
   );

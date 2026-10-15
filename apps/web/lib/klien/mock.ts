@@ -1017,7 +1017,7 @@ const HANDLER: Record<string, Handler> = {
         id: idm("aud", 1),
         organisasiId: ORG.kawasan,
         peran: "ADMIN" as const,
-        aksi: "BUKA_DATA_ORGANISASI",
+        aksi: "ORGANISASI_DIBUKA",
         objekJenis: "organisasi",
         objekId: ORG.kawasan,
         alasan: "Contoh: memeriksa laporan dukungan pelanggan",
