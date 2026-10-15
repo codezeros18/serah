@@ -4,3 +4,75 @@
 /* Tailwind hanya memindai folder aplikasi; paket UI & komponen klien ada di luar app/. */
 @source "../../../packages/ui/src";
 @source "../lib/klien";
+
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Landing: reveal saat scroll memakai scroll-driven animation (CSS murni, tanpa JS/observer).
+   Peramban tanpa dukungan menampilkan konten apa adanya. */
+@keyframes muncul-naik {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes hero-masuk {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes melayang {
+  from {
+    transform: translateY(-5px);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-masuk {
+    animation: hero-masuk 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-masuk:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .hero-masuk:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  .hero-masuk:nth-child(4) {
+    animation-delay: 0.24s;
+  }
+  .ikon-melayang {
+    animation: melayang 5s ease-in-out infinite alternate;
+  }
+  .ikon-melayang:nth-child(3n) {
+    animation-duration: 6.5s;
+    animation-delay: -2s;
+  }
+  .ikon-melayang:nth-child(3n + 1) {
+    animation-duration: 5.8s;
+    animation-delay: -4s;
+  }
+  @supports (animation-timeline: view()) {
+    .muncul {
+      animation: muncul-naik linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+  }
+}

@@ -15,7 +15,7 @@ describe("susunCsp", () => {
     expect(a["script-src"]).not.toContain("'unsafe-inline'");
     expect(a["script-src"]).not.toContain("'unsafe-eval'");
     expect(a["object-src"]).toEqual(["'none'"]);
-    expect(a["frame-ancestors"]).toEqual(["'none'"]);
+    expect(a["frame-ancestors"]).toEqual(["'self'"]);
     expect(a["base-uri"]).toEqual(["'self'"]);
     expect(a["upgrade-insecure-requests"]).toEqual([]);
   });
@@ -58,7 +58,7 @@ describe("header keamanan", () => {
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "same-origin",
       "Permissions-Policy": "geolocation=(), microphone=(), camera=(self)",
-      "X-Frame-Options": "DENY",
+      "X-Frame-Options": "SAMEORIGIN",
     });
   });
   it("HSTS hanya di produksi", () => {

@@ -31,14 +31,14 @@ export function susunCsp(o: OpsiCsp): string {
     `img-src 'self' blob: data: ${r2}`,
     "font-src 'self' data:",
     `connect-src 'self' ${bayar} ${r2}`,
-    `frame-src ${bayar}`,
+    `frame-src 'self' ${bayar}`,
     "worker-src 'self'",
     "manifest-src 'self'",
     "media-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    "frame-ancestors 'none'",
+    "frame-ancestors 'self'",
     ...(o.dev ? [] : ["upgrade-insecure-requests"]),
   ];
   return arahan.join("; ");
@@ -54,7 +54,7 @@ export function headerKeamanan(produksi: boolean): { key: string; value: string 
     { key: "Referrer-Policy", value: "same-origin" },
     // Kamera hanya untuk halaman sendiri (foto muatan & tiket); lokasi & mikrofon dimatikan (§2.5: nol GPS).
     { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=(self)" },
-    { key: "X-Frame-Options", value: "DENY" },
+    { key: "X-Frame-Options", value: "SAMEORIGIN" },
     ...(produksi ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" }] : []),
   ];
 }

@@ -13,15 +13,15 @@ async function axeBersih(page: Page) {
 
 test.describe("S20: Layar harga, langganan, dan tagihan", () => {
   test("S20-1: Halaman publik /harga dan aksesibilitas", async ({ page }) => {
-    await page.goto("/harga");
-    await expect(page.getByRole("heading", { level: 1, name: TEKS.HRG_JUDUL })).toBeVisible({ timeout: 20_000 });
+    await page.goto("/#harga");
+    await expect(page.getByRole("heading", { level: 2, name: TEKS.HRG_JUDUL })).toBeVisible({ timeout: 20_000 });
 
     await expect(page.getByText(TEKS.HRG_KAWASAN)).toBeVisible();
     await expect(page.getByText(TEKS.HRG_KAWASAN_DETAIL)).toBeVisible();
     await expect(page.getByText(TEKS.HRG_MITRA)).toBeVisible();
 
     await expect(page.getByRole("link", { name: TEKS.MULAI_JUDUL })).toBeVisible();
-    await expect(page.getByRole("link", { name: TEKS.DAFTAR_JUDUL })).toBeVisible();
+    await expect(page.getByRole("link", { name: TEKS.DAFTAR_JUDUL }).first()).toBeVisible();
 
     await axeBersih(page);
   });

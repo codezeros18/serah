@@ -2,10 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { LabelDemo, Tombol } from "@serah/ui";
+import { LabelDemo } from "@serah/ui";
 import { TEKS } from "@serah/kontrak/teks";
 import { panggil } from "@/lib/klien/api";
+import { Poppins } from "next/font/google";
 import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
+import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 interface PanelInfo {
   id: string;
@@ -17,15 +21,17 @@ interface PanelInfo {
   tugasRingkas: string;
   tipe: "hp" | "desktop";
   deskripsi: string;
+  ikon: NamaIkon;
 }
 
 const DAFTAR_PANEL: readonly PanelInfo[] = [
   {
     id: "petugas",
+    ikon: "tps",
     peran: TEKS.PERAN_PETUGAS,
     url: "/petugas?panel=petugas",
     title: "Panel Petugas",
-    lencanaKelas: "border-emerald-600 bg-emerald-50 text-emerald-800",
+    lencanaKelas: "border-garis-halus bg-latar text-tinta",
     nomorUrut: "1",
     tugasRingkas: TEKS.T1_JUDUL,
     tipe: "hp",
@@ -33,10 +39,11 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
   },
   {
     id: "pengangkut",
+    ikon: "truk",
     peran: TEKS.PERAN_PENGANGKUT,
     url: "/pengangkut?panel=pengangkut",
     title: "Panel Pengangkut",
-    lencanaKelas: "border-aksi bg-aksi-latar text-aksi",
+    lencanaKelas: "border-garis-halus bg-latar text-tinta",
     nomorUrut: "2",
     tugasRingkas: TEKS.A2_FOTO,
     tipe: "hp",
@@ -44,10 +51,11 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
   },
   {
     id: "kawasan",
+    ikon: "laporan",
     peran: TEKS.PERAN_PENGELOLA,
     url: "/kawasan?panel=pengelola",
     title: "Panel Pengelola",
-    lencanaKelas: "border-purple-600 bg-purple-50 text-purple-800",
+    lencanaKelas: "border-garis-halus bg-latar text-tinta",
     nomorUrut: "3",
     tugasRingkas: TEKS.K1_JUDUL,
     tipe: "desktop",
@@ -55,10 +63,11 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
   },
   {
     id: "penerima",
+    ikon: "timbang",
     peran: TEKS.PERAN_PENERIMA,
     url: "/penerima?panel=penerima",
     title: "Panel Penerima",
-    lencanaKelas: "border-amber-600 bg-amber-50 text-amber-800",
+    lencanaKelas: "border-garis-halus bg-latar text-tinta",
     nomorUrut: "4",
     tugasRingkas: TEKS.P1_JUDUL,
     tipe: "desktop",
@@ -103,40 +112,41 @@ export default function HalamanDemo() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col bg-latar text-tinta">
+    <div className={`${poppins.className} flex min-h-dvh flex-col bg-kertas text-tinta`}>
       <LabelDemo />
 
-      {/* Header Interaktif Demo */}
-      <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus bg-kertas/95 backdrop-blur px-4 py-3 sm:px-6 shadow-xs">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="group flex items-center gap-2" aria-label={TEKS.APP_NAMA}>
-            <LogoSerah ukuran="sm" />
-          </Link>
-          <span className="rounded-full border border-aksi/25 bg-aksi-latar px-2.5 py-0.5 text-xs font-bold text-aksi shadow-2xs">
-            Demo 4-Layar Interaktif
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Tombol
-            varian="sekunder"
-            onClick={handleResetDemo}
-            disabled={sedangReset}
-            data-testid="tombol-reset-demo"
-            className="min-h-10 px-4 py-2 text-xs font-bold shadow-2xs hover:border-aksi hover:text-aksi"
-          >
-            {sedangReset ? (
-              <span className="flex items-center gap-2">
-                <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                <span>{TEKS.UMUM_MUAT}</span>
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5">
-                <span aria-hidden="true">↺</span>
-                <span>{TEKS.DEMO_RESET}</span>
-              </span>
-            )}
-          </Tombol>
+      {/* Header kaca sticky, sama dengan beranda */}
+      <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5 sm:pt-4">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/55 px-4 py-2.5 shadow-[0_8px_30px_rgba(15,23,42,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="group flex items-center gap-2" aria-label={TEKS.APP_NAMA}>
+              <LogoSerah ukuran="sm" />
+            </Link>
+            <span className="hidden rounded-full border border-aksi-garis bg-aksi-latar px-2.5 py-0.5 text-xs font-medium text-aksi sm:inline-flex">
+              Demo 4-Layar Interaktif
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleResetDemo}
+              disabled={sedangReset}
+              data-testid="tombol-reset-demo"
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-tinta px-3.5 text-sm font-medium text-white transition-all duration-200 hover:bg-aksi hover:shadow-[0_6px_16px_rgba(36,87,197,0.30)] disabled:opacity-60"
+            >
+              {sedangReset ? (
+                <>
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  <span>{TEKS.UMUM_MUAT}</span>
+                </>
+              ) : (
+                <>
+                  <span aria-hidden="true">↺</span>
+                  <span>{TEKS.DEMO_RESET}</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -144,9 +154,9 @@ export default function HalamanDemo() {
       {pesanSukses ? (
         <div
           role="status"
-          className="mx-4 mt-3 rounded-kartu border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 shadow-xs sm:mx-6 flex items-center gap-2"
+          className="mx-4 mt-3 flex items-center gap-2 rounded-2xl border border-status-selesai/20 bg-status-selesai-latar px-4 py-3 text-sm font-medium text-status-selesai sm:mx-6"
         >
-          <span className="text-emerald-700 font-bold" aria-hidden="true">✓</span>
+          <span aria-hidden="true">✓</span>
           <span>{pesanSukses}</span>
         </div>
       ) : null}
@@ -154,48 +164,47 @@ export default function HalamanDemo() {
       {pesanGalat ? (
         <div
           role="alert"
-          className="mx-4 mt-3 rounded-kartu border border-peringatan-garis bg-peringatan-latar px-4 py-3 text-sm font-semibold text-peringatan shadow-xs sm:mx-6"
+          className="mx-4 mt-3 rounded-2xl border border-peringatan-garis/30 bg-peringatan-latar px-4 py-3 text-sm font-medium text-peringatan sm:mx-6"
         >
           {pesanGalat}
         </div>
       ) : null}
 
-      {/* Navigasi Tab / Switcher Cepat */}
-      <div className="border-b border-garis-halus bg-kertas px-4 py-2 sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 overflow-x-auto">
-          <div className="flex items-center gap-2">
+      {/* Switcher cepat */}
+      <div className="px-4 pt-6 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto pb-1">
+          <button
+            type="button"
+            onClick={() => loncatKePanel(null)}
+            className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+              sorotanPanel === null
+                ? "border-tinta bg-tinta text-white"
+                : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
+            }`}
+          >
+            Semua Panel (4 Layar)
+          </button>
+          {DAFTAR_PANEL.map((panel) => (
             <button
+              key={panel.id}
               type="button"
-              onClick={() => loncatKePanel(null)}
-              className={`rounded-kontrol px-3 py-1.5 text-xs font-bold transition-all ${
-                sorotanPanel === null
-                  ? "bg-aksi text-aksi-teks shadow-2xs"
-                  : "border border-garis-halus bg-latar text-tinta hover:bg-kertas"
+              onClick={() => loncatKePanel(panel.id)}
+              className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                sorotanPanel === panel.id
+                  ? "border-tinta bg-tinta text-white"
+                  : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
               }`}
             >
-              Semua Panel (4 Layar)
+              <IkonLanding nama={panel.ikon} className="h-4 w-4" />
+              <span>{panel.nomorUrut}.</span>
+              <span>{panel.peran}</span>
             </button>
-            {DAFTAR_PANEL.map((panel) => (
-              <button
-                key={panel.id}
-                type="button"
-                onClick={() => loncatKePanel(panel.id)}
-                className={`flex items-center gap-1.5 rounded-kontrol px-3 py-1.5 text-xs font-bold transition-all ${
-                  sorotanPanel === panel.id
-                    ? "bg-aksi text-aksi-teks shadow-2xs"
-                    : "border border-garis-halus bg-latar text-tinta hover:bg-kertas"
-                }`}
-              >
-                <span>{panel.nomorUrut}.</span>
-                <span>{panel.peran}</span>
-              </button>
-            ))}
-          </div>
+          ))}
         </div>
       </div>
 
       {/* Main Split Panels */}
-      <main className="flex-1 p-4 sm:p-6">
+      <main className="flex-1 px-4 pb-16 pt-6 sm:px-6">
         <div className="mx-auto max-w-7xl">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {DAFTAR_PANEL.map((panel) => {
@@ -204,24 +213,24 @@ export default function HalamanDemo() {
                 <section
                   key={panel.id}
                   id={`panel-${panel.id}`}
-                  className={`flex flex-col gap-3 rounded-kartu border bg-kertas p-4 shadow-sm transition-all duration-200 ${
+                  className={`muncul flex flex-col gap-4 rounded-3xl border bg-kertas p-5 transition-all duration-300 ${
                     adalahSorot
-                      ? "border-aksi ring-2 ring-aksi/20 shadow-md"
-                      : "border-garis-halus hover:border-garis"
+                      ? "border-aksi shadow-[0_16px_48px_rgba(36,87,197,0.18)]"
+                      : "border-garis-halus shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:border-aksi-garis hover:shadow-[0_16px_40px_rgba(36,87,197,0.12)]"
                   }`}
                   aria-label={panel.title}
                 >
                   {/* Header Panel dengan Role Badge */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus pb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus pb-4">
                     <div className="flex items-center gap-2.5">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aksi text-white text-xs font-black">
-                        {panel.nomorUrut}
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-latar">
+                        <IkonLanding nama={panel.ikon} className="h-6 w-6" />
                       </span>
-                      <h2 className="text-base sm:text-lg font-black text-tinta">
+                      <h2 className="text-base font-semibold tracking-tight text-tinta sm:text-lg">
                         {panel.peran}
                       </h2>
                       <span
-                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${panel.lencanaKelas}`}
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium ${panel.lencanaKelas}`}
                       >
                         {panel.tugasRingkas}
                       </span>
@@ -231,7 +240,7 @@ export default function HalamanDemo() {
                       href={panel.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-aksi hover:underline"
+                      className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-aksi transition-colors hover:bg-aksi-latar"
                     >
                       <span>Buka Tab Baru</span>
                       <span aria-hidden="true">↗</span>
@@ -240,11 +249,11 @@ export default function HalamanDemo() {
 
                   {/* Device-style Container for iframe */}
                   {panel.tipe === "hp" ? (
-                    <div className="mx-auto w-full max-w-[400px] rounded-[32px] border-[6px] border-slate-900 bg-slate-900 p-1 shadow-2xl">
+                    <div className="mx-auto w-full max-w-[400px] rounded-[40px] border-[6px] border-tinta bg-tinta p-1 shadow-[0_24px_60px_rgba(15,23,42,0.25)]">
                       <div className="flex items-center justify-center py-1">
-                        <div className="h-3 w-20 rounded-full bg-slate-800" />
+                        <div className="h-3 w-20 rounded-full bg-white/15" />
                       </div>
-                      <div className="overflow-hidden rounded-[24px] bg-latar">
+                      <div className="overflow-hidden rounded-[30px] bg-kertas">
                         <iframe
                           key={`${panel.id}-${kunciIframe}`}
                           src={panel.url}
@@ -254,14 +263,14 @@ export default function HalamanDemo() {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full overflow-hidden rounded-xl border border-garis bg-kertas shadow-lg">
-                      <div className="flex items-center gap-2 border-b border-garis-halus bg-slate-100 px-3 py-2">
+                    <div className="w-full overflow-hidden rounded-2xl border border-garis-halus bg-kertas shadow-[0_16px_40px_rgba(15,23,42,0.10)]">
+                      <div className="flex items-center gap-2 border-b border-garis-halus bg-latar px-3 py-2.5">
                         <div className="flex items-center gap-1.5">
-                          <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-garis" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-garis" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-garis" />
                         </div>
-                        <div className="mx-auto rounded-md bg-kertas px-3 py-0.5 font-mono text-[11px] text-tinta-redup shadow-2xs">
+                        <div className="mx-auto rounded-lg bg-kertas px-3 py-0.5 font-mono text-[11px] text-tinta-redup">
                           serah.id{panel.url.split("?")[0]}
                         </div>
                       </div>

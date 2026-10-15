@@ -85,10 +85,10 @@ test.describe("S27: Mode demo juri /demo, snapshot BMKG cadangan, dan halaman pu
   });
 
   test("S27-3b: Halaman /tentang memuat cara kerja, 10 batasan, penjelasan AI, dan atribusi BMKG", async ({ page }) => {
-    await page.goto("/tentang");
+    await page.goto("/#tentang");
 
     // Judul & Subjudul
-    await expect(page.getByRole("heading", { level: 1, name: TEKS.TENTANG_JUDUL })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("heading", { level: 2, name: TEKS.TENTANG_JUDUL })).toBeVisible({ timeout: 20_000 });
     await expect(page.getByRole("heading", { level: 2, name: TEKS.TENTANG_BATASAN_JUDUL })).toBeVisible();
 
     // 10 Batasan
