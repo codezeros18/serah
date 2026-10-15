@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { evaluasiCuaca } from "@serah/core/aturan";
 import { titikDalamPoligon } from "@serah/core/cuaca";
-import { PembatasLaju, buatSumberLive, buatSumberSnapshot, derajatKeE6, GalatBmkg, normalisasiPrakiraan, parseCap, parseDaftarNowcast, poligonCapKeE6 } from "./index";
+import { PembatasLaju, buatSumberCuaca, buatSumberLive, buatSumberSnapshot, derajatKeE6, GalatBmkg, normalisasiPrakiraan, parseCap, parseDaftarNowcast, poligonCapKeE6 } from "./index";
 
 const DIR = resolve(import.meta.dirname, "../../../../../data/bmkg");
 const baca = (n: string) => readFileSync(resolve(DIR, n), "utf8");
@@ -162,5 +162,15 @@ describe("antrean batas laju ≤ 50/menit", () => {
     await p.tunggu();
     expect(tidur).toHaveBeenCalledTimes(1);
     expect(t).toBe(60_000);
+  });
+});
+
+describe("S27-2 fallback otomatis snapshot BMKG", () => {
+  it("mode live jatuh ke snapshot bila live gagal", async () => {
+    const s = buatSumberCuaca("live");
+    // Di lingkungan uji tanpa fetch BMKG live, akan fallback otomatis ke snapshot
+    const p = await s.prakiraan(ADM4);
+    expect(p.mode).toBe("SNAPSHOT");
+    expect(p.slot.length).toBeGreaterThan(0);
   });
 });
