@@ -10,6 +10,7 @@ import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg } from "@/lib/klien/angka";
 import { useMuat } from "@/lib/klien/muat";
 import { tanggalJamWib } from "@/lib/klien/periode";
+import { TombolAjukanKoreksi } from "@/lib/klien/komponen/tombol-ajukan-koreksi";
 
 // Teks per jenis event hanya bila sudah ada di §M; jenis lain tampil tanpa label (usulan teks: lihat PROGRESS-B S12).
 const TEKS_EVENT: Partial<Record<JenisEvent, KunciTeks>> = {
@@ -167,7 +168,8 @@ export default function DetailSerah() {
         </>
       ) : null}
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        {d ? <TombolAjukanKoreksi wadah={d.wadah} rincian={d.rincian} onSelesai={() => void ulang()} /> : null}
         <Link href="/rantai" className="inline-flex min-h-12 items-center text-base font-semibold underline">
           {TEKS.RANTAI_JUDUL}
         </Link>

@@ -89,6 +89,8 @@ export function peranMock(): Peran {
   try {
     const q = new URLSearchParams(window.location.search).get("peran")?.toUpperCase();
     if (q && q in PERAN_VALID) hasil = q as Peran;
+    const panel = new URLSearchParams(window.location.search).get("panel")?.toLowerCase();
+    if (panel && panel in DARI_SEGMEN) hasil = DARI_SEGMEN[panel] ?? null;
     hasil ??= DARI_SEGMEN[window.location.pathname.split("/")[1] ?? ""] ?? null;
     if (hasil) {
       sessionStorage.setItem(KUNCI_PERAN, hasil);
@@ -780,6 +782,7 @@ const HANDLER: Record<string, Handler> = {
     mode: "SNAPSHOT",
     analysisDate: iso(c.sekarang, 2),
     basi: false,
+    pesan: isi("G_BMKG_SNAPSHOT", { waktu: "12:00" }),
     slot: [
       { slotUtc: iso(c.sekarang, -3), weatherDesc: "Hujan Lebat", weatherDescEn: "Heavy Rain" },
       { slotUtc: iso(c.sekarang, -6), weatherDesc: "Berawan", weatherDescEn: "Mostly Cloudy" },

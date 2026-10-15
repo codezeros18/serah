@@ -1,11 +1,15 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
-import { PemindaiQr } from "@/lib/klien/komponen/pemindai-qr";
 import { ekstrakTokenQr, simpanTpsTerpilih, type TpsTerpilih } from "./tps-terpilih";
+
+const PemindaiQr = dynamic(() => import("@/lib/klien/komponen/pemindai-qr").then((m) => m.PemindaiQr), {
+  ssr: false,
+});
 
 /** Pindai QR TPS → TPS terpilih. Dipakai T1 dan T2. */
 export function PilihTps({ onTerpilih }: { onTerpilih: (t: TpsTerpilih) => void }) {

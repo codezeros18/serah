@@ -1,6 +1,8 @@
-import { SINKRON_BATCH_MAKS, type JenisAksiSinkron } from "@serah/kontrak";
+import type { JenisAksiSinkron } from "@serah/kontrak/enum";
 import type { HasilApi } from "../api";
 import type { AksiAntrean, GalatAntrean, PenyimpananAntrean } from "./tipe";
+
+export const SINKRON_BATCH_MAKS = 20;
 
 export type AksiKirim = Pick<AksiAntrean, "idempotencyKey" | "jenis" | "terjadiPada" | "payload">;
 

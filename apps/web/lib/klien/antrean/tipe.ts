@@ -1,4 +1,4 @@
-import type { JenisAksiSinkron } from "@serah/kontrak";
+import type { JenisAksiSinkron } from "@serah/kontrak/enum";
 
 // Antrean offline (BLUEPRINT §F.6). Aksi tulis dari perangkat disimpan di IndexedDB dengan
 // idempotencyKey yang dibuat di perangkat saat tombol ditekan, lalu dikirim batch ke /api/sinkron.
