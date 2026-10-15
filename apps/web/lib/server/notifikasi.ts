@@ -7,6 +7,7 @@ import { denganSistem, setelahCommit, type Tx } from "./db";
 import { muatEnv } from "./env";
 import { GalatApi } from "./galat";
 import { boleh } from "./hak";
+import { log } from "./log";
 
 // Notifikasi (BLUEPRINT §F.4, §O.5, §M.11; FITUR F30). buatNotifikasi = SATU-SATUNYA penulis baris notifikasi.
 // - Ditujukan ke PERAN dalam organisasi, bukan orang; peran ditentukan tabel PERAN_TUJUAN (jenis × jenis organisasi).
@@ -121,7 +122,7 @@ export async function buatNotifikasi(tx: Tx, daftar: readonly NotifikasiBaru[], 
 async function jenisOrganisasi(tx: Tx, ids: readonly string[]): Promise<Map<string, JenisOrganisasi>> {
   const baris = await tx.organisasi.findMany({ where: { id: { in: [...new Set(ids)] } }, select: { id: true, jenis: true } });
   const peta = new Map(baris.map((b) => [b.id, b.jenis]));
-  if (peta.size < new Set(ids).size) process.stderr.write("[serah] notifikasi: organisasi tujuan tidak terbaca, dilewati\n");
+  if (peta.size < new Set(ids).size) log().warn("notifikasi: organisasi tujuan tidak terbaca, dilewati");
   return peta;
 }
 
@@ -192,7 +193,7 @@ export async function kirimKeluar(baris: readonly BarisKirim[]): Promise<HasilKi
         await email.kirim(susunEmail(ke, templatNotifikasi(kunci, data, `${asal}${url}`)));
         hasil.email += 1;
       } catch {
-        process.stderr.write(`[serah] email notifikasi gagal: ${b.jenis}\n`);
+        log().warn("email notifikasi gagal", { jenis: b.jenis });
       }
     }
   }

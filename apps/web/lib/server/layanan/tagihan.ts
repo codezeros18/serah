@@ -7,6 +7,7 @@ import { muatEnv } from "../env";
 import { GalatApi } from "../galat";
 import { konteksAkses, type Sesi } from "../sesi";
 import { aktifkanSetelahLunas } from "./langganan";
+import { log } from "../log";
 
 // Layanan tagihan & pembayaran (S19-4/5/6). Status tagihan HANYA berubah dari (a) status penyedia yang ditarik ulang
 // setelah notifikasi bertanda tangan sah, (b) konfirmasi admin teraudit (S21), (c) unggah bukti transfer
@@ -199,7 +200,7 @@ export async function terimaNotifikasi(isi: Record<string, unknown>, sekarang: D
       const tagihanId = dicatat.tagihanId;
       await denganSistem((tx) => terapkanStatus(tx, tagihanId, h, sekarang));
     } catch (e) {
-      process.stderr.write(`[serah] tarik status pembayaran gagal: ${e instanceof Error ? e.name : "unknown"}\n`);
+      log().warn("tarik status pembayaran gagal", { galat: e });
     }
   }
   return { status: "TERCATAT", duplikat: false };

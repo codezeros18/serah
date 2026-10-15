@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { GalatApi } from "../galat";
+import { log } from "../log";
 
 // Reset demo (S21-4). Dijalankan sebagai proses anak: tabel catat-saja hanya bisa dikosongkan oleh pemilik tabel
 // (DATABASE_URL_MIGRASI) dengan menonaktifkan trigger di dalam satu transaksi — kredensial itu TIDAK dipakai role
@@ -31,7 +32,7 @@ export async function jalankanResetDemo(alasan: string): Promise<void> {
       (galat, _out, err) => {
         if (!galat) return selesai();
         // Keluaran proses anak bisa memuat detail DB; yang dicatat hanya akhir pesan tanpa kredensial.
-        process.stderr.write(`[serah] demo reset gagal: ${String(err).split("\n").filter(Boolean).slice(-1)[0] ?? "unknown"}\n`);
+        log().error("demo reset gagal", { pesan: String(err).split(String.fromCharCode(10)).filter(Boolean).slice(-1)[0] ?? "unknown" });
         gagal(new GalatApi("GALAT_SERVER"));
       },
     );

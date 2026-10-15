@@ -2,6 +2,7 @@ import { uraiUrlDb } from "@serah/db/url";
 import type { Peran } from "@serah/kontrak";
 import pg from "pg";
 import { muatEnv } from "./env";
+import { log } from "./log";
 
 // Live sync server (BLUEPRINT §F.4, S17-1). SATU koneksi pg LISTEN per proses (bukan per klien); fan-out ke klien
 // SSE menurut organisasi aktif sesinya. Kanal `org_<id>` di-LISTEN saat pelanggan pertama datang dan di-UNLISTEN
@@ -52,7 +53,7 @@ class Pendengar {
       const k = await this.sambung();
       for (const nama of this.kanal.keys()) await k.query(`LISTEN "${nama}"`);
     } catch {
-      process.stderr.write("[serah] SSE: sambung ulang LISTEN gagal, dicoba lagi\n");
+      log().warn("SSE: sambung ulang LISTEN gagal, dicoba lagi");
       if (this.kanal.size > 0) setTimeout(() => void this.dengarUlang(), JEDA_SAMBUNG_MS).unref();
     }
   }

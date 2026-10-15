@@ -1,6 +1,7 @@
 import { buatPrisma, type Peran, type Prisma, type PrismaClient } from "@serah/db";
 import { muatEnv } from "./env";
 import { GalatApi } from "./galat";
+import { log } from "./log";
 
 // Satu-satunya pintu akses DB aplikasi. Role runtime serah_app (NOBYPASSRLS): tanpa konteks yang diisi
 // fungsi di bawah, kebijakan RLS mengembalikan kosong — itu disengaja.
@@ -59,7 +60,7 @@ function jalankanKait(daftar: readonly Kait[]): void {
       try {
         await k();
       } catch (e) {
-        process.stderr.write(`[serah] kait setelah commit gagal: ${e instanceof Error ? e.name : "unknown"}\n`);
+        log().error("kait setelah commit gagal", { galat: e });
       }
     }
   })();
