@@ -1,9 +1,11 @@
+import { evaluasiBatas, evaluasiBoleh } from "@serah/core/hak";
+import { paketEfektif } from "@serah/core/langganan";
 import { KunciHak, NilaiHak, type Hak, type JenisOrganisasi, type KunciHakBatas, type KunciHakBoleh } from "@serah/kontrak";
 import type { Tx } from "./db";
 
 // Satu pintu hak paket. Literal kode paket hanya boleh di berkas ini & seed (guard j).
-// S01: paket efektif & daftar hak untuk GET /api/sesi. S13: boleh()/batas() VERSI MINIMAL yang membaca entitlement
-// paket efektif (UTANG untuk S19: masa uji coba lewat → MENUNGGAK/KAWASAN_DASAR, harga beku, peristiwa langganan).
+// Paket efektif mengikuti mesin langganan (core/langganan.paketEfektif: uji coba lewat atau BERAKHIR → dasar,
+// walau cron belum sempat mengubah status). Evaluasi nilai hak di core/hak.
 // Pencatatan wadah, serah, penutupan, dan ekspor CSV tidak pernah dikunci paket (CLAUDE.md §2.7) — jangan panggil
 // boleh()/batas() untuk itu.
 
@@ -12,13 +14,16 @@ const PAKET_MITRA = "MITRA";
 const PAKET_INTERNAL = "INTERNAL";
 /** Paket organisasi kawasan baru selama masa uji coba (FITUR §3.1). */
 export const PAKET_UJI_COBA = "KAWASAN_UJI_COBA";
+/** Paket berbayar kawasan: langganan menjadi paket ini saat tagihan pertama lunas (FITUR §3.1, K-09). */
+export const PAKET_BERBAYAR = "KAWASAN_STANDAR";
 
 /** Paket efektif organisasi: kawasan dari langganan; mitra & internal tetap. */
-export async function paketOrganisasi(tx: Tx, organisasi: { id: string; jenis: JenisOrganisasi }): Promise<string> {
+export async function paketOrganisasi(tx: Tx, organisasi: { id: string; jenis: JenisOrganisasi }, sekarang: Date = new Date()): Promise<string> {
   switch (organisasi.jenis) {
     case "KAWASAN": {
-      const langganan = await tx.langganan.findUnique({ where: { organisasiId: organisasi.id }, select: { paketKode: true } });
-      return langganan?.paketKode ?? PAKET_KAWASAN_BAWAAN;
+      const l = await tx.langganan.findUnique({ where: { organisasiId: organisasi.id }, select: { paketKode: true, status: true, ujiCobaSelesai: true } });
+      if (!l) return PAKET_KAWASAN_BAWAAN;
+      return paketEfektif(l, sekarang) === "LANGGANAN" ? l.paketKode : PAKET_KAWASAN_BAWAAN;
     }
     case "PENGANGKUT":
     case "PENERIMA":
@@ -51,11 +56,10 @@ async function nilaiHak(tx: Tx, organisasiId: string, kunci: KunciHak): Promise<
 
 /** Fitur berbayar (FITUR §3.2) tersedia untuk organisasi ini? Hak tidak ada/tidak dikenal → tidak. */
 export async function boleh(tx: Tx, organisasiId: string, kunci: KunciHakBoleh): Promise<boolean> {
-  return (await nilaiHak(tx, organisasiId, kunci)) === true;
+  return evaluasiBoleh(await nilaiHak(tx, organisasiId, kunci));
 }
 
 /** Batas angka (FITUR §3.2): `null` = tak terbatas; hak tidak ada/tidak dikenal → 0 (paling aman). */
 export async function batas(tx: Tx, organisasiId: string, kunci: KunciHakBatas): Promise<number | null> {
-  const nilai = await nilaiHak(tx, organisasiId, kunci);
-  return typeof nilai === "number" || nilai === null ? nilai : 0;
+  return evaluasiBatas(await nilaiHak(tx, organisasiId, kunci));
 }
