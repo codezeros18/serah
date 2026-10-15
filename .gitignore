@@ -1,0 +1,87 @@
+# ── Dependensi ────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+.pnpm-store/
+
+# ── Build & cache ─────────────────────────────────────────────
+.next/
+next-env.d.ts
+out/
+build/
+dist/
+.turbo/
+*.tsbuildinfo
+.swc/
+
+# ── Test & coverage ───────────────────────────────────────────
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+.lighthouseci/
+
+# ── Lingkungan & rahasia ──────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+!.env.example
+*.pem
+*.key
+
+# ── Prisma / database ─────────────────────────────────────────
+packages/db/generated/
+packages/db/prisma/*.db
+packages/db/prisma/*.db-journal
+
+# ── Data lokal (foto mode lokal, dump) ────────────────────────
+.data/
+*.dump
+*.sql.gz
+# Snapshot BMKG di data/bmkg/ SENGAJA di-commit (cadangan demo & fixture test).
+
+# ── Docker / database lokal ───────────────────────────────────
+.docker-data/
+postgres-data/
+
+# ── Log ───────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# ── Editor & OS ───────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.recommended.json
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+
+# ── Hosting & alat ────────────────────────────────────────────
+.vercel/
+.railway/
+.sentryclirc
+
+# ── Dokumen kit internal — TIDAK BOLEH ter-commit ─────────────
+# Semua Markdown di ROOT kecuali README.md:
+# CLAUDE.md (penunjuk "@../kit/CLAUDE.md"), BLUEPRINT.md, FITUR.md, RISET.md, TASKS.md,
+# TRACKING-A.md, TRACKING-B.md, PROMPTS.md, PROGRESS-A.md, PROGRESS-B.md,
+# KEPUTUSAN.md, DEMO.md, MULAI-DI-SINI.md, dan berkas kerja lain di root.
+/*.md
+!/README.md
+# Penunjuk CLAUDE.md di subfolder (bila ada worktree bersarang) juga diabaikan.
+**/CLAUDE.md
+docs/internal/
+/gitignore.txt
+
+# Dokumen kit hidup di repo privat serah-kit (folder ../kit), tidak di repo ini.
+# Bukti blok ini bekerja (TASKS.md S00-10):
+#   git check-ignore -v CLAUDE.md   → menunjuk baris "/*.md" atau "**/CLAUDE.md"
+#   git check-ignore README.md      → tidak mengembalikan apa pun
+#   git ls-files | grep -E '\.md$'  → hanya README.md dan README.md per paket
