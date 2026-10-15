@@ -55,14 +55,17 @@ export function BannerGalat({ pesan, onCoba }: { pesan: string; onCoba?: () => v
   return (
     <div
       role="alert"
-      className="flex flex-wrap items-center gap-3 rounded-kartu border-l-8 border-galat bg-galat-latar p-4 text-base shadow-xs"
+      className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-garis-halus border-l-galat bg-galat-latar p-3.5 text-base shadow-[0_4px_20px_rgba(15,23,42,0.05)]"
     >
-      <span aria-hidden="true" className="text-xl font-bold">
+      <span
+        aria-hidden="true"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-kertas text-lg font-semibold text-tinta"
+      >
         !
       </span>
-      <p className="min-w-0 flex-1">{pesan}</p>
+      <p className="min-w-0 flex-1 text-sm leading-relaxed text-tinta">{pesan}</p>
       {onCoba ? (
-        <Tombol varian="sekunder" onClick={onCoba}>
+        <Tombol varian="sekunder" onClick={onCoba} className="min-h-11 rounded-xl px-4 text-sm font-medium">
           {TEKS.UMUM_COBA_LAGI}
         </Tombol>
       ) : null}

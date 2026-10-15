@@ -11,6 +11,7 @@ import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { unggahFoto } from "@/lib/klien/foto";
 import { KameraFoto } from "@/lib/klien/komponen/kamera-foto";
+import { LembarKonfirmasi } from "@/lib/klien/komponen/lembar-konfirmasi";
 import { useMuat } from "@/lib/klien/muat";
 import { beratAtauNol, ringkasRincian, type IsianRincian } from "@/lib/klien/rincian";
 
@@ -53,6 +54,7 @@ export default function LayarTutup() {
   const [sibuk, setSibuk] = useState(false);
   const [peringatan, setPeringatan] = useState<RujukanAturan[]>([]);
   const [dialogR08, setDialogR08] = useState(false);
+  const [lembarBuka, setLembarBuka] = useState(false);
   const [hasil, setHasil] = useState<Hasil>("siap");
 
   // Koreksi berat setelah tertutup.
@@ -136,6 +138,7 @@ export default function LayarTutup() {
       },
     });
     setSibuk(false);
+    setLembarBuka(false);
     if (!h.ok) {
       setGalat(h.pesan);
       if (h.galat.kode === "KONFLIK_VERSI") void serah.ulang();
@@ -387,13 +390,27 @@ export default function LayarTutup() {
                 </div>
               ) : null}
 
-              <Tombol onClick={() => void tutup()} disabled={!siapTutup || sibuk} className="w-full text-base">
+              <Tombol onClick={() => setLembarBuka(true)} disabled={!siapTutup || sibuk} className="w-full text-base">
                 {ringkas.aksi === "TOLAK"
                   ? TEKS.P1_TOLAK
                   : ringkas.aksi === "SEBAGIAN"
                     ? TEKS.P1_TOLAK_SEBAGIAN
                     : TEKS.P1_TERIMA}
               </Tombol>
+              <LembarKonfirmasi
+                terbuka={lembarBuka}
+                aksi={ringkas.aksi ?? "TERIMA"}
+                kode={kode}
+                beratTiketG={beratTiketG}
+                baris={isianRincian.map((x) => ({
+                  aliran: x.aliran,
+                  diterimaG: beratAtauNol(x.diterima) ?? 0,
+                  ditolakG: beratAtauNol(x.ditolak) ?? 0,
+                }))}
+                sibuk={sibuk}
+                onKonfirmasi={() => void tutup()}
+                onTutup={() => setLembarBuka(false)}
+              />
             </section>
           ) : null}
         </>

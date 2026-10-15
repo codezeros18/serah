@@ -199,6 +199,7 @@ test("P1 nyata: tutup serah (AI tidak tersedia → isi manual) lalu status tertu
   // Terima semua: isi "diterima" tiap aliran; aliran lain (bila ada) dibiarkan 0.
   for (const [aliran, g] of perAliran) await page.locator(`#diterima-${aliran}`).fill(fmt(g));
   await page.getByRole("button", { name: TEKS.P1_TERIMA }).click();
+  await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
   await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: sasaran.kode }))).toBeVisible();
 
   const sesudah = await api<Detail>(page, `/api/serah/${sasaran.kode}`);

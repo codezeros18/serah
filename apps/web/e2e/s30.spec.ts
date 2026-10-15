@@ -250,6 +250,8 @@ test.describe("S30-5: Peran Penerima (/penerima, /serah/[kode], /laporan, /korek
     await page.getByLabel(TEKS.UMUM_ALASAN).selectOption("BASAH_KOTOR");
 
     await page.getByRole("button", { name: TEKS.P1_TOLAK_SEBAGIAN }).click();
+
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
     await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: KODE(3) }))).toBeVisible();
     await axeBersih(page, "penerima-serah-ditutup");
   });

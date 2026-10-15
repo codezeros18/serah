@@ -136,6 +136,7 @@ test.describe("P1", () => {
     await expect(page.getByRole("button", { name: TEKS.P1_TOLAK_SEBAGIAN })).toBeDisabled(); // alasan belum dipilih
     await page.getByLabel(TEKS.UMUM_ALASAN).selectOption("BASAH_KOTOR");
     await page.getByRole("button", { name: TEKS.P1_TOLAK_SEBAGIAN }).click();
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
     await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: KODE(3) }))).toBeVisible();
     await axeBersih(page);
   });
@@ -149,6 +150,7 @@ test.describe("P1", () => {
     await page.getByRole("button", { name: TEKS.P1_KONFIRMASI_AI }).click();
     await page.getByLabel(TEKS.P1_DITERIMA).fill("30");
     await page.getByRole("button", { name: TEKS.P1_TERIMA }).click();
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
     await expect(page.getByText(isi("P1_DITUTUP", { kode_serah: KODE(3) }))).toBeVisible();
   });
 
@@ -166,6 +168,7 @@ test.describe("P1", () => {
     await page.getByRole("button", { name: TEKS.P1_KONFIRMASI_AI }).click();
     await page.getByLabel(TEKS.P1_DITERIMA).fill("60");
     await page.getByRole("button", { name: TEKS.P1_TERIMA }).click();
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText(isi("ATURAN_R08", { berat_tiket: "60", persen: 100, berat_tps: "30" }));

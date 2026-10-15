@@ -9,8 +9,10 @@ import { TEKS, type KunciTeks } from "@serah/kontrak/teks";
 import { BannerGalat, LabelDemo } from "@serah/ui";
 import { MOCK_AKTIF, panggil } from "../api";
 import { ProviderSesi, useSesi } from "../sesi";
+import { BannerSambungan } from "./banner-sambungan";
 import { IkonLanding, type NamaIkon } from "./ikon-landing";
 import { IkonNav, type NamaIkonNav } from "./ikon-nav";
+import { IndikatorSinkron } from "./indikator-sinkron";
 import { LogoSerah } from "./logo-serah";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
@@ -221,6 +223,7 @@ function Isi({ children }: { children: ReactNode }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
+              <IndikatorSinkron />
               <Link
                 href="/notifikasi"
                 aria-label={TEKS.NTF_JUDUL}
@@ -244,6 +247,8 @@ function Isi({ children }: { children: ReactNode }) {
             </div>
           </div>
         </header>
+
+        <BannerSambungan />
 
         <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-5 sm:px-6 lg:pb-12">
           <div className={peran === "PETUGAS" || peran === "PENGANGKUT" ? "mx-auto w-full max-w-2xl" : ""}>
