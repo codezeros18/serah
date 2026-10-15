@@ -1,0 +1,60 @@
+{
+  "keterangan": "Fixture silang rantai (BLUEPRINT §F.3). Dibuat S02 dengan node:crypto, independen dari core/rantai. HARUS DICOCOKKAN DENGAN S01-4 (hash_event SQL).",
+  "rumus": "hex(SHA-256(utf8(prev_hash | jenis | (serah_kode atau '-') | peran | payload_kanonis | diterima_pada_ISO)))",
+  "aturanKanonis": "JSON tanpa spasi; kunci objek diurutkan (urutan kode unit UTF-16, sama dengan byte untuk kunci ASCII); properti undefined dibuang; null dipertahankan; angka hanya integer aman; string di-escape seperti JSON.stringify (karakter non-ASCII apa adanya, kontrol < 0x20 sebagai \\b \\f \\n \\r \\t atau \\u00xx huruf kecil).",
+  "formatWaktu": "diterima_pada UTC, presisi milidetik: YYYY-MM-DDTHH:MM:SS.mmmZ (Date.toISOString)",
+  "kawasanId": "kws01fixture",
+  "hashAwal": "0000000000000000000000000000000000000000000000000000000000000000",
+  "event": [
+    {
+      "urutanRantai": 1,
+      "jenis": "WADAH_DICATAT",
+      "serahKode": null,
+      "peran": "PETUGAS",
+      "payload": {
+        "tpsId": "tps01fixture",
+        "aliran": "KUNING",
+        "beratG": 42500,
+        "jumlahWadah": null,
+        "offline": false
+      },
+      "diterimaPada": "2026-10-15T03:00:00.000Z",
+      "payloadKanonis": "{\"aliran\":\"KUNING\",\"beratG\":42500,\"jumlahWadah\":null,\"offline\":false,\"tpsId\":\"tps01fixture\"}",
+      "praGambar": "0000000000000000000000000000000000000000000000000000000000000000|WADAH_DICATAT|-|PETUGAS|{\"aliran\":\"KUNING\",\"beratG\":42500,\"jumlahWadah\":null,\"offline\":false,\"tpsId\":\"tps01fixture\"}|2026-10-15T03:00:00.000Z",
+      "prevHash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "hash": "8e9be9617ab9adc587d191be33f83b256ca86e220d87f3fea63866c74418db96"
+    },
+    {
+      "urutanRantai": 2,
+      "jenis": "SERAH_DIBUAT",
+      "serahKode": "SRH-20261015-0001",
+      "peran": "PETUGAS",
+      "payload": {
+        "wadahIds": [
+          "wadah02fixture",
+          "wadah01fixture"
+        ],
+        "tpsId": "tps01fixture"
+      },
+      "diterimaPada": "2026-10-15T03:05:30.123Z",
+      "payloadKanonis": "{\"tpsId\":\"tps01fixture\",\"wadahIds\":[\"wadah02fixture\",\"wadah01fixture\"]}",
+      "praGambar": "8e9be9617ab9adc587d191be33f83b256ca86e220d87f3fea63866c74418db96|SERAH_DIBUAT|SRH-20261015-0001|PETUGAS|{\"tpsId\":\"tps01fixture\",\"wadahIds\":[\"wadah02fixture\",\"wadah01fixture\"]}|2026-10-15T03:05:30.123Z",
+      "prevHash": "8e9be9617ab9adc587d191be33f83b256ca86e220d87f3fea63866c74418db96",
+      "hash": "95c8214d76d1b6d97269e6a58693b356926d410f4128c33c069dea2e2572e4a3"
+    },
+    {
+      "urutanRantai": 3,
+      "jenis": "SERAH_DIKEMBALIKAN",
+      "serahKode": "SRH-20261015-0001",
+      "peran": "PENGELOLA",
+      "payload": {
+        "alasan": "Foto muatan kurang jelas — mohon ulangi (café \"A\")"
+      },
+      "diterimaPada": "2026-10-15T16:59:59.999Z",
+      "payloadKanonis": "{\"alasan\":\"Foto muatan kurang jelas — mohon ulangi (café \\\"A\\\")\"}",
+      "praGambar": "95c8214d76d1b6d97269e6a58693b356926d410f4128c33c069dea2e2572e4a3|SERAH_DIKEMBALIKAN|SRH-20261015-0001|PENGELOLA|{\"alasan\":\"Foto muatan kurang jelas — mohon ulangi (café \\\"A\\\")\"}|2026-10-15T16:59:59.999Z",
+      "prevHash": "95c8214d76d1b6d97269e6a58693b356926d410f4128c33c069dea2e2572e4a3",
+      "hash": "6b915ca31ee11aaa393a722e54ccedcb4cd7463eda8b03f5794197a9ca9b94cf"
+    }
+  ]
+}
