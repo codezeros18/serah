@@ -1,0 +1,111 @@
+# Daftar rute §K.2 (satu baris = satu metode + jalur). Rute dengan dua metode (GET/PUT, POST/GET, POST/DELETE)
+# ditulis dua baris. Ekspor CSV & PDF memakai jalur yang sama dengan kueri `format`.
+# Auth & akun
+POST /api/auth/daftar
+POST /api/auth/verifikasi
+POST /api/auth/masuk
+POST /api/auth/keluar
+POST /api/auth/lupa
+POST /api/auth/reset
+POST /api/auth/demo
+GET /api/sesi
+POST /api/sesi/organisasi
+POST /api/undangan
+POST /api/undangan/terima
+GET /api/anggota
+POST /api/anggota/[id]/nonaktif
+GET /api/akun/data-saya
+POST /api/akun/tarik-persetujuan
+POST /api/akun/hapus
+GET /api/akun/notifikasi
+PUT /api/akun/notifikasi
+# Organisasi, kawasan, mitra
+POST /api/organisasi
+GET /api/organisasi/saya
+PATCH /api/organisasi/saya
+POST /api/organisasi/izin
+POST /api/kawasan
+GET /api/kawasan
+PATCH /api/kawasan/[id]
+POST /api/tps
+GET /api/tps
+PATCH /api/tps/[id]
+POST /api/tps/[id]/qr-baru
+GET /api/tps/[id]/qr
+GET /api/tps/qr/[token]
+POST /api/kendaraan
+GET /api/kendaraan
+POST /api/kendaraan/[id]/nonaktif
+GET /api/direktori/mitra
+POST /api/kontrak
+POST /api/kontrak/[id]/konfirmasi
+POST /api/kontrak/[id]/akhiri
+GET /api/kontrak
+# Inti serah
+POST /api/wadah
+GET /api/tps/[id]/menunggu
+POST /api/serah
+GET /api/serah/[kode]
+GET /api/serah
+GET /api/ambil
+POST /api/foto
+POST /api/serah/[kode]/ambil
+POST /api/serah/[kode]/setujui
+POST /api/serah/[kode]/kembalikan
+POST /api/tiket/baca
+POST /api/serah/[kode]/tutup
+POST /api/serah/[kode]/koreksi
+POST /api/sinkron
+GET /api/rantai/verifikasi
+GET /api/cuaca/[adm4]
+GET /api/tps/[id]/prioritas
+# Laporan & ekspor
+GET /api/laporan/[pihak]
+GET /api/laporan/[pihak]/ekspor
+GET /api/kawasan/[id]/lembar-neraca
+GET /api/kawasan/[id]/ringkasan
+GET /api/kawasan/[id]/ditolak
+# Permintaan koreksi
+POST /api/permintaan-koreksi
+GET /api/permintaan-koreksi
+POST /api/permintaan-koreksi/[id]/putus
+# Live & notifikasi
+GET /api/langsung
+GET /api/notifikasi
+POST /api/notifikasi/[id]/baca
+POST /api/notifikasi/baca-semua
+POST /api/push/langganan
+DELETE /api/push/langganan
+GET /api/push/kunci-publik
+# Langganan & bayar
+GET /api/paket
+GET /api/langganan
+GET /api/tagihan
+POST /api/tagihan/[nomor]/bayar
+POST /api/tagihan/[nomor]/transfer
+POST /api/webhook/midtrans
+GET /api/tagihan/[nomor]/status
+# Tagihan angkut & bayangan
+GET /api/tagihan-angkut
+POST /api/tagihan-angkut/terbitkan
+POST /api/bayangan
+GET /api/bayangan/perbandingan
+# Admin
+GET /api/admin/organisasi
+GET /api/admin/organisasi/[id]
+POST /api/admin/izin/[organisasiId]/putus
+GET /api/admin/pembayaran
+POST /api/admin/pembayaran/[tagihanId]/konfirmasi
+GET /api/admin/paket
+POST /api/admin/paket
+PUT /api/admin/paket/[kode]/entitlement
+GET /api/admin/aturan
+POST /api/admin/aturan
+GET /api/admin/audit
+GET /api/admin/metrik
+POST /api/admin/demo/reset
+# Sistem
+POST /api/cron/sepuluh-menit
+POST /api/cron/tiga-jam
+POST /api/cron/harian
+GET /api/health
