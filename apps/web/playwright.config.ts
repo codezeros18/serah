@@ -9,7 +9,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? "github" : "list",
-  outputDir: "../../test-results",
+  outputDir: "./node_modules/.cache/playwright-results",
   use: { baseURL, trace: "retain-on-failure" },
   projects: [
     { name: "hp", use: { ...devices["Pixel 5"] } },
