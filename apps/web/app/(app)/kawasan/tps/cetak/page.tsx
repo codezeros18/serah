@@ -38,15 +38,15 @@ function KontenCetak() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4 print:hidden">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-3 print:hidden">
         <div className="flex items-center gap-3">
           <Link
             href="/kawasan/tps"
-            className="inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol border-2 border-garis bg-kertas px-5 text-base font-semibold text-tinta"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-kontrol border border-garis-halus bg-kertas px-4 text-sm font-semibold text-tinta transition-colors hover:bg-latar active:scale-[0.98]"
           >
-            {TEKS.UMUM_KEMBALI}
+            ← {TEKS.UMUM_KEMBALI}
           </Link>
-          <h1 className="text-xl font-bold">{TEKS.TPS_CETAK_QR}</h1>
+          <h1 className="text-xl font-bold tracking-tight text-tinta">{TEKS.TPS_CETAK_QR}</h1>
         </div>
         <Tombol onClick={() => window.print()}>{TEKS.TPS_CETAK_QR}</Tombol>
       </div>
@@ -59,7 +59,7 @@ function KontenCetak() {
         {daftarTps.map((tps) => (
           <div
             key={tps.id}
-            className="flex flex-col items-center justify-center rounded-kartu border-2 border-dashed border-garis bg-white p-8 text-center break-inside-avoid print:h-[45vh] print:border-black"
+            className="flex flex-col items-center justify-center rounded-kartu border-2 border-dashed border-garis-halus bg-white p-8 text-center shadow-xs break-inside-avoid print:h-[45vh] print:border-black print:shadow-none"
           >
             <div className="mb-4">
               <h2 className="text-2xl font-bold print:text-3xl">{tps.nama}</h2>

@@ -214,10 +214,20 @@ export default function HalamanAdmin() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-tinta">{TEKS.ADM_JUDUL}</h1>
-        <Tombol varian="sekunder" onClick={resetDemo}>
+    <div className="flex flex-col gap-6 text-tinta">
+      {/* Header Admin */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-4">
+        <div className="flex items-center gap-3">
+          <span className="rounded-full border border-aksi/25 bg-aksi-latar px-3 py-0.5 text-xs font-bold text-aksi">
+            Portal Pengawasan
+          </span>
+          <h1 className="text-2xl font-black text-tinta">{TEKS.ADM_JUDUL}</h1>
+        </div>
+        <Tombol
+          varian="sekunder"
+          onClick={resetDemo}
+          className="min-h-10 px-4 text-xs font-bold shadow-2xs hover:border-aksi hover:text-aksi"
+        >
           {TEKS.DEMO_RESET}
         </Tombol>
       </div>
@@ -241,12 +251,18 @@ export default function HalamanAdmin() {
         </div>
       ) : null}
       {suksesPesan ? (
-        <div className="rounded-kontrol border border-emerald-300 bg-emerald-50 p-3 text-sm font-semibold text-emerald-900">
-          {suksesPesan}
+        <div className="rounded-kontrol border border-emerald-300 bg-emerald-50 p-3.5 text-sm font-semibold text-emerald-900 shadow-xs flex items-center gap-2">
+          <span className="text-emerald-700 font-bold" aria-hidden="true">✓</span>
+          <span>{suksesPesan}</span>
         </div>
       ) : null}
 
-      {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+      {sedangMuat ? (
+        <div className="flex items-center gap-2 py-2 text-sm text-tinta-redup font-medium">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-aksi border-t-transparent" />
+          <p role="status">{TEKS.UMUM_MUAT}</p>
+        </div>
+      ) : null}
 
       <Tab
         aktif={tabAktif}
@@ -256,67 +272,81 @@ export default function HalamanAdmin() {
             kunci: "organisasi",
             judul: TEKS.ADM_ORGANISASI,
             isi: (
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-5">
                 <div className="grid gap-4 md:grid-cols-2">
-                  {daftarOrg.map((org) => (
-                    <Kartu
-                      key={org.id}
-                      className="flex flex-col justify-between gap-3 border border-garis-halus bg-kertas p-4 shadow-sm"
-                    >
-                      <div className="flex flex-col gap-1">
-                        <span className="text-xs font-bold text-tinta-redup">
-                          {org.jenis}
-                        </span>
-                        <h3 className="text-base font-bold text-tinta">{org.nama}</h3>
-                        <p className="text-xs text-tinta-redup">
-                          Izin: {org.statusIzin}
-                        </p>
-                      </div>
-                      <div>
-                        <Tombol
-                          varian="sekunder"
-                          onClick={() => mintaBukaDetail(org.id)}
-                        >
-                          {TEKS.UMUM_LIHAT_DETAIL}
-                        </Tombol>
-                      </div>
-                    </Kartu>
-                  ))}
+                  {daftarOrg.map((org) => {
+                    const izinTerverifikasi = org.statusIzin === "TERVERIFIKASI";
+                    return (
+                      <Kartu
+                        key={org.id}
+                        className="flex flex-col justify-between gap-4 border border-garis-halus bg-kertas p-5 shadow-xs hover:border-aksi-garis hover:shadow-sm transition-all"
+                      >
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <span className="rounded-kontrol border border-garis-halus bg-latar px-2.5 py-0.5 text-xs font-bold text-tinta-redup">
+                              {org.jenis}
+                            </span>
+                            <span
+                              className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+                                izinTerverifikasi
+                                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                                  : "border-amber-300 bg-amber-50 text-amber-800"
+                              }`}
+                            >
+                              Izin: {org.statusIzin}
+                            </span>
+                          </div>
+                          <h3 className="text-base font-bold text-tinta">{org.nama}</h3>
+                        </div>
+                        <div className="pt-2 border-t border-garis-halus">
+                          <Tombol
+                            varian="sekunder"
+                            className="w-full text-xs font-bold"
+                            onClick={() => mintaBukaDetail(org.id)}
+                          >
+                            {TEKS.UMUM_LIHAT_DETAIL}
+                          </Tombol>
+                        </div>
+                      </Kartu>
+                    );
+                  })}
                 </div>
 
                 {orgDetail ? (
-                  <Kartu className="flex flex-col gap-3 border-2 border-aksi bg-kertas p-5 shadow-sm">
-                    <h3 className="text-lg font-bold text-tinta">
-                      Detail: {orgDetail.organisasi.nama}
-                    </h3>
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div>
+                  <Kartu className="flex flex-col gap-4 border-2 border-aksi bg-kertas p-6 shadow-md ring-1 ring-aksi/20">
+                    <div className="border-b border-garis-halus pb-2">
+                      <h3 className="text-lg font-black text-tinta">
+                        Detail: {orgDetail.organisasi.nama}
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
+                      <div className="rounded-kontrol bg-latar/50 p-3 border border-garis-halus">
                         <p className="text-xs text-tinta-redup">Jenis Organisasi</p>
-                        <p className="font-semibold text-tinta">
+                        <p className="font-bold text-tinta mt-0.5">
                           {orgDetail.organisasi.jenis}
                         </p>
                       </div>
-                      <div>
+                      <div className="rounded-kontrol bg-latar/50 p-3 border border-garis-halus">
                         <p className="text-xs text-tinta-redup">Jumlah Anggota</p>
-                        <p className="font-semibold text-tinta">
+                        <p className="font-bold text-tinta mt-0.5">
                           {orgDetail.jumlahAnggota}
                         </p>
                       </div>
-                      <div>
+                      <div className="rounded-kontrol bg-latar/50 p-3 border border-garis-halus">
                         <p className="text-xs text-tinta-redup">Jumlah Kawasan</p>
-                        <p className="font-semibold text-tinta">
+                        <p className="font-bold text-tinta mt-0.5">
                           {orgDetail.jumlahKawasan}
                         </p>
                       </div>
-                      <div>
+                      <div className="rounded-kontrol bg-latar/50 p-3 border border-garis-halus">
                         <p className="text-xs text-tinta-redup">TPS Aktif</p>
-                        <p className="font-semibold text-tinta">
+                        <p className="font-bold text-tinta mt-0.5">
                           {orgDetail.jumlahTpsAktif}
                         </p>
                       </div>
-                      <div>
+                      <div className="rounded-kontrol bg-latar/50 p-3 border border-garis-halus">
                         <p className="text-xs text-tinta-redup">Paket</p>
-                        <p className="font-semibold text-tinta">
+                        <p className="font-bold text-aksi mt-0.5">
                           {orgDetail.paketKode ?? "Gratis"}
                         </p>
                       </div>
@@ -339,10 +369,10 @@ export default function HalamanAdmin() {
                     .map((org) => (
                       <Kartu
                         key={org.id}
-                        className="flex flex-col justify-between gap-4 border border-garis-halus bg-kertas p-5 shadow-sm md:flex-row md:items-center"
+                        className="flex flex-col justify-between gap-4 border border-garis-halus bg-kertas p-5 shadow-xs hover:border-garis md:flex-row md:items-center"
                       >
-                        <div className="flex flex-col gap-1">
-                          <span className="text-xs font-bold text-tinta-redup">
+                        <div className="flex flex-col gap-1.5">
+                          <span className="w-fit rounded-kontrol border border-garis-halus bg-latar px-2.5 py-0.5 text-xs font-bold text-tinta-redup">
                             {org.jenis}
                           </span>
                           <h3 className="text-base font-bold text-tinta">{org.nama}</h3>
@@ -351,11 +381,15 @@ export default function HalamanAdmin() {
                           </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Tombol onClick={() => void putusIzin(org.id, "TERVERIFIKASI")}>
+                          <Tombol
+                            className="bg-aksi hover:bg-aksi-hover text-white text-xs font-bold"
+                            onClick={() => void putusIzin(org.id, "TERVERIFIKASI")}
+                          >
                             {TEKS.ADM_IZIN_SETUJUI}
                           </Tombol>
                           <Tombol
                             varian="sekunder"
+                            className="text-xs font-bold"
                             onClick={() => void putusIzin(org.id, "DITOLAK")}
                           >
                             {TEKS.ADM_IZIN_TOLAK}
@@ -378,13 +412,13 @@ export default function HalamanAdmin() {
                   daftarTagihan.map((t) => (
                     <Kartu
                       key={t.id}
-                      className="flex flex-col justify-between gap-4 border border-garis-halus bg-kertas p-5 shadow-sm md:flex-row md:items-center"
+                      className="flex flex-col justify-between gap-4 border border-garis-halus bg-kertas p-5 shadow-xs hover:border-garis md:flex-row md:items-center"
                     >
-                      <div className="flex flex-col gap-1">
+                      <div className="flex flex-col gap-1.5">
                         <span className="text-xs font-bold text-tinta-redup">
                           {t.organisasiNama} · {t.nomor}
                         </span>
-                        <h3 className="text-base font-bold text-tinta">
+                        <h3 className="text-lg font-black text-tinta">
                           Rp{new Intl.NumberFormat("id-ID").format(t.totalIdr)} ({t.periode})
                         </h3>
                         <p className="text-xs text-tinta-redup">
@@ -393,11 +427,14 @@ export default function HalamanAdmin() {
                       </div>
                       <div>
                         {t.status !== "LUNAS" ? (
-                          <Tombol onClick={() => void konfirmasiBayar(t.id)}>
+                          <Tombol
+                            className="bg-aksi hover:bg-aksi-hover text-white text-xs font-bold"
+                            onClick={() => void konfirmasiBayar(t.id)}
+                          >
                             {TEKS.ADM_KONFIRMASI_BAYAR}
                           </Tombol>
                         ) : (
-                          <span className="rounded-kontrol bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                          <span className="rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 border border-emerald-300">
                             {TEKS.TGH_LUNAS}
                           </span>
                         )}
@@ -416,22 +453,22 @@ export default function HalamanAdmin() {
                 {daftarPaket.map((p) => (
                   <Kartu
                     key={p.kode}
-                    className="flex flex-col gap-3 border border-garis-halus bg-kertas p-5 shadow-sm"
+                    className="flex flex-col gap-3.5 border border-garis-halus bg-kertas p-5 shadow-xs hover:border-aksi-garis transition-all"
                   >
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-tinta">{p.kode}</h3>
-                      <span className="rounded-kontrol bg-aksi/10 px-2.5 py-0.5 text-xs font-bold text-aksi">
+                      <h3 className="text-lg font-black text-tinta">{p.kode}</h3>
+                      <span className="rounded-full border border-aksi/25 bg-aksi-latar px-2.5 py-0.5 text-xs font-bold text-aksi">
                         {p.berlakuUntuk}
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-tinta">
+                    <p className="text-base font-bold text-tinta">
                       Rp{new Intl.NumberFormat("id-ID").format(p.hargaPerTpsIdr)} per TPS
                     </p>
-                    <div className="flex flex-wrap gap-1.5 pt-2 border-t border-garis-halus">
+                    <div className="flex flex-wrap gap-1.5 pt-3 border-t border-garis-halus">
                       {p.hak.map((h) => (
                         <span
                           key={h.kunci}
-                          className="rounded-kontrol bg-latar px-2 py-0.5 text-xs text-tinta"
+                          className="rounded-kontrol border border-garis-halus bg-latar px-2.5 py-0.5 text-xs font-medium text-tinta"
                         >
                           {h.kunci}: {String(h.nilai)}
                         </span>
@@ -448,7 +485,10 @@ export default function HalamanAdmin() {
             isi: (
               <div className="flex flex-col gap-4">
                 <div className="flex justify-end">
-                  <Tombol onClick={() => void tambahVersiAturan()}>
+                  <Tombol
+                    className="bg-aksi hover:bg-aksi-hover text-white text-xs font-bold"
+                    onClick={() => void tambahVersiAturan()}
+                  >
                     {TEKS.ADM_ATURAN_VERSI}
                   </Tombol>
                 </div>
@@ -456,7 +496,7 @@ export default function HalamanAdmin() {
                   {daftarAturan.map((a) => (
                     <Kartu
                       key={`${a.kode}-${a.versi}`}
-                      className="flex flex-col gap-2 border border-garis-halus bg-kertas p-4 shadow-sm"
+                      className="flex flex-col gap-2.5 border border-garis-halus bg-kertas p-5 shadow-xs hover:border-garis"
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-bold text-aksi">
@@ -466,8 +506,8 @@ export default function HalamanAdmin() {
                           {a.yurisdiksi} · {a.aksi}
                         </span>
                       </div>
-                      <p className="text-sm text-tinta font-medium">{a.sumber}</p>
-                      <p className="text-xs text-tinta-redup">
+                      <p className="text-sm text-tinta font-medium leading-relaxed">{a.sumber}</p>
+                      <p className="text-xs text-tinta-redup font-mono">
                         Ambang: {JSON.stringify(a.ambang)}
                       </p>
                     </Kartu>
@@ -484,17 +524,20 @@ export default function HalamanAdmin() {
                 {daftarAudit.map((aud) => (
                   <Kartu
                     key={aud.id}
-                    className="flex flex-col gap-1.5 border border-garis-halus bg-kertas p-4 shadow-sm text-sm"
+                    className="flex flex-col gap-2 border-l-4 border-l-aksi border-garis-halus bg-kertas p-4 shadow-xs text-sm hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center justify-between text-xs text-tinta-redup">
-                      <span>{aud.dibuatPada.slice(0, 19).replace("T", " ")}</span>
-                      <span className="font-bold text-tinta">{aud.peran}</span>
+                      <span className="font-mono">{aud.dibuatPada.slice(0, 19).replace("T", " ")} WIB</span>
+                      <span className="rounded-kontrol border border-garis-halus bg-latar px-2 py-0.5 font-bold text-tinta">
+                        {aud.peran}
+                      </span>
                     </div>
-                    <p className="font-semibold text-tinta">{aud.aksi}</p>
+                    <p className="font-bold text-tinta text-base">{aud.aksi}</p>
                     {aud.alasan ? (
-                      <p className="text-xs text-tinta-redup bg-latar p-2 rounded-kontrol">
-                        Alasan: {aud.alasan}
-                      </p>
+                      <div className="rounded-kontrol border border-garis-halus bg-latar/60 p-2.5 text-xs text-tinta-redup">
+                        <span className="font-semibold text-tinta">Alasan: </span>
+                        <span>{aud.alasan}</span>
+                      </div>
                     ) : null}
                   </Kartu>
                 ))}
@@ -506,25 +549,25 @@ export default function HalamanAdmin() {
             judul: TEKS.ADM_METRIK,
             isi: metrik ? (
               <div className="grid gap-4 md:grid-cols-3">
-                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-sm">
-                  <p className="text-xs text-tinta-redup">{TEKS.ADM_METRIK_TERTUTUP}</p>
-                  <p className="text-2xl font-bold text-aksi">
+                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-xs">
+                  <p className="text-xs font-semibold text-tinta-redup">{TEKS.ADM_METRIK_TERTUTUP}</p>
+                  <p className="text-3xl font-black text-aksi">
                     {formatBp(metrik.serahTertutupBp)}%
                   </p>
                 </Kartu>
-                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-sm">
-                  <p className="text-xs text-tinta-redup">
+                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-xs">
+                  <p className="text-xs font-semibold text-tinta-redup">
                     {TEKS.ADM_METRIK_HARI_TERCATAT}
                   </p>
-                  <p className="text-2xl font-bold text-aksi">
+                  <p className="text-3xl font-black text-aksi">
                     {formatBp(metrik.hariTpsTercatatBp)}%
                   </p>
                 </Kartu>
-                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-sm">
-                  <p className="text-xs text-tinta-redup">
+                <Kartu className="flex flex-col gap-2 border border-garis-halus bg-kertas p-5 shadow-xs">
+                  <p className="text-xs font-semibold text-tinta-redup">
                     {TEKS.ADM_METRIK_KAWASAN_AKTIF}
                   </p>
-                  <p className="text-2xl font-bold text-tinta">
+                  <p className="text-3xl font-black text-tinta">
                     {metrik.kawasanAktif7Hari}
                   </p>
                 </Kartu>

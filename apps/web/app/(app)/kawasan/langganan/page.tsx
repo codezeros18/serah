@@ -108,22 +108,26 @@ export default function HalamanLangganan() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold text-tinta">{TEKS.LGN_JUDUL}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.LGN_JUDUL}</h1>
+        </div>
+      </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
       {langganan ? (
-        <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-5 shadow-sm">
+        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-sm font-semibold text-tinta-redup">Status</span>
-            <span className="rounded-kontrol border border-garis bg-latar px-2 py-1 text-xs font-semibold text-tinta">
+            <span className="text-sm font-semibold text-tinta-redup">{TEKS.KOL_STATUS}</span>
+            <span className="rounded-full border border-aksi-garis bg-aksi-latar px-3 py-0.5 text-xs font-bold text-aksi">
               {teksStatusLangganan(langganan)}
             </span>
           </div>
 
-          <div className="border-t border-garis-halus pt-3">
-            <p className="text-base text-tinta font-medium">
+          <div className="border-t border-garis-halus/60 pt-3">
+            <p className="text-base font-semibold text-tinta tabular-nums">
               {isi("LGN_TPS_DITAGIH", {
                 jumlah: langganan.tpsDitagih,
                 harga: new Intl.NumberFormat("id-ID").format(
@@ -136,10 +140,10 @@ export default function HalamanLangganan() {
       ) : null}
 
       <div className="flex flex-col gap-4">
-        <h2 className="text-xl font-bold text-tinta">{TEKS.TGH_JUDUL}</h2>
+        <h2 className="text-xl font-bold tracking-tight text-tinta">{TEKS.TGH_JUDUL}</h2>
 
         {!sedangMuat && daftarTagihan.length === 0 ? (
-          <Kosong teks="Belum ada tagihan." />
+          <Kosong teks={TEKS.K_KOSONG_BULAN} />
         ) : null}
 
         <div className="flex flex-col gap-4">
@@ -151,34 +155,34 @@ export default function HalamanLangganan() {
             return (
               <Kartu
                 key={t.id}
-                className="flex flex-col gap-4 border border-garis-halus bg-kertas p-5 shadow-sm"
+                className="flex flex-col gap-4 shadow-xs transition-shadow duration-150 hover:shadow-md"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="text-xs font-semibold text-tinta-redup">
                       {TEKS.TGH_NOMOR}
                     </p>
-                    <p className="text-base font-bold text-tinta">{t.nomor}</p>
-                    <p className="text-xs text-tinta-redup">{t.periode}</p>
+                    <p className="font-mono text-base font-bold text-tinta">{t.nomor}</p>
+                    <p className="text-xs font-medium text-tinta-redup">{t.periode}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-bold text-tinta">{total}</p>
-                    <p className="text-xs text-tinta-redup">{jatuhTempo}</p>
+                    <p className="text-xl font-extrabold text-tinta tabular-nums">{total}</p>
+                    <p className="text-xs font-medium text-tinta-redup">{jatuhTempo}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-garis-halus pt-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-garis-halus/60 pt-3">
                   <div>
                     {t.status === "LUNAS" ? (
-                      <span className="inline-flex items-center rounded-kontrol bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-200">
+                      <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-0.5 text-xs font-bold text-emerald-800">
                         {TEKS.TGH_LUNAS}
                       </span>
                     ) : t.status === "MENUNGGU_KONFIRMASI" ? (
-                      <p className="text-sm font-semibold text-amber-800">
+                      <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-0.5 text-xs font-bold text-amber-800">
                         {TEKS.TGH_MENUNGGU_KONFIRMASI}
-                      </p>
+                      </span>
                     ) : (
-                      <span className="inline-flex items-center rounded-kontrol bg-red-50 px-3 py-1 text-xs font-bold text-red-800 border border-red-200">
+                      <span className="inline-flex items-center rounded-full border border-status-menunggu-garis bg-status-menunggu-latar px-3 py-0.5 text-xs font-bold text-status-menunggu">
                         {t.status}
                       </span>
                     )}
@@ -202,15 +206,15 @@ export default function HalamanLangganan() {
                 </div>
 
                 {adalahTransferTerbuka ? (
-                  <div className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-latar p-4">
-                    <p className="text-sm text-tinta">{TEKS.TGH_TRANSFER_PETUNJUK}</p>
-                    <div className="rounded-kontrol border border-garis-halus bg-kertas p-3 text-sm">
-                      <p className="font-semibold text-tinta">Bank Mandiri</p>
-                      <p className="text-tinta">123-00-9876543-2</p>
+                  <div className="flex flex-col gap-3 rounded-kontrol border border-garis-halus bg-latar/50 p-4">
+                    <p className="text-sm font-medium text-tinta">{TEKS.TGH_TRANSFER_PETUNJUK}</p>
+                    <div className="rounded-kontrol border border-garis-halus bg-kertas p-3 text-sm shadow-2xs">
+                      <p className="font-bold text-tinta">Bank Mandiri</p>
+                      <p className="font-mono text-base font-bold text-aksi">123-00-9876543-2</p>
                       <p className="text-xs text-tinta-redup">a.n. PT SERAH LESTARI INDONESIA</p>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                       <label htmlFor={`bukti-${t.nomor}`} className="text-xs font-semibold text-tinta">
                         Foto bukti transfer
                       </label>
@@ -219,11 +223,11 @@ export default function HalamanLangganan() {
                         type="file"
                         accept="image/*"
                         onChange={(e) => setBerkasDipilih(e.target.files?.[0] ?? null)}
-                        className="text-sm"
+                        className="text-sm text-tinta file:mr-3 file:rounded-kontrol file:border file:border-garis-halus file:bg-kertas file:px-3 file:py-1 file:text-xs file:font-semibold file:text-tinta hover:file:bg-latar"
                       />
                     </div>
 
-                    <div>
+                    <div className="pt-1">
                       <Tombol
                         onClick={() => void kirimBuktiTransfer(t.nomor)}
                         disabled={sedangUnggah || !berkasDipilih}

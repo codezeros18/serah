@@ -51,29 +51,55 @@ export default function LayarK2() {
   const muatanFoto = d?.foto.find((f) => f.jenis === "MUATAN");
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{isi("K2_JUDUL", { kode_serah: kode })}</h1>
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/kawasan/setujui"
+            className="inline-flex min-h-10 items-center justify-center rounded-kontrol border border-garis-halus bg-kertas px-3 text-sm font-semibold text-tinta transition-colors hover:bg-latar active:scale-[0.98]"
+          >
+            ← {TEKS.UMUM_KEMBALI}
+          </Link>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{isi("K2_JUDUL", { kode_serah: kode })}</h1>
+        </div>
+      </div>
+
       {keadaan.status === "memuat" ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
       {keadaan.status === "galat" ? <BannerGalat pesan={keadaan.pesan} onCoba={() => void ulang()} /> : null}
 
       {d ? (
-        <Kartu className="flex flex-col gap-3">
-          <LencanaStatus status={d.status} />
-          <div className="flex flex-wrap gap-2">
-            {d.aliran.map((a) => (
-              <LencanaAliran key={a} aliran={a} />
-            ))}
+        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus pb-3">
+            <LencanaStatus status={d.status} />
+            <div className="flex flex-wrap gap-2">
+              {d.aliran.map((a) => (
+                <LencanaAliran key={a} aliran={a} />
+              ))}
+            </div>
           </div>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-base">
-            <dt className="font-semibold">{TEKS.A2_KENDARAAN}</dt>
-            <dd>{d.kendaraan?.plat ?? "-"}</dd>
-            <dt className="font-semibold">{TEKS.A2_PENERIMA}</dt>
-            <dd>{d.penerima?.nama ?? "-"}</dd>
-            <dt className="font-semibold">{TEKS.KOL_PENGANGKUT}</dt>
-            <dd>{d.pengangkut?.nama ?? "-"}</dd>
-          </dl>
+
+          <div className="rounded-kontrol border border-garis-halus bg-latar/50 p-4">
+            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm sm:text-base">
+              <dt className="font-semibold text-tinta-redup">{TEKS.A2_KENDARAAN}</dt>
+              <dd className="font-mono font-bold text-tinta">{d.kendaraan?.plat ?? "-"}</dd>
+              <dt className="font-semibold text-tinta-redup">{TEKS.A2_PENERIMA}</dt>
+              <dd className="font-medium text-tinta">{d.penerima?.nama ?? "-"}</dd>
+              <dt className="font-semibold text-tinta-redup">{TEKS.KOL_PENGANGKUT}</dt>
+              <dd className="font-medium text-tinta">{d.pengangkut?.nama ?? "-"}</dd>
+            </dl>
+          </div>
+
           {muatanFoto ? (
-            <img src={muatanFoto.url} alt={TEKS.A2_FOTO} className="max-h-64 w-full rounded-kontrol border border-garis-halus object-contain" />
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs font-semibold text-tinta-redup">{TEKS.A2_FOTO}</span>
+              <div className="overflow-hidden rounded-kontrol border border-garis-halus bg-latar/30 p-2">
+                <img
+                  src={muatanFoto.url}
+                  alt={TEKS.A2_FOTO}
+                  className="max-h-72 w-full rounded-kontrol object-contain"
+                />
+              </div>
+            </div>
           ) : null}
         </Kartu>
       ) : null}
@@ -81,40 +107,46 @@ export default function LayarK2() {
       {galat ? <BannerGalat pesan={galat} /> : null}
 
       {hasil === "disetujui" ? (
-        <p role="status" className="text-lg font-semibold">
-          {isi("K2_DISETUJUI", { kode_serah: kode })}
-        </p>
+        <div className="rounded-kartu border border-status-selesai/30 bg-status-selesai-latar p-5 text-center">
+          <p role="status" className="text-lg font-bold text-status-selesai">
+            {`✓ ${isi("K2_DISETUJUI", { kode_serah: kode })}`}
+          </p>
+        </div>
       ) : null}
       {hasil === "dikembalikan" ? (
-        <p role="status" className="text-lg font-semibold">
-          {TEKS.K2_KEMBALIKAN}
-        </p>
+        <div className="rounded-kartu border border-status-tolak/30 bg-status-tolak-latar p-5 text-center">
+          <p role="status" className="text-lg font-bold text-status-tolak">
+            {TEKS.K2_KEMBALIKAN}
+          </p>
+        </div>
       ) : null}
 
       {d && hasil === null ? (
-        <>
-          <p className="text-base">{TEKS.K2_PENJELASAN}</p>
+        <div className="flex flex-col gap-4 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+          <p className="text-base text-tinta-redup">{TEKS.K2_PENJELASAN}</p>
           {d.status !== "MENUNGGU_SETUJU" ? null : (
             <div className="flex flex-col gap-3">
-              <Tombol onClick={() => void setujui()} disabled={sibuk}>
-                {TEKS.K2_SETUJUI}
+              <Tombol onClick={() => void setujui()} disabled={sibuk} className="w-full text-base">
+                {`✓ ${TEKS.K2_SETUJUI}`}
               </Tombol>
               {!kembalikan ? (
-                <Tombol varian="sekunder" onClick={() => setKembalikan(true)}>
+                <Tombol varian="sekunder" onClick={() => setKembalikan(true)} className="w-full text-base">
                   {TEKS.K2_KEMBALIKAN}
                 </Tombol>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="alasan" className="text-base font-semibold">
-                    {TEKS.UMUM_ALASAN}
-                  </label>
-                  <p className="text-sm text-tinta-redup">{TEKS.K2_KEMBALIKAN_PETUNJUK}</p>
+                <div className="flex flex-col gap-3 rounded-kontrol border border-garis-halus bg-latar/40 p-4">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="alasan" className="text-base font-semibold text-tinta">
+                      {TEKS.UMUM_ALASAN}
+                    </label>
+                    <p className="text-xs text-tinta-redup">{TEKS.K2_KEMBALIKAN_PETUNJUK}</p>
+                  </div>
                   <textarea
                     id="alasan"
                     value={alasan}
                     onChange={(e) => setAlasan(e.target.value)}
                     rows={3}
-                    className="rounded-kontrol border-2 border-garis bg-kertas p-3 text-base"
+                    className="min-h-24 rounded-kontrol border-2 border-garis-halus bg-kertas p-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
                   />
                   <Tombol varian="sekunder" onClick={() => void kirimKembalikan()} disabled={sibuk}>
                     {TEKS.K2_KEMBALIKAN}
@@ -123,12 +155,8 @@ export default function LayarK2() {
               )}
             </div>
           )}
-        </>
+        </div>
       ) : null}
-
-      <Link href="/kawasan/setujui" className="inline-flex min-h-12 items-center text-base font-semibold underline">
-        {TEKS.UMUM_KEMBALI}
-      </Link>
     </div>
   );
 }

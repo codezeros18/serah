@@ -51,58 +51,102 @@ export function RingkasanKawasan() {
   }, [muat]);
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.K1_JUDUL}</h1>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.K1_JUDUL}</h1>
+          {kawasan ? <p className="text-sm font-medium text-tinta-redup">{kawasan.nama}</p> : null}
+        </div>
+      </div>
+
       {galatKawasan ? <BannerGalat pesan={galatKawasan} /> : null}
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {!data && !galat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
       {data ? (
         <>
-          <div className="grid grid-cols-2 gap-3">
-            <Kartu data-testid="menunggu-setuju" className="flex flex-col gap-2">
-              <p className="text-3xl font-bold">{data.menungguSetuju}</p>
-              <p className="text-base">{TEKS.K1_MENUNGGU_SETUJU}</p>
-              <Link href="/kawasan/setujui" className="inline-flex min-h-12 items-center underline">
-                {TEKS.UMUM_LIHAT_DETAIL}
-              </Link>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Kartu
+              data-testid="menunggu-setuju"
+              className={`flex flex-col justify-between gap-3 border transition-shadow duration-150 hover:shadow-md ${
+                data.menungguSetuju > 0
+                  ? "border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/25"
+                  : "border-garis-halus"
+              }`}
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-tinta-redup">{TEKS.K1_MENUNGGU_SETUJU}</span>
+                <p className="text-4xl font-extrabold tracking-tight tabular-nums text-tinta">
+                  {data.menungguSetuju}
+                </p>
+              </div>
+              <div className="pt-1">
+                <Link
+                  href="/kawasan/setujui"
+                  className="inline-flex min-h-10 items-center justify-center rounded-kontrol bg-aksi px-4 py-2 text-sm font-semibold text-aksi-teks shadow-xs transition-all duration-150 hover:bg-aksi-hover active:scale-[0.98]"
+                >
+                  {TEKS.UMUM_LIHAT_DETAIL}
+                </Link>
+              </div>
             </Kartu>
-            <Kartu data-testid="menggantung" className="flex flex-col gap-2">
-              <p className="text-3xl font-bold">{data.menggantung}</p>
-              <p className="text-base">{TEKS.K1_MENGGANTUNG}</p>
+
+            <Kartu
+              data-testid="menggantung"
+              className={`flex flex-col justify-between gap-3 border transition-shadow duration-150 hover:shadow-md ${
+                data.menggantung > 0
+                  ? "border-l-4 border-l-status-menunggu border-garis-halus bg-status-menunggu-latar/20"
+                  : "border-garis-halus"
+              }`}
+            >
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-tinta-redup">{TEKS.K1_MENGGANTUNG}</span>
+                <p className="text-4xl font-extrabold tracking-tight tabular-nums text-tinta">
+                  {data.menggantung}
+                </p>
+              </div>
             </Kartu>
           </div>
 
-          <h2 className="text-lg font-bold">{TEKS.K1_NERACA}</h2>
-          <TabelNeraca judul={TEKS.K1_HARI_INI} total={data.hariIni} />
-          <TabelNeraca judul={TEKS.K1_BULAN_INI} total={data.bulanIni} />
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.K1_NERACA}</h2>
+            <TabelNeraca judul={TEKS.K1_HARI_INI} total={data.hariIni} />
+            <TabelNeraca judul={TEKS.K1_BULAN_INI} total={data.bulanIni} />
+          </div>
 
           {data.prioritas.length > 0 ? (
-            <section className="flex flex-col gap-2" aria-labelledby="k1-prioritas">
-              <h2 id="k1-prioritas" className="text-lg font-bold">
+            <section className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs" aria-labelledby="k1-prioritas">
+              <h2 id="k1-prioritas" className="text-lg font-bold tracking-tight text-tinta">
                 {TEKS.K1_PRIORITAS}
               </h2>
-              {data.prioritas.map((p) => (
-                <PanelAturan key={p.tpsId} aksi="PRIORITAS" kode="R10" teks={p.teks} />
-              ))}
+              <div className="flex flex-col gap-2">
+                {data.prioritas.map((p) => (
+                  <PanelAturan key={p.tpsId} aksi="PRIORITAS" kode="R10" teks={p.teks} />
+                ))}
+              </div>
               <AtribusiBMKG />
             </section>
           ) : null}
 
           {data.peringatan.length > 0 ? (
-            <section className="flex flex-col gap-2" aria-labelledby="k1-peringatan">
-              <h2 id="k1-peringatan" className="text-lg font-bold">
+            <section className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs" aria-labelledby="k1-peringatan">
+              <h2 id="k1-peringatan" className="text-lg font-bold tracking-tight text-tinta">
                 {TEKS.K1_PERINGATAN}
               </h2>
-              {data.peringatan.map((p, i) => (
-                <PanelAturan key={`${p.kode}-${i}`} aksi={p.aksi} kode={p.kode} teks={p.teks} />
-              ))}
+              <div className="flex flex-col gap-2">
+                {data.peringatan.map((p, i) => (
+                  <PanelAturan key={`${p.kode}-${i}`} aksi={p.aksi} kode={p.kode} teks={p.teks} />
+                ))}
+              </div>
             </section>
           ) : null}
         </>
       ) : null}
 
-      {kawasan ? <PeriksaRantai kawasanId={kawasan.id} /> : null}
+      {kawasan ? (
+        <section className="rounded-kartu border border-garis-halus bg-kertas p-4 shadow-xs">
+          <PeriksaRantai kawasanId={kawasan.id} />
+        </section>
+      ) : null}
     </div>
   );
 }

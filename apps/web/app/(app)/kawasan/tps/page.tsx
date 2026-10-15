@@ -95,15 +95,15 @@ export default function HalamanTps() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-3">
         <div>
-          <h1 className="text-2xl font-bold">{TEKS.TPS_JUDUL}</h1>
-          {kawasan ? <p className="text-sm text-tinta-redup">{kawasan.nama}</p> : null}
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.TPS_JUDUL}</h1>
+          {kawasan ? <p className="text-sm font-medium text-tinta-redup">{kawasan.nama}</p> : null}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/kawasan/tps/cetak"
-            className="inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol border-2 border-garis bg-kertas px-5 text-base font-semibold text-tinta"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-kontrol border border-garis-halus bg-kertas px-4 text-sm font-semibold text-tinta transition-colors hover:bg-latar active:scale-[0.98]"
           >
             {TEKS.TPS_CETAK_QR}
           </Link>
@@ -121,27 +121,33 @@ export default function HalamanTps() {
         </Kartu>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {daftarTps.map((tps) => (
-          <Kartu key={tps.id} className="flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
+          <Kartu key={tps.id} className="flex flex-col gap-4 border border-garis-halus shadow-xs transition-shadow duration-150 hover:shadow-md">
+            <div className="flex items-start justify-between gap-4 border-b border-garis-halus/60 pb-3">
               <div>
-                <h2 className="text-lg font-bold">{tps.nama}</h2>
-                <p className="font-mono text-sm text-tinta-redup">{tps.kode}</p>
+                <h2 className="text-lg font-bold text-tinta">{tps.nama}</h2>
+                <p className="font-mono text-xs font-semibold text-tinta-redup">{tps.kode}</p>
               </div>
-              <span className="rounded-full border border-garis px-3 py-1 text-xs font-semibold">
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                  tps.aktif
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                    : "bg-gray-100 text-gray-700 border-gray-300"
+                }`}
+              >
                 {tps.aktif ? TEKS.LGN_STATUS_AKTIF : TEKS.KND_NONAKTIF}
               </span>
             </div>
 
-            <div className="text-sm">
-              <span className="text-tinta-redup">{TEKS.TPS_KOORDINAT}: </span>
-              <span className="font-mono">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-tinta-redup font-medium">{TEKS.TPS_KOORDINAT}:</span>
+              <span className="font-mono text-xs font-bold text-tinta bg-latar px-2 py-0.5 rounded-kontrol">
                 {formatE6(tps.latE6)}, {formatE6(tps.lonE6)}
               </span>
             </div>
 
-            <div className="flex items-center justify-center rounded-kontrol border border-garis-halus bg-white p-4">
+            <div className="flex items-center justify-center rounded-kontrol border border-garis-halus bg-kertas p-4 shadow-2xs">
               <img
                 src={`/api/tps/${tps.id}/qr?format=svg&v=${tps.qrVersi}`}
                 alt={`${tps.nama} - ${tps.kode}`}
@@ -149,16 +155,16 @@ export default function HalamanTps() {
               />
             </div>
 
-            <div className="mt-auto flex flex-wrap gap-2 pt-2">
+            <div className="mt-auto flex flex-wrap gap-2 pt-2 border-t border-garis-halus/60">
               <Link
                 href={`/kawasan/tps/cetak?id=${tps.id}`}
-                className="inline-flex min-h-12 min-w-12 flex-1 items-center justify-center gap-2 rounded-kontrol border-2 border-garis bg-kertas px-4 text-center text-sm font-semibold text-tinta"
+                className="inline-flex min-h-10 min-w-10 flex-1 items-center justify-center gap-1.5 rounded-kontrol border border-garis-halus bg-kertas px-3 text-center text-sm font-semibold text-tinta transition-colors hover:bg-latar active:scale-[0.98]"
               >
                 {TEKS.TPS_CETAK_QR}
               </Link>
               <Tombol
                 varian="sekunder"
-                className="flex-1 text-sm"
+                className="min-h-10 flex-1 text-sm"
                 onClick={() => setTpsQrBaru(tps)}
               >
                 {TEKS.TPS_QR_BARU}
@@ -174,7 +180,7 @@ export default function HalamanTps() {
         onTutup={() => setTambahTerbuka(false)}
       >
         <form onSubmit={tanganiTambah} className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm font-semibold">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-tinta">
             {TEKS.TPS_NAMA}
             <input
               type="text"
@@ -183,12 +189,12 @@ export default function HalamanTps() {
               maxLength={80}
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+              className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
             />
           </label>
 
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-semibold">{TEKS.TPS_KOORDINAT}</span>
+            <span className="text-sm font-semibold text-tinta">{TEKS.TPS_KOORDINAT}</span>
             <p className="text-xs text-tinta-redup">{TEKS.TPS_KOORDINAT_PETUNJUK}</p>
             <div className="grid grid-cols-2 gap-2">
               <input
@@ -197,7 +203,7 @@ export default function HalamanTps() {
                 placeholder="-6.161234"
                 value={latTeks}
                 onChange={(e) => setLatTeks(e.target.value)}
-                className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+                className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base font-mono text-tinta transition-colors focus:border-aksi focus:outline-none"
               />
               <input
                 type="text"
@@ -205,12 +211,12 @@ export default function HalamanTps() {
                 placeholder="106.845678"
                 value={lonTeks}
                 onChange={(e) => setLonTeks(e.target.value)}
-                className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+                className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base font-mono text-tinta transition-colors focus:border-aksi focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="mt-2 flex justify-end gap-2">
+          <div className="mt-2 flex justify-end gap-2 border-t border-garis-halus pt-3">
             <Tombol
               varian="sekunder"
               onClick={() => setTambahTerbuka(false)}

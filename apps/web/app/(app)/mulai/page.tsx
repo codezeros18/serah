@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { Aliran, JenisPenerima, Peran } from "@serah/kontrak/enum";
@@ -10,6 +11,7 @@ import { MOCK_AKTIF, panggil } from "@/lib/klien/api";
 import { aturPeranMock } from "@/lib/klien/mock";
 import { rutePeran } from "@/lib/klien/rute-peran";
 import { useSesi } from "@/lib/klien/sesi";
+import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
 
 const ALIRAN_OPSI: readonly Aliran[] = ["HIJAU", "KUNING", "MERAH", "ABU"];
 const ALAMAT_DEFAULT = "Jl. Kebon Kosong No. 1";
@@ -134,9 +136,15 @@ export default function HalamanMulai() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center px-4 py-12">
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.MULAI_JUDUL}</h1>
+    <main className="mx-auto flex min-h-dvh max-w-xl flex-col justify-center px-4 py-12 text-tinta">
+      {/* Brand Header */}
+      <div className="mb-6 text-center flex flex-col items-center">
+        <Link href="/" className="inline-block group mb-3" aria-label={TEKS.APP_NAMA}>
+          <LogoSerah ukuran="sm" />
+        </Link>
+        <h1 className="text-2xl font-black tracking-tight text-tinta sm:text-3xl">
+          {TEKS.MULAI_JUDUL}
+        </h1>
         <p className="mt-1 text-sm text-tinta-redup">
           {langkah === 1
             ? TEKS.MULAI_L1
@@ -152,11 +160,42 @@ export default function HalamanMulai() {
         </p>
       </div>
 
-      <Kartu className="flex flex-col gap-6 p-6">
+      {/* Step Progress Bar */}
+      <div className="flex items-center justify-between max-w-xs mx-auto mb-6 w-full px-2" aria-label="Progress">
+        {[1, 2, 3, 4, 5].map((step) => {
+          const selesai = langkah > step;
+          const aktif = langkah === step;
+          return (
+            <div key={step} className="flex items-center">
+              <span
+                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all ${
+                  selesai
+                    ? "bg-aksi text-aksi-teks"
+                    : aktif
+                      ? "border-2 border-aksi bg-aksi-latar text-aksi font-black"
+                      : "border border-garis-halus bg-latar text-tinta-redup"
+                }`}
+              >
+                {selesai ? "✓" : step}
+              </span>
+              {step < 5 ? (
+                <span
+                  className={`h-0.5 w-6 sm:w-10 transition-colors ${
+                    selesai ? "bg-aksi" : "bg-garis-halus"
+                  }`}
+                />
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+
+      <Kartu className="flex flex-col gap-6 p-6 sm:p-8 border border-garis-halus bg-kertas shadow-md">
         {galat ? <BannerGalat pesan={galat} /> : null}
 
+        {/* Langkah 1: Jenis Organisasi */}
         {langkah === 1 ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-tinta">{TEKS.MULAI_L1}</h2>
             <div className="flex flex-col gap-3">
               {(
@@ -165,38 +204,45 @@ export default function HalamanMulai() {
                   { id: "PENGANGKUT", label: TEKS.MULAI_L1_PENGANGKUT },
                   { id: "PENERIMA", label: TEKS.MULAI_L1_PENERIMA },
                 ] as const
-              ).map((p) => (
-                <label
-                  key={p.id}
-                  className={`flex cursor-pointer items-start gap-3 rounded-kartu border p-4 transition-colors ${
-                    jenis === p.id
-                      ? "border-aksi bg-aksi-latar font-semibold"
-                      : "border-garis bg-kertas hover:bg-garis-halus"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="jenis-organisasi"
-                    value={p.id}
-                    checked={jenis === p.id}
-                    onChange={() => setJenis(p.id)}
-                    className="mt-1 text-aksi focus:ring-aksi"
-                  />
-                  <span className="text-base text-tinta">{p.label}</span>
-                </label>
-              ))}
+              ).map((p) => {
+                const dipilih = jenis === p.id;
+                return (
+                  <label
+                    key={p.id}
+                    className={`flex cursor-pointer items-start gap-3.5 rounded-kartu border p-4 transition-all ${
+                      dipilih
+                        ? "border-2 border-aksi bg-aksi-latar/50 shadow-xs ring-1 ring-aksi/15 font-semibold"
+                        : "border-garis-halus bg-kertas hover:border-garis hover:bg-latar/40"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="jenis-organisasi"
+                      value={p.id}
+                      checked={dipilih}
+                      onChange={() => setJenis(p.id)}
+                      className="mt-1 h-4 w-4 text-aksi accent-[#2457c5] focus:ring-aksi"
+                    />
+                    <span className="text-base text-tinta leading-relaxed">{p.label}</span>
+                  </label>
+                );
+              })}
             </div>
-            <Tombol onClick={() => setLangkah(2)} className="mt-4">
+            <Tombol
+              onClick={() => setLangkah(2)}
+              className="mt-2 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+            >
               {TEKS.UMUM_LANJUT}
             </Tombol>
           </div>
         ) : null}
 
+        {/* Langkah 2: Data Organisasi */}
         {langkah === 2 ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-tinta">{TEKS.MULAI_L2}</h2>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="mulai-nama-org" className="text-sm font-medium text-tinta">
+              <label htmlFor="mulai-nama-org" className="text-sm font-semibold text-tinta">
                 {TEKS.MULAI_L2_NAMA}
               </label>
               <input
@@ -206,21 +252,21 @@ export default function HalamanMulai() {
                 minLength={2}
                 value={namaOrg}
                 onChange={(e) => setNamaOrg(e.target.value)}
-                className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
               />
             </div>
 
             {jenis === "PENERIMA" ? (
-              <div className="flex flex-col gap-3 border-t border-garis-halus pt-3">
+              <div className="flex flex-col gap-4 border-t border-garis-halus pt-4">
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="mulai-jenis-penerima" className="text-sm font-medium text-tinta">
+                  <label htmlFor="mulai-jenis-penerima" className="text-sm font-semibold text-tinta">
                     {TEKS.IZN_JUDUL}
                   </label>
                   <select
                     id="mulai-jenis-penerima"
                     value={jenisPenerima}
                     onChange={(e) => setJenisPenerima(e.target.value as JenisPenerima)}
-                    className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                    className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                   >
                     <option value="TPS3R">TPS 3R</option>
                     <option value="BANK_SAMPAH_INDUK">Bank Sampah Induk</option>
@@ -231,7 +277,7 @@ export default function HalamanMulai() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="mulai-nomor-izin" className="text-sm font-medium text-tinta">
+                  <label htmlFor="mulai-nomor-izin" className="text-sm font-semibold text-tinta">
                     {TEKS.IZN_NOMOR}
                   </label>
                   <input
@@ -239,20 +285,20 @@ export default function HalamanMulai() {
                     type="text"
                     value={nomorIzin}
                     onChange={(e) => setNomorIzin(e.target.value)}
-                    className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                    className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                   />
                 </div>
               </div>
             ) : null}
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-3">
               <Tombol varian="sekunder" onClick={() => setLangkah(1)} className="flex-1">
                 {TEKS.UMUM_KEMBALI}
               </Tombol>
               <Tombol
                 disabled={namaOrg.trim().length < 2}
                 onClick={() => setLangkah(3)}
-                className="flex-1"
+                className="flex-1 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
               >
                 {TEKS.UMUM_LANJUT}
               </Tombol>
@@ -260,8 +306,9 @@ export default function HalamanMulai() {
           </div>
         ) : null}
 
+        {/* Langkah 3: Kawasan & TPS / Mitra */}
         {langkah === 3 ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <h2 className="text-lg font-bold text-tinta">
               {jenis === "KAWASAN" ? TEKS.MULAI_L3_KAWASAN : TEKS.MULAI_L3_MITRA}
             </h2>
@@ -269,7 +316,7 @@ export default function HalamanMulai() {
             {jenis === "KAWASAN" ? (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="mulai-kws-nama" className="text-sm font-medium text-tinta">
+                  <label htmlFor="mulai-kws-nama" className="text-sm font-semibold text-tinta">
                     {TEKS.MULAI_L2_NAMA}
                   </label>
                   <input
@@ -278,12 +325,12 @@ export default function HalamanMulai() {
                     required
                     value={namaKawasan || namaOrg}
                     onChange={(e) => setNamaKawasan(e.target.value)}
-                    className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                    className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="mulai-adm4" className="text-sm font-medium text-tinta">
+                  <label htmlFor="mulai-adm4" className="text-sm font-semibold text-tinta">
                     {TEKS.MULAI_L3_ADM4}
                   </label>
                   <input
@@ -292,14 +339,14 @@ export default function HalamanMulai() {
                     required
                     value={adm4}
                     onChange={(e) => setAdm4(e.target.value)}
-                    className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                    className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                   />
                   <p className="text-xs text-tinta-redup">{TEKS.MULAI_L3_ADM4_PETUNJUK}</p>
                 </div>
 
-                <div className="border-t border-garis-halus pt-3 flex flex-col gap-3">
+                <div className="border-t border-garis-halus pt-4 flex flex-col gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="mulai-tps-nama" className="text-sm font-medium text-tinta">
+                    <label htmlFor="mulai-tps-nama" className="text-sm font-semibold text-tinta">
                       {TEKS.TPS_NAMA}
                     </label>
                     <input
@@ -308,13 +355,13 @@ export default function HalamanMulai() {
                       required
                       value={namaTps}
                       onChange={(e) => setNamaTps(e.target.value)}
-                      className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                      className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="flex flex-col gap-1.5">
-                      <label htmlFor="mulai-tps-lat" className="text-sm font-medium text-tinta">
+                      <label htmlFor="mulai-tps-lat" className="text-sm font-semibold text-tinta">
                         Lintang (lat)
                       </label>
                       <input
@@ -323,11 +370,11 @@ export default function HalamanMulai() {
                         required
                         value={latTeks}
                         onChange={(e) => setLatTeks(e.target.value)}
-                        className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                        className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label htmlFor="mulai-tps-lon" className="text-sm font-medium text-tinta">
+                      <label htmlFor="mulai-tps-lon" className="text-sm font-semibold text-tinta">
                         Bujur (lon)
                       </label>
                       <input
@@ -336,7 +383,7 @@ export default function HalamanMulai() {
                         required
                         value={lonTeks}
                         onChange={(e) => setLonTeks(e.target.value)}
-                        className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                        className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                       />
                     </div>
                   </div>
@@ -346,22 +393,22 @@ export default function HalamanMulai() {
             ) : (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-tinta">{TEKS.MULAI_L3_MITRA}</label>
+                  <label className="text-sm font-semibold text-tinta">{TEKS.MULAI_L3_MITRA}</label>
                   <div className="grid grid-cols-2 gap-2">
                     {ALIRAN_OPSI.map((a) => (
                       <label
                         key={a}
-                        className={`flex cursor-pointer items-center gap-2 rounded-kontrol border p-3 ${
+                        className={`flex cursor-pointer items-center gap-2.5 rounded-kontrol border p-3 transition-all ${
                           aliranPilihan.includes(a)
-                            ? "border-aksi bg-aksi-latar font-semibold"
-                            : "border-garis bg-kertas"
+                            ? "border-2 border-aksi bg-aksi-latar font-semibold shadow-2xs"
+                            : "border-garis-halus bg-kertas hover:border-garis"
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={aliranPilihan.includes(a)}
                           onChange={() => toggleAliran(a)}
-                          className="text-aksi focus:ring-aksi"
+                          className="h-4 w-4 text-aksi accent-[#2457c5] focus:ring-aksi"
                         />
                         <span className="text-sm text-tinta">
                           {a === "HIJAU"
@@ -378,8 +425,8 @@ export default function HalamanMulai() {
                 </div>
 
                 {jenis === "PENGANGKUT" ? (
-                  <div className="flex flex-col gap-1.5 border-t border-garis-halus pt-3">
-                    <label htmlFor="mulai-plat" className="text-sm font-medium text-tinta">
+                  <div className="flex flex-col gap-1.5 border-t border-garis-halus pt-4">
+                    <label htmlFor="mulai-plat" className="text-sm font-semibold text-tinta">
                       {TEKS.KND_PLAT}
                     </label>
                     <input
@@ -387,32 +434,38 @@ export default function HalamanMulai() {
                       type="text"
                       value={platNomor}
                       onChange={(e) => setPlatNomor(e.target.value)}
-                      className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                      className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                     />
                   </div>
                 ) : null}
               </div>
             )}
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-3">
               <Tombol varian="sekunder" onClick={() => setLangkah(2)} className="flex-1">
                 {TEKS.UMUM_KEMBALI}
               </Tombol>
-              <Tombol onClick={() => setLangkah(4)} className="flex-1">
+              <Tombol
+                onClick={() => setLangkah(4)}
+                className="flex-1 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+              >
                 {TEKS.UMUM_LANJUT}
               </Tombol>
             </div>
           </div>
         ) : null}
 
+        {/* Langkah 4: Undang Anggota */}
         {langkah === 4 ? (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold text-tinta">{TEKS.MULAI_L4}</h2>
-            <p className="text-sm text-tinta-redup">{TEKS.MULAI_L4_PETUNJUK}</p>
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="text-lg font-bold text-tinta">{TEKS.MULAI_L4}</h2>
+              <p className="text-xs text-tinta-redup mt-1">{TEKS.MULAI_L4_PETUNJUK}</p>
+            </div>
 
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="mulai-undang-email" className="text-sm font-medium text-tinta">
+                <label htmlFor="mulai-undang-email" className="text-sm font-semibold text-tinta">
                   {TEKS.AGT_EMAIL}
                 </label>
                 <input
@@ -420,12 +473,12 @@ export default function HalamanMulai() {
                   type="email"
                   value={emailUndang}
                   onChange={(e) => setEmailUndang(e.target.value)}
-                  className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                  className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="mulai-undang-peran" className="text-sm font-medium text-tinta">
+                <label htmlFor="mulai-undang-peran" className="text-sm font-semibold text-tinta">
                   {TEKS.AGT_PERAN}
                 </label>
                 <select
@@ -434,7 +487,7 @@ export default function HalamanMulai() {
                   onChange={(e) =>
                     setPeranUndang(e.target.value as "PETUGAS" | "PENGELOLA" | "PENGANGKUT" | "PENERIMA")
                   }
-                  className="rounded-kontrol border border-garis bg-kertas px-3 py-2.5 text-base text-tinta focus:border-aksi focus:outline-none focus:ring-1 focus:ring-aksi"
+                  className="rounded-kontrol border border-garis bg-kertas px-3.5 py-2.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
                 >
                   <option value="PETUGAS">{TEKS.PERAN_PETUGAS}</option>
                   <option value="PENGELOLA">{TEKS.PERAN_PENGELOLA}</option>
@@ -444,21 +497,35 @@ export default function HalamanMulai() {
               </div>
             </div>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-3 mt-3">
               <Tombol varian="sekunder" disabled={memuat} onClick={() => setLangkah(3)} className="flex-1">
                 {TEKS.UMUM_KEMBALI}
               </Tombol>
-              <Tombol disabled={memuat} onClick={selesaikanOnboarding} className="flex-1">
+              <Tombol
+                disabled={memuat}
+                onClick={selesaikanOnboarding}
+                className="flex-1 bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+              >
                 {memuat ? TEKS.UMUM_MUAT : TEKS.UMUM_SIMPAN}
               </Tombol>
             </div>
           </div>
         ) : null}
 
+        {/* Langkah 5: Selesai */}
         {langkah === 5 ? (
-          <div className="flex flex-col gap-6 text-center py-4">
-            <h2 className="text-xl font-bold text-tinta">{TEKS.MULAI_SELESAI}</h2>
-            <Tombol onClick={masukAplikasi} className="w-full">
+          <div className="flex flex-col gap-6 text-center py-6">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-3xl font-bold">
+              ✓
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <h2 className="text-xl font-black text-tinta">{TEKS.MULAI_SELESAI}</h2>
+              <p className="text-sm text-tinta-redup font-medium">{TEKS.MULAI_UJI_COBA}</p>
+            </div>
+            <Tombol
+              onClick={masukAplikasi}
+              className="w-full bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+            >
               {TEKS.UMUM_LANJUT}
             </Tombol>
           </div>

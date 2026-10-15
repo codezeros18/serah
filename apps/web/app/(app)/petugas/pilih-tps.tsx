@@ -43,9 +43,44 @@ export function PilihTps({ onTerpilih }: { onTerpilih: (t: TpsTerpilih) => void 
     <div className="flex flex-col gap-3">
       {galat ? <BannerGalat pesan={galat} /> : null}
       {memindai ? (
-        <PemindaiQr petunjuk={TEKS.T1_PINDAI_PETUNJUK} onHasil={(teks) => void tangani(teks)} />
+        <div className="flex flex-col gap-3 rounded-kartu border-2 border-aksi bg-kertas p-4 shadow-md">
+          <PemindaiQr petunjuk={TEKS.T1_PINDAI_PETUNJUK} onHasil={(teks) => void tangani(teks)} />
+          <Tombol
+            varian="sekunder"
+            className="min-h-12 w-full border-2 border-garis font-bold active:scale-[0.98] transition-all"
+            onClick={() => setMemindai(false)}
+          >
+            {TEKS.UMUM_BATAL}
+          </Tombol>
+        </div>
       ) : (
-        <Tombol onClick={() => setMemindai(true)}>{TEKS.T1_PINDAI}</Tombol>
+        <div className="flex flex-col items-center gap-4 rounded-kartu border-2 border-dashed border-aksi bg-aksi-latar/40 p-6 text-center shadow-xs">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-aksi-garis bg-aksi-latar text-aksi shadow-inner">
+            <svg
+              className="h-8 w-8 text-aksi"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2m-10 0H5a2 2 0 01-2-2v-2M9 9h6v6H9V9z"
+              />
+            </svg>
+          </div>
+          <p className="max-w-xs text-sm font-semibold text-tinta-redup">
+            {TEKS.T1_PINDAI_PETUNJUK}
+          </p>
+          <Tombol
+            className="min-h-14 w-full text-lg font-bold shadow-md active:scale-[0.98] transition-all"
+            onClick={() => setMemindai(true)}
+          >
+            {TEKS.T1_PINDAI}
+          </Tombol>
+        </div>
       )}
     </div>
   );

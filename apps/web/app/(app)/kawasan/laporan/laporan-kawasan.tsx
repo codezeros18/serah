@@ -31,11 +31,20 @@ export function LaporanKawasan() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.K4_JUDUL}</h1>
-      <p className="text-base">{TEKS.K4_PENJELASAN}</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.K4_JUDUL}</h1>
+          <p className="text-sm font-medium text-tinta-redup">{TEKS.K4_PENJELASAN}</p>
+        </div>
+      </div>
+
       {galat ? <BannerGalat pesan={galat} /> : null}
-      <PilihPeriode nilai={periode} onUbah={setPeriode} />
+
+      <div className="max-w-xs">
+        <PilihPeriode nilai={periode} onUbah={setPeriode} />
+      </div>
+
       <Tab
         aktif={aktif}
         onPilih={(k) => setAktif(k as TabLaporan)}
@@ -45,14 +54,22 @@ export function LaporanKawasan() {
           { kunci: "penerima", judul: TEKS.LAPORAN_PENERIMA, isi: <TabelLaporan pihak="penerima" periode={periode} /> },
         ]}
       />
-      <section className="flex flex-col gap-2 rounded-kartu border-2 border-garis p-4" aria-labelledby="lembar">
-        <h2 id="lembar" className="text-lg font-bold">
-          {TEKS.LEMBAR_NERACA}
-        </h2>
-        <p className="text-base">{TEKS.LEMBAR_NERACA_PENJELASAN}</p>
-        <TombolBerhak kunci="lembar_neraca" onLanjut={() => void unduhLembar()}>
-          {TEKS.UMUM_UNDUH}
-        </TombolBerhak>
+
+      <section
+        className="flex flex-col gap-3 rounded-kartu border border-garis-halus border-l-4 border-l-aksi bg-kertas p-5 shadow-xs"
+        aria-labelledby="lembar"
+      >
+        <div className="flex flex-col gap-1">
+          <h2 id="lembar" className="text-lg font-bold tracking-tight text-tinta">
+            {TEKS.LEMBAR_NERACA}
+          </h2>
+          <p className="text-sm leading-relaxed text-tinta-redup">{TEKS.LEMBAR_NERACA_PENJELASAN}</p>
+        </div>
+        <div className="pt-1">
+          <TombolBerhak kunci="lembar_neraca" onLanjut={() => void unduhLembar()}>
+            {TEKS.UMUM_UNDUH}
+          </TombolBerhak>
+        </div>
         {pesan ? <BannerGalat pesan={pesan} /> : null}
       </section>
     </div>

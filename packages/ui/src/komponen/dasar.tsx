@@ -15,9 +15,9 @@ export function Tombol({
     <button
       type={type}
       className={gabung(
-        "inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol px-5 text-base font-semibold",
-        "disabled:cursor-not-allowed disabled:opacity-60",
-        varian === "utama" ? "bg-aksi text-aksi-teks" : "border-2 border-garis bg-kertas text-tinta",
+        "inline-flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-kontrol px-5 text-base font-semibold transition-all duration-150 active:scale-[0.98] select-none",
+        "disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100",
+        varian === "utama" ? "bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-sm" : "border-2 border-garis bg-kertas text-tinta hover:bg-latar",
         className,
       )}
       {...sisa}

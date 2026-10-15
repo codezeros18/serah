@@ -82,29 +82,51 @@ export function TabelLaporan({ pihak, periode, kawasanId }: { pihak: PihakLapora
   ];
 
   return (
-    <div className="flex flex-col gap-4" data-testid={`laporan-${pihak}`}>
-      <h2 className="text-lg font-bold">{TEKS[JUDUL[pihak]]}</h2>
+    <div className="flex flex-col gap-5" data-testid={`laporan-${pihak}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS[JUDUL[pihak]]}</h2>
+      </div>
+
       {data.baris.length === 0 ? (
         <Kosong teks={TEKS.K_KOSONG_BULAN} />
       ) : (
         <>
           <Tabel keterangan={TEKS[JUDUL[pihak]]} kolom={kolom} baris={data.baris} kunciBaris={(b) => `${b.kodeSerah}-${b.aliran}`} />
-          <div data-testid="total-laporan" className="flex flex-col gap-2">
-            <h3 className="text-base font-bold">{TEKS.LAPORAN_TOTAL}</h3>
-            <ul className="flex flex-col gap-1">
+
+          <div data-testid="total-laporan" className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+            <h3 className="text-base font-bold tracking-tight text-tinta">{TEKS.LAPORAN_TOTAL}</h3>
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {data.total.map((t) => (
-                <li key={t.aliran} data-aliran-total={t.aliran} className="flex flex-wrap items-center gap-3">
-                  <LencanaAliran aliran={t.aliran} pendek />
-                  <span>{`${TEKS.KOL_BERAT_TPS}: ${isi("UMUM_KG", { nilai: kg(t.beratTpsG) })}`}</span>
-                  <span>{`${TEKS.KOL_BERAT_DITERIMA}: ${isi("UMUM_KG", { nilai: kg(t.beratDiterimaG) })}`}</span>
-                  <span>{`${TEKS.KOL_BERAT_DITOLAK}: ${isi("UMUM_KG", { nilai: kg(t.beratDitolakG) })}`}</span>
+                <li
+                  key={t.aliran}
+                  data-aliran-total={t.aliran}
+                  className="flex flex-col gap-2 rounded-kontrol border border-garis-halus bg-latar/40 p-3.5 shadow-2xs"
+                >
+                  <div className="border-b border-garis-halus/60 pb-2">
+                    <LencanaAliran aliran={t.aliran} pendek />
+                  </div>
+                  <div className="flex flex-col gap-1 text-xs sm:text-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-tinta-redup">{TEKS.KOL_BERAT_TPS}:</span>
+                      <span className="font-mono font-bold text-tinta tabular-nums">{isi("UMUM_KG", { nilai: kg(t.beratTpsG) })}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-tinta-redup">{TEKS.KOL_BERAT_DITERIMA}:</span>
+                      <span className="font-mono font-bold text-tinta tabular-nums">{isi("UMUM_KG", { nilai: kg(t.beratDiterimaG) })}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-medium text-tinta-redup">{TEKS.KOL_BERAT_DITOLAK}:</span>
+                      <span className="font-mono font-bold text-tinta tabular-nums">{isi("UMUM_KG", { nilai: kg(t.beratDitolakG) })}</span>
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>
           </div>
         </>
       )}
-      <div className="flex flex-wrap items-start gap-3">
+
+      <div className="flex flex-wrap items-center gap-3 pt-1">
         <Tombol varian="sekunder" data-ekspor="csv" onClick={() => void unduh("csv")}>
           {TEKS.EKSPOR_CSV}
         </Tombol>

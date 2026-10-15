@@ -50,9 +50,13 @@ export function LayarPermintaanKoreksi() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.PKR_JUDUL}</h1>
-      <p className="text-base text-tinta-redup">{TEKS.PKR_PETUNJUK}</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.PKR_JUDUL}</h1>
+          <p className="text-sm font-medium text-tinta-redup">{TEKS.PKR_PETUNJUK}</p>
+        </div>
+      </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {memuat && !daftar ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
@@ -61,7 +65,7 @@ export function LayarPermintaanKoreksi() {
         daftar.length === 0 ? (
           <Kosong teks={TEKS.K_KOSONG_KOREKSI} />
         ) : (
-          <ul className="flex flex-col gap-3" data-testid="daftar-koreksi">
+          <ul className="flex flex-col gap-4" data-testid="daftar-koreksi">
             {daftar.map((item) => {
               const statusTeks =
                 item.status === "DIAJUKAN"
@@ -72,51 +76,70 @@ export function LayarPermintaanKoreksi() {
 
               return (
                 <li key={item.id}>
-                  <Kartu className="flex flex-col gap-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis pb-2">
-                      <span className="font-mono text-base font-bold">{item.kode}</span>
-                      <span className="rounded-kontrol border border-garis bg-latar px-2 py-1 text-xs font-semibold uppercase text-tinta">
+                  <Kartu
+                    className={`flex flex-col gap-4 shadow-xs transition-shadow duration-150 hover:shadow-md ${
+                      item.status === "DIAJUKAN"
+                        ? "border-l-4 border-l-status-menunggu"
+                        : item.status === "DISETUJUI"
+                          ? "border-l-4 border-l-status-selesai"
+                          : "border-l-4 border-l-status-tolak"
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/60 pb-3">
+                      <span className="font-mono text-base font-bold text-tinta">{item.kode}</span>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-bold border uppercase ${
+                          item.status === "DIAJUKAN"
+                            ? "border-amber-200 bg-amber-50 text-amber-800"
+                            : item.status === "DISETUJUI"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                              : "border-purple-200 bg-purple-50 text-purple-800"
+                        }`}
+                      >
                         {statusTeks}
                       </span>
                     </div>
 
-                    <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-                      <dt className="font-semibold">{TEKS.KOL_STATUS}</dt>
-                      <dd>{item.targetJenis}</dd>
+                    <div className="rounded-kontrol border border-garis-halus bg-latar/40 p-4">
+                      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm sm:text-base">
+                        <dt className="font-semibold text-tinta-redup">{TEKS.KOL_STATUS}</dt>
+                        <dd className="font-medium text-tinta">{item.targetJenis}</dd>
 
-                      <dt className="font-semibold">{TEKS.K1_DICATAT}</dt>
-                      <dd>
-                        {item.nilaiAsliG !== null
-                          ? isi("UMUM_KG", { nilai: formatGramKeKg(item.nilaiAsliG) })
-                          : "—"}
-                      </dd>
+                        <dt className="font-semibold text-tinta-redup">{TEKS.K1_DICATAT}</dt>
+                        <dd className="font-mono font-medium text-tinta tabular-nums">
+                          {item.nilaiAsliG !== null
+                            ? isi("UMUM_KG", { nilai: formatGramKeKg(item.nilaiAsliG) })
+                            : "—"}
+                        </dd>
 
-                      <dt className="font-semibold">{TEKS.PKR_NILAI_USULAN}</dt>
-                      <dd className="font-bold text-aksi">
-                        {item.nilaiUsulanG !== null
-                          ? isi("UMUM_KG", { nilai: formatGramKeKg(item.nilaiUsulanG) })
-                          : "—"}
-                      </dd>
+                        <dt className="font-semibold text-tinta-redup">{TEKS.PKR_NILAI_USULAN}</dt>
+                        <dd className="font-mono font-extrabold text-aksi tabular-nums">
+                          {item.nilaiUsulanG !== null
+                            ? isi("UMUM_KG", { nilai: formatGramKeKg(item.nilaiUsulanG) })
+                            : "—"}
+                        </dd>
 
-                      <dt className="font-semibold">{TEKS.UMUM_ALASAN}</dt>
-                      <dd>{item.alasan}</dd>
+                        <dt className="font-semibold text-tinta-redup">{TEKS.UMUM_ALASAN}</dt>
+                        <dd className="font-medium text-tinta">{item.alasan}</dd>
 
-                      <dt className="font-semibold">{TEKS.KOL_TANGGAL}</dt>
-                      <dd>{tanggalJamWib(item.dibuatPada)}</dd>
+                        <dt className="font-semibold text-tinta-redup">{TEKS.KOL_TANGGAL}</dt>
+                        <dd className="font-medium text-tinta-redup">{tanggalJamWib(item.dibuatPada)}</dd>
 
-                      {item.putusan ? (
-                        <>
-                          <dt className="font-semibold">{TEKS.KOL_ALASAN}</dt>
-                          <dd>{`${item.putusan.keputusan}: ${item.putusan.alasan}`}</dd>
-                        </>
-                      ) : null}
-                    </dl>
+                        {item.putusan ? (
+                          <>
+                            <dt className="font-semibold text-tinta-redup">{TEKS.KOL_ALASAN}</dt>
+                            <dd className="font-medium text-tinta">{`${item.putusan.keputusan}: ${item.putusan.alasan}`}</dd>
+                          </>
+                        ) : null}
+                      </dl>
+                    </div>
 
                     {item.status === "DIAJUKAN" ? (
-                      <div className="flex flex-wrap gap-2 pt-2">
+                      <div className="flex flex-wrap gap-2 pt-1 border-t border-garis-halus/60">
                         <Tombol
                           onClick={() => void handlePutus(item.id, "DISETUJUI")}
                           disabled={prosesId === item.id}
+                          className="min-h-10 text-sm"
                         >
                           {TEKS.PKR_SETUJUI}
                         </Tombol>
@@ -124,6 +147,7 @@ export function LayarPermintaanKoreksi() {
                           varian="sekunder"
                           onClick={() => void handlePutus(item.id, "DITOLAK")}
                           disabled={prosesId === item.id}
+                          className="min-h-10 text-sm"
                         >
                           {TEKS.PKR_TOLAK}
                         </Tombol>

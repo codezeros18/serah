@@ -199,23 +199,41 @@ export default function LayarTutup() {
   const r08 = peringatan.find((p) => p.kode === "R08");
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{isi("P1_TUTUP_JUDUL", { kode_serah: kode })}</h1>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/penerima"
+            className="inline-flex min-h-10 items-center justify-center rounded-kontrol border border-garis-halus bg-kertas px-3 text-sm font-semibold text-tinta transition-colors hover:bg-latar active:scale-[0.98]"
+          >
+            ← {TEKS.UMUM_KEMBALI}
+          </Link>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{isi("P1_TUTUP_JUDUL", { kode_serah: kode })}</h1>
+        </div>
+      </div>
+
       {serah.keadaan.status === "memuat" ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
       {serah.keadaan.status === "galat" ? <BannerGalat pesan={serah.keadaan.pesan} onCoba={() => void serah.ulang()} /> : null}
 
       {d ? (
-        <Kartu className="flex flex-col gap-3">
-          <p className="text-base font-semibold">{isi("P1_MUATAN", { nama_kawasan: d.kawasan.nama })}</p>
-          <LencanaStatus status={d.status} />
-          <ul className="flex flex-col gap-2">
-            {d.wadah.map((w) => (
-              <li key={w.id} className="flex flex-wrap items-center gap-2">
-                <LencanaAliran aliran={w.aliran} pendek />
-                <span>{w.beratG === null ? TEKS.UMUM_BERAT_BELUM : isi("UMUM_KG", { nilai: formatGramKeKg(w.beratG) })}</span>
-              </li>
-            ))}
-          </ul>
+        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/60 pb-3">
+            <p className="text-base font-bold text-tinta">{isi("P1_MUATAN", { nama_kawasan: d.kawasan.nama })}</p>
+            <LencanaStatus status={d.status} />
+          </div>
+
+          <div className="rounded-kontrol border border-garis-halus bg-latar/50 p-4">
+            <ul className="flex flex-col gap-2.5">
+              {d.wadah.map((w) => (
+                <li key={w.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/40 pb-2 last:border-0 last:pb-0">
+                  <LencanaAliran aliran={w.aliran} pendek />
+                  <span className="font-mono text-sm font-bold text-tinta tabular-nums">
+                    {w.beratG === null ? TEKS.UMUM_BERAT_BELUM : isi("UMUM_KG", { nilai: formatGramKeKg(w.beratG) })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Kartu>
       ) : null}
 
@@ -225,8 +243,8 @@ export default function LayarTutup() {
         <>
           {/* 1. Foto tiket → AI membaca (hasil = saran berlabel) */}
           {fotoTiketId === null && !aiMati ? (
-            <section className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold">{TEKS.P1_FOTO_TIKET}</h2>
+            <section className="flex flex-col gap-4 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+              <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.P1_FOTO_TIKET}</h2>
               <KameraFoto
                 petunjuk={TEKS.P1_FOTO_TIKET}
                 labelAmbil={sibuk ? TEKS.P1_MEMBACA : TEKS.P1_FOTO_TIKET}
@@ -238,15 +256,17 @@ export default function LayarTutup() {
             </section>
           ) : null}
           {membaca ? (
-            <p role="status" className="text-base font-semibold">
-              {TEKS.P1_MEMBACA}
-            </p>
+            <div className="flex items-center gap-3 rounded-kartu border border-aksi-garis bg-aksi-latar p-4">
+              <p role="status" className="text-base font-bold text-aksi animate-pulse">
+                {TEKS.P1_MEMBACA}
+              </p>
+            </div>
           ) : null}
 
           {aiMati && ai === null && fotoTiketId !== null ? <BannerGalat pesan={TEKS.G_AI_MATI} /> : null}
           {ai !== null ? (
             ai.keyakinan === "TINGGI" && ai.beratG !== null ? (
-              <p role="note" className="rounded-kartu border-l-8 border-aksi bg-kertas p-3 text-base font-semibold">
+              <p role="note" className="rounded-kartu border-l-4 border-l-aksi bg-aksi-latar/40 p-4 text-base font-semibold text-tinta shadow-2xs">
                 {TEKS.AI_LABEL}
               </p>
             ) : (
@@ -256,9 +276,9 @@ export default function LayarTutup() {
 
           {/* 2. Angka tiket: dikonfirmasi atau diisi manual */}
           {(fotoTiketId !== null || aiMati) && !membaca ? (
-            <section className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="nomor" className="text-base font-semibold">
+            <section className="flex flex-col gap-4 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="nomor" className="text-sm font-semibold text-tinta">
                   {TEKS.P1_NOMOR_TIKET}
                 </label>
                 <input
@@ -269,7 +289,7 @@ export default function LayarTutup() {
                     setNomor(e.target.value);
                     setTerkonfirmasi(false);
                   }}
-                  className="min-h-12 rounded-kontrol border-2 border-garis bg-kertas px-3 text-xl"
+                  className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 font-mono text-xl text-tinta transition-colors focus:border-aksi focus:outline-none"
                 />
               </div>
               <IsianBerat
@@ -296,46 +316,52 @@ export default function LayarTutup() {
           {/* 3. Rincian per aliran */}
           {terkonfirmasi ? (
             <section className="flex flex-col gap-4">
-              <h2 className="text-lg font-bold">{TEKS.P1_PER_ALIRAN}</h2>
-              <p className="text-sm text-tinta-redup">{TEKS.P1_HAK_TOLAK}</p>
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.P1_PER_ALIRAN}</h2>
+                <p className="text-sm text-tinta-redup">{TEKS.P1_HAK_TOLAK}</p>
+              </div>
               {isianRincian.map((r, i) => (
-                <Kartu key={r.aliran} className="flex flex-col gap-3" data-aliran-rincian={r.aliran}>
+                <Kartu key={r.aliran} className="flex flex-col gap-4 shadow-xs" data-aliran-rincian={r.aliran}>
                   <LencanaAliran aliran={r.aliran} />
-                  <IsianBerat
-                    id={`diterima-${r.aliran}`}
-                    label={TEKS.P1_DITERIMA}
-                    nilai={r.diterima}
-                    onUbah={(v) => ubahRincian(i, { diterima: v })}
-                    salah={r.diterima !== "" && beratAtauNol(r.diterima) === null}
-                  />
-                  <IsianBerat
-                    id={`ditolak-${r.aliran}`}
-                    label={TEKS.P1_DITOLAK}
-                    nilai={r.ditolak}
-                    onUbah={(v) => ubahRincian(i, { ditolak: v })}
-                    salah={r.ditolak !== "" && beratAtauNol(r.ditolak) === null}
-                  />
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <IsianBerat
+                      id={`diterima-${r.aliran}`}
+                      label={TEKS.P1_DITERIMA}
+                      nilai={r.diterima}
+                      onUbah={(v) => ubahRincian(i, { diterima: v })}
+                      salah={r.diterima !== "" && beratAtauNol(r.diterima) === null}
+                    />
+                    <IsianBerat
+                      id={`ditolak-${r.aliran}`}
+                      label={TEKS.P1_DITOLAK}
+                      nilai={r.ditolak}
+                      onUbah={(v) => ubahRincian(i, { ditolak: v })}
+                      salah={r.ditolak !== "" && beratAtauNol(r.ditolak) === null}
+                    />
+                  </div>
                   {(beratAtauNol(r.ditolak) ?? 0) > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor={`alasan-${r.aliran}`} className="text-base font-semibold">
-                        {TEKS.UMUM_ALASAN}
-                      </label>
-                      <select
-                        id={`alasan-${r.aliran}`}
-                        value={r.alasan}
-                        onChange={(e) => ubahRincian(i, { alasan: e.target.value as AlasanTolak | "" })}
-                        className="min-h-12 rounded-kontrol border-2 border-garis bg-kertas px-3 text-base"
-                      >
-                        <option value="" />
-                        {ALASAN_TOLAK.map((a) => (
-                          <option key={a} value={a}>
-                            {TEKS[KUNCI_ALASAN[a]]}
-                          </option>
-                        ))}
-                      </select>
+                    <div className="flex flex-col gap-3 rounded-kontrol border border-garis-halus bg-latar/50 p-4">
+                      <div className="flex flex-col gap-1.5">
+                        <label htmlFor={`alasan-${r.aliran}`} className="text-sm font-semibold text-tinta">
+                          {TEKS.UMUM_ALASAN}
+                        </label>
+                        <select
+                          id={`alasan-${r.aliran}`}
+                          value={r.alasan}
+                          onChange={(e) => ubahRincian(i, { alasan: e.target.value as AlasanTolak | "" })}
+                          className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
+                        >
+                          <option value="" />
+                          {ALASAN_TOLAK.map((a) => (
+                            <option key={a} value={a}>
+                              {TEKS[KUNCI_ALASAN[a]]}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                       {r.alasan === "LAINNYA" ? (
-                        <>
-                          <label htmlFor={`ket-${r.aliran}`} className="text-base font-semibold">
+                        <div className="flex flex-col gap-1.5">
+                          <label htmlFor={`ket-${r.aliran}`} className="text-sm font-semibold text-tinta">
                             {TEKS.ALASAN_KETERANGAN_LABEL}
                           </label>
                           <input
@@ -344,9 +370,9 @@ export default function LayarTutup() {
                             maxLength={300}
                             value={r.keterangan}
                             onChange={(e) => ubahRincian(i, { keterangan: e.target.value })}
-                            className="min-h-12 rounded-kontrol border-2 border-garis bg-kertas px-3 text-base"
+                            className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
                           />
-                        </>
+                        </div>
                       ) : null}
                     </div>
                   ) : null}
@@ -354,12 +380,14 @@ export default function LayarTutup() {
               ))}
 
               {ringkas.sah && !ringkas.sama ? (
-                <p role="alert" className="text-base font-semibold">
-                  {isi("P1_JUMLAH_TIDAK_SAMA", { berat_tiket: beratTiketG === null ? "-" : formatGramKeKg(beratTiketG) })}
-                </p>
+                <div className="rounded-kartu border border-status-menunggu-garis bg-status-menunggu-latar p-4">
+                  <p role="alert" className="text-base font-bold text-status-menunggu">
+                    {isi("P1_JUMLAH_TIDAK_SAMA", { berat_tiket: beratTiketG === null ? "-" : formatGramKeKg(beratTiketG) })}
+                  </p>
+                </div>
               ) : null}
 
-              <Tombol onClick={() => void tutup()} disabled={!siapTutup || sibuk}>
+              <Tombol onClick={() => void tutup()} disabled={!siapTutup || sibuk} className="w-full text-base">
                 {ringkas.aksi === "TOLAK"
                   ? TEKS.P1_TOLAK
                   : ringkas.aksi === "SEBAGIAN"
@@ -372,17 +400,21 @@ export default function LayarTutup() {
       ) : null}
 
       {hasil === "tutup" || tertutup ? (
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-4">
           {hasil === "tutup" ? (
-            <p role="status" className="text-lg font-semibold">
-              {isi("P1_DITUTUP", { kode_serah: kode })}
-            </p>
+            <div className="rounded-kartu border border-status-selesai/30 bg-status-selesai-latar p-5 text-center shadow-xs">
+              <p role="status" className="text-lg font-bold text-status-selesai">
+                {`✓ ${isi("P1_DITUTUP", { kode_serah: kode })}`}
+              </p>
+            </div>
           ) : null}
           {r08 ? <PanelAturan aksi="PERINGATAN" kode="R08" teks={r08.teks} /> : null}
           {koreksiOk ? (
-            <p role="status" className="text-base font-semibold">
-              {`✓ ${TEKS.P1_KOREKSI}`}
-            </p>
+            <div className="rounded-kartu border border-emerald-200 bg-emerald-50 p-4 text-center">
+              <p role="status" className="text-base font-bold text-emerald-800">
+                {`✓ ${TEKS.P1_KOREKSI}`}
+              </p>
+            </div>
           ) : null}
 
           {!koreksiBuka ? (
@@ -390,8 +422,8 @@ export default function LayarTutup() {
               {TEKS.P1_KOREKSI}
             </Tombol>
           ) : (
-            <div className="flex flex-col gap-3">
-              <p className="text-sm text-tinta-redup">{TEKS.P1_KOREKSI_PETUNJUK}</p>
+            <div className="flex flex-col gap-4 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+              <p className="text-sm font-medium text-tinta-redup">{TEKS.P1_KOREKSI_PETUNJUK}</p>
               <IsianBerat
                 id="koreksi-tiket"
                 label={TEKS.P1_BERAT_TIKET}
@@ -399,38 +431,44 @@ export default function LayarTutup() {
                 onUbah={(v) => setKoreksiNilai({ ...koreksiNilai, TIKET: v })}
               />
               {(d?.rincian ?? []).map((r) => (
-                <div key={r.id} className="flex flex-col gap-2">
+                <div key={r.id} className="flex flex-col gap-2 rounded-kontrol border border-garis-halus bg-latar/40 p-3">
                   <LencanaAliran aliran={r.aliran} pendek />
-                  <IsianBerat
-                    id={`koreksi-d-${r.id}`}
-                    label={TEKS.P1_DITERIMA}
-                    nilai={koreksiNilai[`D:${r.id}`] ?? formatGramKeKg(r.diterimaFinalG)}
-                    onUbah={(v) => setKoreksiNilai({ ...koreksiNilai, [`D:${r.id}`]: v })}
-                  />
-                  <IsianBerat
-                    id={`koreksi-t-${r.id}`}
-                    label={TEKS.P1_DITOLAK}
-                    nilai={koreksiNilai[`T:${r.id}`] ?? formatGramKeKg(r.ditolakFinalG)}
-                    onUbah={(v) => setKoreksiNilai({ ...koreksiNilai, [`T:${r.id}`]: v })}
-                  />
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <IsianBerat
+                      id={`koreksi-d-${r.id}`}
+                      label={TEKS.P1_DITERIMA}
+                      nilai={koreksiNilai[`D:${r.id}`] ?? formatGramKeKg(r.diterimaFinalG)}
+                      onUbah={(v) => setKoreksiNilai({ ...koreksiNilai, [`D:${r.id}`]: v })}
+                    />
+                    <IsianBerat
+                      id={`koreksi-t-${r.id}`}
+                      label={TEKS.P1_DITOLAK}
+                      nilai={koreksiNilai[`T:${r.id}`] ?? formatGramKeKg(r.ditolakFinalG)}
+                      onUbah={(v) => setKoreksiNilai({ ...koreksiNilai, [`T:${r.id}`]: v })}
+                    />
+                  </div>
                 </div>
               ))}
               {!koreksiSah ? (
-                <p role="alert" className="text-base font-semibold">
-                  {isi("P1_JUMLAH_TIDAK_SAMA", { berat_tiket: tiketBaruG === null ? "-" : formatGramKeKg(tiketBaruG) })}
-                </p>
+                <div className="rounded-kartu border border-status-menunggu-garis bg-status-menunggu-latar p-4">
+                  <p role="alert" className="text-base font-bold text-status-menunggu">
+                    {isi("P1_JUMLAH_TIDAK_SAMA", { berat_tiket: tiketBaruG === null ? "-" : formatGramKeKg(tiketBaruG) })}
+                  </p>
+                </div>
               ) : null}
-              <label htmlFor="koreksi-alasan" className="text-base font-semibold">
-                {TEKS.UMUM_ALASAN}
-              </label>
-              <textarea
-                id="koreksi-alasan"
-                rows={3}
-                value={koreksiAlasan}
-                onChange={(e) => setKoreksiAlasan(e.target.value)}
-                className="rounded-kontrol border-2 border-garis bg-kertas p-3 text-base"
-              />
-              <Tombol onClick={() => void kirimKoreksi()} disabled={sibuk || !koreksiSah}>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="koreksi-alasan" className="text-sm font-semibold text-tinta">
+                  {TEKS.UMUM_ALASAN}
+                </label>
+                <textarea
+                  id="koreksi-alasan"
+                  rows={3}
+                  value={koreksiAlasan}
+                  onChange={(e) => setKoreksiAlasan(e.target.value)}
+                  className="min-h-24 rounded-kontrol border border-garis-halus bg-kertas p-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
+                />
+              </div>
+              <Tombol onClick={() => void kirimKoreksi()} disabled={sibuk || !koreksiSah} className="w-full">
                 {TEKS.UMUM_KIRIM}
               </Tombol>
             </div>
@@ -451,10 +489,6 @@ export default function LayarTutup() {
           </Tombol>
         </div>
       </Dialog>
-
-      <Link href="/penerima" className="inline-flex min-h-12 items-center text-base font-semibold underline">
-        {TEKS.UMUM_KEMBALI}
-      </Link>
     </div>
   );
 }

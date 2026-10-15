@@ -5,12 +5,16 @@ import Link from "next/link";
 import { LabelDemo, Tombol } from "@serah/ui";
 import { TEKS } from "@serah/kontrak/teks";
 import { panggil } from "@/lib/klien/api";
+import { LogoSerah } from "@/lib/klien/komponen/logo-serah";
 
 interface PanelInfo {
   id: string;
   peran: string;
   url: string;
   title: string;
+  lencanaKelas: string;
+  nomorUrut: string;
+  tugasRingkas: string;
 }
 
 const DAFTAR_PANEL: readonly PanelInfo[] = [
@@ -19,24 +23,36 @@ const DAFTAR_PANEL: readonly PanelInfo[] = [
     peran: TEKS.PERAN_PETUGAS,
     url: "/petugas?panel=petugas",
     title: "Panel Petugas",
+    lencanaKelas: "border-emerald-600 bg-emerald-50 text-emerald-800",
+    nomorUrut: "1",
+    tugasRingkas: TEKS.T1_JUDUL,
   },
   {
     id: "pengangkut",
     peran: TEKS.PERAN_PENGANGKUT,
     url: "/pengangkut?panel=pengangkut",
     title: "Panel Pengangkut",
+    lencanaKelas: "border-aksi bg-aksi-latar text-aksi",
+    nomorUrut: "2",
+    tugasRingkas: TEKS.A2_FOTO,
   },
   {
     id: "kawasan",
     peran: TEKS.PERAN_PENGELOLA,
     url: "/kawasan?panel=pengelola",
     title: "Panel Pengelola",
+    lencanaKelas: "border-purple-600 bg-purple-50 text-purple-800",
+    nomorUrut: "3",
+    tugasRingkas: TEKS.K1_JUDUL,
   },
   {
     id: "penerima",
     peran: TEKS.PERAN_PENERIMA,
     url: "/penerima?panel=penerima",
     title: "Panel Penerima",
+    lencanaKelas: "border-amber-600 bg-amber-50 text-amber-800",
+    nomorUrut: "4",
+    tugasRingkas: TEKS.P1_JUDUL,
   },
 ] as const;
 
@@ -45,6 +61,7 @@ export default function HalamanDemo() {
   const [pesanSukses, setPesanSukses] = useState<string | null>(null);
   const [pesanGalat, setPesanGalat] = useState<string | null>(null);
   const [kunciIframe, setKunciIframe] = useState(0);
+  const [sorotanPanel, setSorotanPanel] = useState<string | null>(null);
 
   async function handleResetDemo() {
     setSedangReset(true);
@@ -65,76 +82,165 @@ export default function HalamanDemo() {
     }
   }
 
+  function loncatKePanel(id: string | null) {
+    setSorotanPanel(id);
+    if (id) {
+      const el = document.getElementById(`panel-${id}`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }
+
   return (
-    <div className="flex min-h-dvh flex-col bg-latar">
+    <div className="flex min-h-dvh flex-col bg-latar text-tinta">
       <LabelDemo />
 
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus bg-kertas px-4 py-3 sm:px-6">
+      {/* Header Interaktif Demo */}
+      <header className="sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus bg-kertas/95 backdrop-blur px-4 py-3 sm:px-6 shadow-xs">
         <div className="flex items-center gap-4">
-          <Link href="/" className="text-xl font-bold text-tinta">
-            {TEKS.APP_NAMA}
+          <Link href="/" className="group flex items-center gap-2" aria-label={TEKS.APP_NAMA}>
+            <LogoSerah ukuran="sm" />
           </Link>
-          <span className="rounded-kontrol border border-garis bg-latar px-2 py-0.5 text-xs font-semibold text-tinta">
-            Demo Mode
+          <span className="rounded-full border border-aksi/25 bg-aksi-latar px-2.5 py-0.5 text-xs font-bold text-aksi shadow-2xs">
+            Demo 4-Layar Interaktif
           </span>
         </div>
+
         <div className="flex items-center gap-3">
           <Tombol
             varian="sekunder"
             onClick={handleResetDemo}
             disabled={sedangReset}
             data-testid="tombol-reset-demo"
+            className="min-h-10 px-4 py-2 text-xs font-bold shadow-2xs hover:border-aksi hover:text-aksi"
           >
-            {sedangReset ? TEKS.UMUM_MUAT : TEKS.DEMO_RESET}
+            {sedangReset ? (
+              <span className="flex items-center gap-2">
+                <span className="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <span>{TEKS.UMUM_MUAT}</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <span aria-hidden="true">↺</span>
+                <span>{TEKS.DEMO_RESET}</span>
+              </span>
+            )}
           </Tombol>
         </div>
       </header>
 
+      {/* Feedback Banner */}
       {pesanSukses ? (
         <div
           role="status"
-          className="mx-4 mt-3 rounded-kartu border border-garis-halus bg-kertas px-4 py-3 text-sm font-semibold text-tinta shadow-sm sm:mx-6"
+          className="mx-4 mt-3 rounded-kartu border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 shadow-xs sm:mx-6 flex items-center gap-2"
         >
-          {pesanSukses}
+          <span className="text-emerald-700 font-bold" aria-hidden="true">✓</span>
+          <span>{pesanSukses}</span>
         </div>
       ) : null}
 
       {pesanGalat ? (
         <div
           role="alert"
-          className="mx-4 mt-3 rounded-kartu border border-peringatan-garis bg-peringatan-latar px-4 py-3 text-sm font-semibold text-peringatan shadow-sm sm:mx-6"
+          className="mx-4 mt-3 rounded-kartu border border-peringatan-garis bg-peringatan-latar px-4 py-3 text-sm font-semibold text-peringatan shadow-xs sm:mx-6"
         >
           {pesanGalat}
         </div>
       ) : null}
 
-      <main className="flex-1 p-4 sm:p-6">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {DAFTAR_PANEL.map((panel) => (
-            <section
-              key={panel.id}
-              className="flex flex-col gap-2 rounded-kartu border border-garis-halus bg-kertas p-4 shadow-sm"
-              aria-label={panel.title}
+      {/* Navigasi Tab / Switcher Cepat */}
+      <div className="border-b border-garis-halus bg-kertas px-4 py-2 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 overflow-x-auto">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => loncatKePanel(null)}
+              className={`rounded-kontrol px-3 py-1.5 text-xs font-bold transition-all ${
+                sorotanPanel === null
+                  ? "bg-aksi text-aksi-teks shadow-2xs"
+                  : "border border-garis-halus bg-latar text-tinta hover:bg-kertas"
+              }`}
             >
-              <div className="flex items-center justify-between border-b border-garis-halus pb-2">
-                <h2 className="text-lg font-bold text-tinta">{panel.peran}</h2>
-                <a
-                  href={panel.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-tinta-redup hover:underline"
+              Semua Panel (4 Layar)
+            </button>
+            {DAFTAR_PANEL.map((panel) => (
+              <button
+                key={panel.id}
+                type="button"
+                onClick={() => loncatKePanel(panel.id)}
+                className={`flex items-center gap-1.5 rounded-kontrol px-3 py-1.5 text-xs font-bold transition-all ${
+                  sorotanPanel === panel.id
+                    ? "bg-aksi text-aksi-teks shadow-2xs"
+                    : "border border-garis-halus bg-latar text-tinta hover:bg-kertas"
+                }`}
+              >
+                <span>{panel.nomorUrut}.</span>
+                <span>{panel.peran}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Split Panels */}
+      <main className="flex-1 p-4 sm:p-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {DAFTAR_PANEL.map((panel) => {
+              const adalahSorot = sorotanPanel === panel.id;
+              return (
+                <section
+                  key={panel.id}
+                  id={`panel-${panel.id}`}
+                  className={`flex flex-col gap-3 rounded-kartu border bg-kertas p-4 shadow-sm transition-all duration-200 ${
+                    adalahSorot
+                      ? "border-aksi ring-2 ring-aksi/20 shadow-md"
+                      : "border-garis-halus hover:border-garis"
+                  }`}
+                  aria-label={panel.title}
                 >
-                  {panel.url}
-                </a>
-              </div>
-              <iframe
-                key={`${panel.id}-${kunciIframe}`}
-                src={panel.url}
-                title={panel.title}
-                className="h-[600px] min-h-[500px] w-full rounded-kartu border border-garis bg-latar"
-              />
-            </section>
-          ))}
+                  {/* Header Panel dengan Role Badge */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-aksi text-white text-xs font-black">
+                        {panel.nomorUrut}
+                      </span>
+                      <h2 className="text-base sm:text-lg font-black text-tinta">
+                        {panel.peran}
+                      </h2>
+                      <span
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${panel.lencanaKelas}`}
+                      >
+                        {panel.tugasRingkas}
+                      </span>
+                    </div>
+
+                    <a
+                      href={panel.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-aksi hover:underline"
+                    >
+                      <span>Buka Tab Baru</span>
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+
+                  {/* Device-style Container for iframe */}
+                  <div className="relative overflow-hidden rounded-kartu border border-garis bg-latar shadow-inner">
+                    <iframe
+                      key={`${panel.id}-${kunciIframe}`}
+                      src={panel.url}
+                      title={panel.title}
+                      className="h-[620px] min-h-[500px] w-full border-0 bg-latar"
+                    />
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>

@@ -87,28 +87,34 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.TGA_JUDUL}</h1>
-      <p className="text-base text-tinta-redup">{TEKS.TGA_PENJELASAN}</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.TGA_JUDUL}</h1>
+          <p className="text-sm font-medium text-tinta-redup">{TEKS.TGA_PENJELASAN}</p>
+        </div>
+      </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
 
       {pesanSukses ? (
-        <p role="status" className="rounded-kontrol bg-status-sukses/10 p-3 text-sm font-semibold text-status-sukses">
-          {pesanSukses}
-        </p>
+        <div className="rounded-kartu border border-emerald-200 bg-emerald-50 p-4">
+          <p role="status" className="text-sm font-bold text-emerald-800">
+            {`✓ ${pesanSukses}`}
+          </p>
+        </div>
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="pilih-kontrak" className="text-base font-semibold">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="pilih-kontrak" className="text-sm font-semibold text-tinta">
             {TEKS.KTR_JUDUL}
           </label>
           <select
             id="pilih-kontrak"
             value={kontrakId}
             onChange={(e) => setKontrakId(e.target.value)}
-            className="min-h-12 rounded-kontrol border-2 border-garis bg-kertas px-3 text-base"
+            className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
           >
             {kontrakList.length === 0 ? (
               <option value="">{TEKS.UMUM_MUAT}</option>
@@ -128,30 +134,34 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
       {memuat && !pratinjau ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
       {pratinjau ? (
-        <Kartu className="flex flex-col gap-4">
-          <h2 className="text-lg font-bold">{TEKS.TGA_JUDUL}</h2>
+        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
+          <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.TGA_JUDUL}</h2>
 
-          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-base">
-            <dt className="font-semibold">{TEKS.TGA_RIT}</dt>
-            <dd className="tabular-nums">{pratinjau.ritTertutup}</dd>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="rounded-kontrol border border-garis-halus bg-latar/50 p-3">
+              <span className="text-xs font-semibold text-tinta-redup">{TEKS.TGA_RIT}</span>
+              <p className="text-2xl font-bold tracking-tight text-tinta tabular-nums">{pratinjau.ritTertutup}</p>
+            </div>
+            <div className="rounded-kontrol border border-garis-halus bg-latar/50 p-3">
+              <span className="text-xs font-semibold text-tinta-redup">{TEKS.TGA_KG}</span>
+              <p className="text-2xl font-bold tracking-tight text-tinta tabular-nums">
+                {isi("UMUM_KG", { nilai: formatGramKeKg(pratinjau.kgDiterimaG) })}
+              </p>
+            </div>
+            <div className="rounded-kontrol border border-aksi-garis bg-aksi-latar/50 p-3">
+              <span className="text-xs font-semibold text-aksi">{TEKS.TGA_TOTAL}</span>
+              <p className="text-2xl font-extrabold tracking-tight text-aksi tabular-nums">
+                {rupiah(pratinjau.totalIdr)}
+              </p>
+            </div>
+          </div>
 
-            <dt className="font-semibold">{TEKS.TGA_KG}</dt>
-            <dd className="tabular-nums">
-              {isi("UMUM_KG", { nilai: formatGramKeKg(pratinjau.kgDiterimaG) })}
-            </dd>
-
-            <dt className="font-semibold">{TEKS.TGA_TOTAL}</dt>
-            <dd className="text-lg font-bold text-aksi tabular-nums">
-              {rupiah(pratinjau.totalIdr)}
-            </dd>
-          </dl>
-
-          <p className="text-sm text-tinta-redup">
+          <p className="text-xs font-medium text-tinta-redup">
             {isi("TGA_TIDAK_TERMASUK", { jumlah: pratinjau.tidakTermasuk })}
           </p>
 
           {peran === "PENGANGKUT" ? (
-            <div className="flex justify-start pt-2">
+            <div className="flex justify-start pt-1 border-t border-garis-halus/60">
               <Tombol onClick={() => void handleTerbitkan()} disabled={sedangTerbit || !kontrakId}>
                 {TEKS.TGA_TERBITKAN}
               </Tombol>
@@ -162,26 +172,26 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
 
       {daftarTagihan.length > 0 ? (
         <section className="flex flex-col gap-3" aria-labelledby="judul-daftar-tagihan">
-          <h2 id="judul-daftar-tagihan" className="text-lg font-bold">
+          <h2 id="judul-daftar-tagihan" className="text-lg font-bold tracking-tight text-tinta">
             {TEKS.TGA_JUDUL}
           </h2>
           <ul className="flex flex-col gap-3">
             {daftarTagihan.map((t) => (
               <li key={t.id}>
-                <Kartu className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-base font-bold">{t.kode}</span>
-                    <span className="text-sm font-bold text-aksi">{rupiah(t.totalIdr)}</span>
+                <Kartu className="flex flex-col gap-3 shadow-xs transition-shadow duration-150 hover:shadow-md">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/60 pb-2">
+                    <span className="font-mono text-base font-bold text-tinta">{t.kode}</span>
+                    <span className="text-lg font-extrabold text-aksi tabular-nums">{rupiah(t.totalIdr)}</span>
                   </div>
-                  <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-                    <dt className="font-semibold">{TEKS.UMUM_PERIODE}</dt>
-                    <dd>{t.periode}</dd>
-                    <dt className="font-semibold">{TEKS.TGA_RIT}</dt>
-                    <dd>{t.ritTertutup}</dd>
-                    <dt className="font-semibold">{TEKS.TGA_KG}</dt>
-                    <dd>{isi("UMUM_KG", { nilai: formatGramKeKg(t.kgDiterimaG) })}</dd>
-                    <dt className="font-semibold">{TEKS.KOL_TANGGAL}</dt>
-                    <dd>{tanggalJamWib(t.diterbitkanPada)}</dd>
+                  <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs sm:text-sm">
+                    <dt className="font-semibold text-tinta-redup">{TEKS.UMUM_PERIODE}</dt>
+                    <dd className="font-medium text-tinta">{t.periode}</dd>
+                    <dt className="font-semibold text-tinta-redup">{TEKS.TGA_RIT}</dt>
+                    <dd className="font-mono font-bold text-tinta tabular-nums">{t.ritTertutup}</dd>
+                    <dt className="font-semibold text-tinta-redup">{TEKS.TGA_KG}</dt>
+                    <dd className="font-mono font-bold text-tinta tabular-nums">{isi("UMUM_KG", { nilai: formatGramKeKg(t.kgDiterimaG) })}</dd>
+                    <dt className="font-semibold text-tinta-redup">{TEKS.KOL_TANGGAL}</dt>
+                    <dd className="font-medium text-tinta-redup">{tanggalJamWib(t.diterbitkanPada)}</dd>
                   </dl>
                 </Kartu>
               </li>

@@ -94,9 +94,13 @@ export function LayarModeBayangan() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.BYG_JUDUL}</h1>
-      <p className="text-base text-tinta-redup">{TEKS.BYG_PENJELASAN}</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.BYG_JUDUL}</h1>
+          <p className="text-sm font-medium text-tinta-redup">{TEKS.BYG_PENJELASAN}</p>
+        </div>
+      </div>
 
       {galatKawasan ? <BannerGalat pesan={galatKawasan} /> : null}
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
@@ -105,16 +109,18 @@ export function LayarModeBayangan() {
         <PilihPeriode nilai={periode} onUbah={setPeriode} />
       </div>
 
-      <Kartu className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold">{TEKS.BYG_TAMBAH}</h2>
+      <Kartu className="flex flex-col gap-4 shadow-xs">
+        <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.BYG_TAMBAH}</h2>
 
         {pesanSukses ? (
-          <p role="status" className="rounded-kontrol bg-status-sukses/10 p-3 text-sm font-semibold text-status-sukses">
-            {pesanSukses}
-          </p>
+          <div className="rounded-kartu border border-emerald-200 bg-emerald-50 p-3">
+            <p role="status" className="text-sm font-bold text-emerald-800">
+              {`✓ ${pesanSukses}`}
+            </p>
+          </div>
         ) : null}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-1.5">
           <label htmlFor="byg-sumber" className="text-sm font-semibold text-tinta">
             {TEKS.BYG_SUMBER}
           </label>
@@ -124,12 +130,12 @@ export function LayarModeBayangan() {
             value={sumberCatatan}
             onChange={(e) => setSumberCatatan(e.target.value)}
             placeholder="Buku catatan TPS"
-            className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+            className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
           />
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="byg-aliran" className="text-sm font-semibold text-tinta">
               {TEKS.KOL_ALIRAN}
             </label>
@@ -137,7 +143,7 @@ export function LayarModeBayangan() {
               id="byg-aliran"
               value={aliran}
               onChange={(e) => setAliran(e.target.value as Aliran)}
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+              className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
             >
               {DAFTAR_ALIRAN.map((a) => (
                 <option key={a} value={a}>
@@ -147,7 +153,7 @@ export function LayarModeBayangan() {
             </select>
           </div>
 
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="byg-berat" className="text-sm font-semibold text-tinta">
               {isi("UMUM_KG", { nilai: "" }).trim()}
             </label>
@@ -158,7 +164,7 @@ export function LayarModeBayangan() {
               placeholder="42,5"
               value={beratKgTeks}
               onChange={(e) => setBeratKgTeks(e.target.value)}
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+              className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta transition-colors focus:border-aksi focus:outline-none"
             />
           </div>
         </div>
@@ -171,37 +177,37 @@ export function LayarModeBayangan() {
       </Kartu>
 
       <section className="flex flex-col gap-3" aria-labelledby="judul-perbandingan">
-        <h2 id="judul-perbandingan" className="text-lg font-bold">
+        <h2 id="judul-perbandingan" className="text-lg font-bold tracking-tight text-tinta">
           {TEKS.BYG_SELISIH}
         </h2>
 
         {memuat && !dataPerbandingan ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
         {dataPerbandingan ? (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse border border-garis bg-kertas text-left text-sm">
+          <div className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas shadow-xs">
+            <table className="w-full border-collapse text-left text-sm">
               <caption className="sr-only">{TEKS.BYG_SELISIH}</caption>
               <thead>
-                <tr className="border-b border-garis bg-latar text-tinta font-semibold">
-                  <th scope="col" className="p-3">{TEKS.KOL_ALIRAN}</th>
-                  <th scope="col" className="p-3 text-right">{TEKS.APP_NAMA}</th>
-                  <th scope="col" className="p-3 text-right">{TEKS.BYG_SUMBER}</th>
-                  <th scope="col" className="p-3">{TEKS.BYG_SELISIH}</th>
+                <tr className="border-b-2 border-garis-halus bg-latar text-xs font-bold uppercase tracking-wider text-tinta">
+                  <th scope="col" className="px-4 py-3">{TEKS.KOL_ALIRAN}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{TEKS.APP_NAMA}</th>
+                  <th scope="col" className="px-4 py-3 text-right">{TEKS.BYG_SUMBER}</th>
+                  <th scope="col" className="px-4 py-3">{TEKS.BYG_SELISIH}</th>
                 </tr>
               </thead>
               <tbody>
                 {dataPerbandingan.baris.map((b) => (
-                  <tr key={b.aliran} className="border-b border-garis">
-                    <td className="p-3">
+                  <tr key={b.aliran} className="border-b border-garis-halus last:border-0 hover:bg-aksi-latar/40 transition-colors">
+                    <td className="px-4 py-3">
                       <LencanaAliran aliran={b.aliran} />
                     </td>
-                    <td className="p-3 text-right tabular-nums">
+                    <td className="px-4 py-3 text-right font-mono font-bold tabular-nums text-tinta">
                       {isi("UMUM_KG", { nilai: formatGramKeKg(b.serahG) })}
                     </td>
-                    <td className="p-3 text-right tabular-nums">
+                    <td className="px-4 py-3 text-right font-mono font-bold tabular-nums text-tinta">
                       {isi("UMUM_KG", { nilai: formatGramKeKg(b.bayanganG) })}
                     </td>
-                    <td className="p-3 font-semibold text-tinta" data-testid={`selisih-${b.aliran}`}>
+                    <td className="px-4 py-3 font-semibold text-tinta" data-testid={`selisih-${b.aliran}`}>
                       {teksSelisih(b)}
                     </td>
                   </tr>

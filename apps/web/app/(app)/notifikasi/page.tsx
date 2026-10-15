@@ -155,37 +155,62 @@ export default function HalamanNotifikasi() {
     }
   }
 
+  const adaBelumDibaca = daftar.some((n) => !n.dibaca);
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">{TEKS.NTF_JUDUL}</h1>
-        {daftar.some((n) => !n.dibaca) ? (
-          <Tombol varian="sekunder" onClick={tandaiSemuaDibaca}>
+    <div className="flex flex-col gap-6 text-tinta">
+      {/* Header Notifikasi */}
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-4">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-black text-tinta sm:text-3xl">{TEKS.NTF_JUDUL}</h1>
+          {adaBelumDibaca ? (
+            <span className="rounded-full bg-aksi px-2.5 py-0.5 text-xs font-bold text-white shadow-xs">
+              {daftar.filter((n) => !n.dibaca).length}
+            </span>
+          ) : null}
+        </div>
+
+        {adaBelumDibaca ? (
+          <Tombol
+            varian="sekunder"
+            onClick={tandaiSemuaDibaca}
+            className="text-xs font-bold shadow-2xs hover:border-aksi hover:text-aksi"
+          >
             {TEKS.NTF_BACA_SEMUA}
           </Tombol>
         ) : null}
       </div>
 
+      {/* Kartu Izin Push */}
       {bisaPush && izinPush !== "granted" ? (
-        <Kartu className="flex flex-col gap-3 border-aksi/20 bg-aksi/5">
-          <p className="text-sm text-tinta">{TEKS.NTF_IZIN_PUSH}</p>
+        <Kartu className="flex flex-col gap-3 border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/50 p-5 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="text-lg" aria-hidden="true">🔔</span>
+            <p className="text-sm font-bold text-tinta">{TEKS.NTF_IZIN_PUSH}</p>
+          </div>
           {adalahIos ? (
-            <p className="text-xs text-tinta-redup">{TEKS.NTF_IZIN_PUSH_IOS}</p>
+            <p className="text-xs text-tinta-redup leading-relaxed">{TEKS.NTF_IZIN_PUSH_IOS}</p>
           ) : null}
           <div>
-            <Tombol onClick={aktifkanNotifikasiPush}>{TEKS.NTF_IZIN_PUSH}</Tombol>
+            <Tombol
+              onClick={aktifkanNotifikasiPush}
+              className="text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+            >
+              {TEKS.NTF_IZIN_PUSH}
+            </Tombol>
           </div>
         </Kartu>
       ) : null}
 
+      {/* Filter Tabs */}
       <div className="flex gap-2">
         <button
           type="button"
           onClick={() => setHanyaBelumDibaca(false)}
-          className={`rounded-kontrol px-4 py-2 text-sm font-semibold ${
+          className={`rounded-kontrol px-4 py-2 text-xs font-bold transition-all ${
             !hanyaBelumDibaca
-              ? "bg-aksi text-aksi-teks"
-              : "border border-garis bg-kertas text-tinta"
+              ? "bg-aksi text-aksi-teks shadow-2xs"
+              : "border border-garis-halus bg-kertas text-tinta hover:bg-latar/60"
           }`}
         >
           {TEKS.UMUM_SEMUA}
@@ -193,10 +218,10 @@ export default function HalamanNotifikasi() {
         <button
           type="button"
           onClick={() => setHanyaBelumDibaca(true)}
-          className={`rounded-kontrol px-4 py-2 text-sm font-semibold ${
+          className={`rounded-kontrol px-4 py-2 text-xs font-bold transition-all ${
             hanyaBelumDibaca
-              ? "bg-aksi text-aksi-teks"
-              : "border border-garis bg-kertas text-tinta"
+              ? "bg-aksi text-aksi-teks shadow-2xs"
+              : "border border-garis-halus bg-kertas text-tinta hover:bg-latar/60"
           }`}
         >
           Belum dibaca
@@ -204,12 +229,18 @@ export default function HalamanNotifikasi() {
       </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
-      {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+      {sedangMuat ? (
+        <div className="flex items-center gap-2 py-2 text-sm text-tinta-redup font-medium">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-aksi border-t-transparent" />
+          <p role="status">{TEKS.UMUM_MUAT}</p>
+        </div>
+      ) : null}
 
       {!sedangMuat && daftar.length === 0 ? (
         <Kosong teks={TEKS.K_KOSONG_NOTIFIKASI} />
       ) : null}
 
+      {/* Daftar Item Notifikasi */}
       <div className="flex flex-col gap-3">
         {daftar.map((n) => {
           const tautan = tautanObjek(n);
@@ -218,28 +249,33 @@ export default function HalamanNotifikasi() {
           return (
             <Kartu
               key={n.id}
-              className={`flex flex-col gap-2 transition-colors ${
-                !n.dibaca ? "border-l-4 border-l-aksi bg-aksi/5" : "border-garis-halus bg-kertas"
+              className={`flex flex-col gap-2.5 p-4 transition-all ${
+                !n.dibaca
+                  ? "border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/30 shadow-xs"
+                  : "border-garis-halus bg-kertas shadow-2xs hover:border-garis"
               }`}
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="text-base text-tinta font-medium">{pesan}</p>
+                <p className="text-sm font-medium text-tinta leading-relaxed">{pesan}</p>
                 {!n.dibaca ? (
-                  <span className="inline-flex items-center">
+                  <span className="inline-flex items-center pt-1">
                     <span className="sr-only">Belum dibaca</span>
-                    <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-aksi" />
+                    <span
+                      aria-hidden="true"
+                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-aksi shadow-2xs"
+                    />
                   </span>
                 ) : null}
               </div>
 
-              <div className="flex items-center justify-between gap-4 pt-2 text-xs text-tinta-redup">
-                <span>{n.dibuatPada.slice(0, 16).replace("T", " ")}</span>
+              <div className="flex items-center justify-between gap-4 pt-2 border-t border-garis-halus/60 text-xs text-tinta-redup">
+                <span className="font-mono">{n.dibuatPada.slice(0, 16).replace("T", " ")}</span>
                 <div className="flex items-center gap-3">
                   {!n.dibaca ? (
                     <button
                       type="button"
                       onClick={() => void tandaiSatuDibaca(n.id)}
-                      className="font-semibold underline hover:text-tinta"
+                      className="font-bold text-tinta hover:text-aksi hover:underline transition-colors"
                     >
                       Tandai dibaca
                     </button>
@@ -250,9 +286,9 @@ export default function HalamanNotifikasi() {
                       onClick={() => {
                         if (!n.dibaca) void tandaiSatuDibaca(n.id);
                       }}
-                      className="font-semibold text-aksi underline"
+                      className="font-bold text-aksi hover:underline transition-colors"
                     >
-                      {TEKS.UMUM_LIHAT_DETAIL}
+                      {TEKS.UMUM_LIHAT_DETAIL} →
                     </Link>
                   ) : null}
                 </div>

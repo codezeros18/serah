@@ -19,10 +19,14 @@
   --color-tinta: #111827;
   --color-tinta-redup: #4b5563;
 
-  /* Aksi utama & fokus */
-  --color-aksi: #1d4ed8;
+  /* Aksi utama & fokus — Biru SERAH #2457c5 */
+  --color-aksi: #2457c5;
   --color-aksi-teks: #ffffff;
-  --color-fokus: #7c3aed;
+  --color-aksi-hover: #1b439c;
+  --color-aksi-aktif: #143377;
+  --color-aksi-latar: #eff4ff;
+  --color-aksi-garis: #93b5f8;
+  --color-fokus: #2457c5;
 
   /* Peringatan = kuning tua + ikon (bukan merah) */
   --color-peringatan: #92400e;
@@ -38,8 +42,8 @@
   --color-status-draf-latar: #e5e7eb;
   --color-status-menunggu: #92400e;
   --color-status-menunggu-latar: #fef3c7;
-  --color-status-angkut: #1e40af;
-  --color-status-angkut-latar: #dbeafe;
+  --color-status-angkut: #2457c5;
+  --color-status-angkut-latar: #eff4ff;
   --color-status-selesai: #115e59;
   --color-status-selesai-latar: #ccfbf1;
   --color-status-sebagian: #3730a3;

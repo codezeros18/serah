@@ -180,34 +180,52 @@ export default function HalamanAkun() {
   const sesi = keadaan.status === "siap" ? keadaan.sesi : null;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">{TEKS.AKUN_JUDUL}</h1>
+    <div className="flex flex-col gap-6 text-tinta">
+      <div className="border-b border-garis-halus pb-4">
+        <h1 className="text-2xl font-black text-tinta sm:text-3xl">{TEKS.AKUN_JUDUL}</h1>
+      </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {pesanSukses ? (
-        <div className="rounded-kartu border border-garis bg-kertas p-4 text-sm font-semibold">
-          {pesanSukses}
+        <div className="rounded-kartu border border-emerald-300 bg-emerald-50 p-4 text-sm font-semibold text-emerald-900 shadow-xs flex items-center gap-2">
+          <span className="text-emerald-700 font-bold" aria-hidden="true">✓</span>
+          <span>{pesanSukses}</span>
         </div>
       ) : null}
-      {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+      {sedangMuat ? (
+        <div className="flex items-center gap-2 py-2 text-sm text-tinta-redup font-medium">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-aksi border-t-transparent" />
+          <p role="status">{TEKS.UMUM_MUAT}</p>
+        </div>
+      ) : null}
 
       {/* 1. Organisasi dan peran */}
-      <Kartu className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold">{TEKS.AKUN_ORGANISASI}</h2>
+      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
+        <div className="border-b border-garis-halus pb-2">
+          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_ORGANISASI}</h2>
+        </div>
 
         {sesi ? (
-          <div className="flex flex-col gap-1 text-sm">
-            <span className="text-tinta-redup">Organisasi aktif:</span>
-            <span className="font-semibold">{sesi.organisasiAktif?.nama ?? "-"}</span>
-            <span className="text-tinta-redup">Peran aktif:</span>
-            <span className="font-semibold">{sesi.peran ?? "-"}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-kontrol border border-garis-halus bg-latar/50 p-4">
+            <div>
+              <span className="text-xs text-tinta-redup">Organisasi aktif</span>
+              <p className="font-bold text-tinta text-base mt-0.5">{sesi.organisasiAktif?.nama ?? "-"}</p>
+            </div>
+            <div>
+              <span className="text-xs text-tinta-redup">Peran aktif</span>
+              <div className="mt-0.5">
+                <span className="inline-block rounded-full border border-aksi/25 bg-aksi-latar px-2.5 py-0.5 text-xs font-bold text-aksi">
+                  {sesi.peran ?? "-"}
+                </span>
+              </div>
+            </div>
           </div>
         ) : null}
 
         {dataSaya && dataSaya.keanggotaan.length > 0 ? (
-          <div className="flex flex-col gap-2 pt-2">
-            <span className="text-sm font-semibold">{TEKS.AKUN_GANTI_PERAN}</span>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="flex flex-col gap-2.5 pt-2">
+            <span className="text-sm font-bold text-tinta">{TEKS.AKUN_GANTI_PERAN}</span>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
               {dataSaya.keanggotaan
                 .filter((k) => k.aktif)
                 .map((k) => {
@@ -219,18 +237,20 @@ export default function HalamanAkun() {
                       type="button"
                       disabled={adalahAktif}
                       onClick={() => void gantiOrganisasiPeran(k.organisasiId, k.peran)}
-                      className={`flex min-h-12 items-center justify-between rounded-kontrol border p-3 text-left text-sm ${
+                      className={`flex min-h-12 items-center justify-between rounded-kontrol border p-3.5 text-left text-sm transition-all ${
                         adalahAktif
-                          ? "border-aksi bg-aksi/10 font-bold"
-                          : "border-garis bg-kertas hover:bg-black/5"
+                          ? "border-2 border-aksi bg-aksi-latar/50 font-bold shadow-xs cursor-default"
+                          : "border-garis-halus bg-kertas hover:border-aksi hover:bg-latar/40 active:scale-[0.98]"
                       }`}
                     >
                       <div>
-                        <div>{k.organisasiNama}</div>
-                        <div className="text-xs text-tinta-redup">{k.peran}</div>
+                        <div className="font-bold text-tinta">{k.organisasiNama}</div>
+                        <div className="text-xs text-tinta-redup font-medium">{k.peran}</div>
                       </div>
                       {adalahAktif ? (
-                        <span className="text-xs font-semibold text-aksi">Aktif</span>
+                        <span className="rounded-full bg-aksi px-2 py-0.5 text-[11px] font-bold text-aksi-teks shadow-2xs">
+                          Aktif
+                        </span>
                       ) : null}
                     </button>
                   );
@@ -241,43 +261,50 @@ export default function HalamanAkun() {
       </Kartu>
 
       {/* 2. Preferensi Notifikasi */}
-      <Kartu className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold">{TEKS.AKUN_NOTIFIKASI}</h2>
-        <div className="flex flex-col gap-3">
-          <label className="flex items-center gap-3 text-base">
+      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
+        <div className="border-b border-garis-halus pb-2">
+          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_NOTIFIKASI}</h2>
+        </div>
+        <div className="flex flex-col gap-3.5">
+          <label className="flex items-center gap-3 text-base cursor-pointer">
             <input
               type="checkbox"
               checked={ntfEmail}
               onChange={(e) => void ubahNotifikasi(e.target.checked, ntfPush)}
-              className="h-5 w-5 rounded border-garis"
+              className="h-5 w-5 rounded border-garis text-aksi accent-[#2457c5] focus:ring-aksi"
             />
-            {TEKS.AKUN_NTF_EMAIL}
+            <span className="font-medium text-tinta">{TEKS.AKUN_NTF_EMAIL}</span>
           </label>
-          <label className="flex items-center gap-3 text-base">
+          <label className="flex items-center gap-3 text-base cursor-pointer">
             <input
               type="checkbox"
               checked={ntfPush}
               onChange={(e) => void ubahNotifikasi(ntfEmail, e.target.checked)}
-              className="h-5 w-5 rounded border-garis"
+              className="h-5 w-5 rounded border-garis text-aksi accent-[#2457c5] focus:ring-aksi"
             />
-            {TEKS.AKUN_NTF_PUSH}
+            <span className="font-medium text-tinta">{TEKS.AKUN_NTF_PUSH}</span>
           </label>
         </div>
       </Kartu>
 
       {/* 3. Anggota Organisasi */}
       {sesi?.organisasiAktif ? (
-        <Kartu className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <h2 className="text-lg font-bold">{TEKS.AGT_JUDUL}</h2>
-            <Tombol onClick={() => setUndangTerbuka(true)}>{TEKS.AGT_UNDANG}</Tombol>
+        <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-3">
+            <h2 className="text-lg font-bold text-tinta">{TEKS.AGT_JUDUL}</h2>
+            <Tombol
+              onClick={() => setUndangTerbuka(true)}
+              className="min-h-10 px-4 text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-2xs"
+            >
+              {TEKS.AGT_UNDANG}
+            </Tombol>
           </div>
 
           <div className="flex flex-col divide-y divide-garis-halus">
             {daftarAnggota.map((a) => (
               <div key={a.id} className="flex items-center justify-between py-3">
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-base font-semibold">{a.peran}</span>
+                  <span className="text-base font-bold text-tinta">{a.peran}</span>
                   <span className="text-xs text-tinta-redup">
                     {isi("AGT_SEJAK", { tanggal: a.sejak.slice(0, 10) })}
                   </span>
@@ -285,13 +312,15 @@ export default function HalamanAkun() {
                 {a.aktif ? (
                   <Tombol
                     varian="sekunder"
-                    className="text-xs"
+                    className="min-h-9 px-3 py-1 text-xs font-bold"
                     onClick={() => void tanganiNonaktifAnggota(a.id)}
                   >
                     {TEKS.AGT_NONAKTIF}
                   </Tombol>
                 ) : (
-                  <span className="text-xs text-tinta-redup">{TEKS.KND_NONAKTIF}</span>
+                  <span className="rounded-kontrol bg-latar px-2.5 py-1 text-xs text-tinta-redup font-semibold">
+                    {TEKS.KND_NONAKTIF}
+                  </span>
                 )}
               </div>
             ))}
@@ -300,16 +329,30 @@ export default function HalamanAkun() {
       ) : null}
 
       {/* 4. Privasi PDP */}
-      <Kartu className="flex flex-col gap-4">
-        <h2 className="text-lg font-bold">{TEKS.AKUN_PRIVASI}</h2>
+      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
+        <div className="border-b border-garis-halus pb-2">
+          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_PRIVASI}</h2>
+        </div>
         <div className="flex flex-wrap gap-3">
-          <Tombol varian="sekunder" onClick={() => void tanganiUnduhData()}>
+          <Tombol
+            varian="sekunder"
+            className="text-xs font-bold shadow-2xs"
+            onClick={() => void tanganiUnduhData()}
+          >
             {TEKS.AKUN_UNDUH_DATA}
           </Tombol>
-          <Tombol varian="sekunder" onClick={() => setTarikTerbuka(true)}>
+          <Tombol
+            varian="sekunder"
+            className="text-xs font-bold shadow-2xs"
+            onClick={() => setTarikTerbuka(true)}
+          >
             {TEKS.AKUN_TARIK}
           </Tombol>
-          <Tombol varian="sekunder" onClick={() => setHapusTerbuka(true)}>
+          <Tombol
+            varian="sekunder"
+            className="text-xs font-bold text-peringatan border-peringatan-garis hover:bg-peringatan-latar shadow-2xs"
+            onClick={() => setHapusTerbuka(true)}
+          >
             {TEKS.AKUN_HAPUS}
           </Tombol>
         </div>
@@ -322,18 +365,18 @@ export default function HalamanAkun() {
         onTutup={() => setUndangTerbuka(false)}
       >
         <form onSubmit={tanganiUndang} className="flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm font-semibold">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-tinta">
             {TEKS.AGT_EMAIL}
             <input
               type="email"
               required
               value={emailUndang}
               onChange={(e) => setEmailUndang(e.target.value)}
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
             />
           </label>
 
-          <label className="flex flex-col gap-1 text-sm font-semibold">
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-tinta">
             {TEKS.AGT_PERAN}
             <select
               value={peranUndang}
@@ -342,7 +385,7 @@ export default function HalamanAkun() {
                   e.target.value as "PETUGAS" | "PENGELOLA" | "PENGANGKUT" | "PENERIMA",
                 )
               }
-              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 text-base text-tinta"
+              className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3.5 text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
             >
               <option value="PETUGAS">PETUGAS</option>
               <option value="PENGELOLA">PENGELOLA</option>
@@ -356,10 +399,15 @@ export default function HalamanAkun() {
               varian="sekunder"
               onClick={() => setUndangTerbuka(false)}
               disabled={sedangUndang}
+              className="text-xs font-bold"
             >
               {TEKS.UMUM_BATAL}
             </Tombol>
-            <Tombol type="submit" disabled={sedangUndang}>
+            <Tombol
+              type="submit"
+              disabled={sedangUndang}
+              className="text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+            >
               {TEKS.UMUM_KIRIM}
             </Tombol>
           </div>
@@ -373,16 +421,21 @@ export default function HalamanAkun() {
         onTutup={() => setTarikTerbuka(false)}
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-tinta">{TEKS.AKUN_TARIK_PERINGATAN}</p>
+          <p className="text-sm leading-relaxed text-tinta">{TEKS.AKUN_TARIK_PERINGATAN}</p>
           <div className="flex justify-end gap-2">
             <Tombol
               varian="sekunder"
               onClick={() => setTarikTerbuka(false)}
               disabled={sedangTarik}
+              className="text-xs font-bold"
             >
               {TEKS.UMUM_BATAL}
             </Tombol>
-            <Tombol onClick={tanganiTarikPersetujuan} disabled={sedangTarik}>
+            <Tombol
+              onClick={tanganiTarikPersetujuan}
+              disabled={sedangTarik}
+              className="text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+            >
               {TEKS.UMUM_KONFIRMASI}
             </Tombol>
           </div>
@@ -396,26 +449,28 @@ export default function HalamanAkun() {
         onTutup={() => setHapusTerbuka(false)}
       >
         <form onSubmit={tanganiHapusAkun} className="flex flex-col gap-4">
-          <p className="text-sm text-tinta">{TEKS.AKUN_HAPUS_PERINGATAN}</p>
+          <p className="text-sm leading-relaxed text-tinta">{TEKS.AKUN_HAPUS_PERINGATAN}</p>
           <input
             type="text"
             required
             placeholder="HAPUS"
             value={konfirmasiHapus}
             onChange={(e) => setKonfirmasiHapus(e.target.value)}
-            className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3 font-mono text-base text-tinta"
+            className="min-h-12 rounded-kontrol border border-garis bg-kertas px-3.5 font-mono text-base text-tinta transition-all focus:border-aksi focus:outline-none focus:ring-2 focus:ring-aksi/20"
           />
           <div className="flex justify-end gap-2">
             <Tombol
               varian="sekunder"
               onClick={() => setHapusTerbuka(false)}
               disabled={sedangHapus}
+              className="text-xs font-bold"
             >
               {TEKS.UMUM_BATAL}
             </Tombol>
             <Tombol
               type="submit"
               disabled={konfirmasiHapus !== "HAPUS" || sedangHapus}
+              className="text-xs font-bold bg-gray-900 hover:bg-black text-white shadow-sm"
             >
               {TEKS.UMUM_HAPUS}
             </Tombol>

@@ -131,10 +131,10 @@ export default function HalamanKontrak() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-3">
         <div>
-          <h1 className="text-2xl font-bold">{TEKS.KTR_JUDUL}</h1>
-          {kawasan ? <p className="text-sm text-tinta-redup">{kawasan.nama}</p> : null}
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.KTR_JUDUL}</h1>
+          {kawasan ? <p className="text-sm font-medium text-tinta-redup">{kawasan.nama}</p> : null}
         </div>
         <Tombol onClick={() => setTambahTerbuka(true)}>{TEKS.KTR_TAMBAH}</Tombol>
       </div>
@@ -150,17 +150,31 @@ export default function HalamanKontrak() {
         />
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {daftarKontrak.map((k) => (
-          <Kartu key={k.id} className="flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-semibold text-tinta-redup">{TEKS.KTR_PENGANGKUT}</span>
-                <span className="text-base font-bold">{k.pengangkut.nama}</span>
-                <span className="text-xs font-semibold text-tinta-redup">{TEKS.KTR_PENERIMA}</span>
-                <span className="text-base font-bold">{k.penerima.nama}</span>
+          <Kartu key={k.id} className="flex flex-col gap-4 shadow-xs transition-shadow duration-150 hover:shadow-md">
+            <div className="flex items-start justify-between gap-4 border-b border-garis-halus/60 pb-3">
+              <div className="flex flex-col gap-1.5">
+                <div>
+                  <span className="text-xs font-semibold text-tinta-redup">{TEKS.KTR_PENGANGKUT}</span>
+                  <p className="text-base font-bold text-tinta">{k.pengangkut.nama}</p>
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-tinta-redup">{TEKS.KTR_PENERIMA}</span>
+                  <p className="text-base font-bold text-tinta">{k.penerima.nama}</p>
+                </div>
               </div>
-              <span className="rounded-full border border-garis px-3 py-1 text-xs font-semibold">
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-xs font-bold border ${
+                  k.status === "USULAN"
+                    ? "bg-amber-50 text-amber-800 border-amber-200"
+                    : k.status === "AKTIF"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : k.status === "BERAKHIR"
+                        ? "bg-gray-100 text-gray-700 border-gray-300"
+                        : "bg-purple-50 text-purple-800 border-purple-200"
+                }`}
+              >
                 {k.status === "USULAN"
                   ? TEKS.KONTRAK_USULAN
                   : k.status === "AKTIF"
@@ -171,34 +185,34 @@ export default function HalamanKontrak() {
               </span>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-tinta-redup">{TEKS.KTR_ALIRAN}</span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {k.aliran.map((a) => (
                   <LencanaAliran key={a} aliran={a} pendek />
                 ))}
               </div>
             </div>
 
-            <div className="text-sm text-tinta-redup">
+            <div className="text-xs font-medium text-tinta-redup">
               {isi("KTR_BERLAKU", { dari: k.berlakuDari, sampai: k.berlakuSampai })}
             </div>
 
             {k.tarifPerRitIdr || k.tarifPerKgIdr ? (
-              <div className="text-sm font-semibold text-tinta">
+              <div className="rounded-kontrol border border-garis-halus bg-latar/50 p-3 text-xs font-semibold text-tinta tabular-nums">
                 {k.tarifPerRitIdr ? <div>{TEKS.KTR_TARIF_RIT}: Rp{k.tarifPerRitIdr.toLocaleString("id-ID")}</div> : null}
                 {k.tarifPerKgIdr ? <div>{TEKS.KTR_TARIF_KG}: Rp{k.tarifPerKgIdr.toLocaleString("id-ID")}</div> : null}
               </div>
             ) : null}
 
-            <div className="mt-auto flex flex-wrap gap-2 pt-2">
+            <div className="mt-auto flex flex-wrap gap-2 pt-2 border-t border-garis-halus/60">
               {k.status === "USULAN" ? (
-                <Tombol className="flex-1 text-sm" onClick={() => tanganiKonfirmasi(k.id)}>
+                <Tombol className="min-h-10 flex-1 text-sm" onClick={() => tanganiKonfirmasi(k.id)}>
                   {TEKS.KTR_KONFIRMASI}
                 </Tombol>
               ) : null}
               {k.status === "USULAN" || k.status === "AKTIF" ? (
-                <Tombol varian="sekunder" className="flex-1 text-sm" onClick={() => tanganiAkhiri(k.id)}>
+                <Tombol varian="sekunder" className="min-h-10 flex-1 text-sm" onClick={() => tanganiAkhiri(k.id)}>
                   {TEKS.KTR_AKHIRI}
                 </Tombol>
               ) : null}

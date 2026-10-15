@@ -43,31 +43,48 @@ export function PenyebabDitolak() {
   ];
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS.K3_JUDUL}</h1>
-      <p className="text-base">{TEKS.K3_PENJELASAN}</p>
-      <PilihPeriode nilai={periode} onUbah={setPeriode} />
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-tinta">{TEKS.K3_JUDUL}</h1>
+          <p className="text-sm font-medium text-tinta-redup">{TEKS.K3_PENJELASAN}</p>
+        </div>
+      </div>
+
+      <div className="max-w-xs">
+        <PilihPeriode nilai={periode} onUbah={setPeriode} />
+      </div>
+
       {galatKawasan ? <BannerGalat pesan={galatKawasan} /> : null}
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {!data && !galat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+
       {data ? (
         <>
-          <p className="text-base font-semibold" data-testid="diterima-vs">
-            {isi("K3_DITERIMA_VS", { diterima: formatGramKeKg(data.kuning.diterimaG), ditolak: formatGramKeKg(data.kuning.ditolakG) })}
-          </p>
+          <div className="rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs">
+            <p className="text-base font-bold text-tinta" data-testid="diterima-vs">
+              {isi("K3_DITERIMA_VS", { diterima: formatGramKeKg(data.kuning.diterimaG), ditolak: formatGramKeKg(data.kuning.ditolakG) })}
+            </p>
+          </div>
+
           {data.alasan.length === 0 ? (
             <Kosong teks={TEKS.K_KOSONG_TOLAK} />
           ) : (
-            <Tabel keterangan={TEKS.K3_JUDUL} kolom={kolom} baris={data.alasan} kunciBaris={(b) => b.alasan} />
+            <div className="flex flex-col gap-2">
+              <Tabel keterangan={TEKS.K3_JUDUL} kolom={kolom} baris={data.alasan} kunciBaris={(b) => b.alasan} />
+            </div>
           )}
-          <p className="text-sm" data-testid="selisih-penjelasan">
-            {TEKS.K3_SELISIH_PENJELASAN}
-          </p>
-          {data.sumberHarga ? (
-            <p className="text-sm" data-testid="sumber-harga">
-              {isi("K3_SUMBER_HARGA", { sumber: data.sumberHarga.sumber, tanggal: data.sumberHarga.tanggal })}
+
+          <div className="flex flex-col gap-2 rounded-kartu border border-garis-halus bg-latar/40 p-4 text-tinta-redup">
+            <p className="text-sm leading-relaxed" data-testid="selisih-penjelasan">
+              {TEKS.K3_SELISIH_PENJELASAN}
             </p>
-          ) : null}
+            {data.sumberHarga ? (
+              <p className="text-xs font-medium text-tinta-redup" data-testid="sumber-harga">
+                {isi("K3_SUMBER_HARGA", { sumber: data.sumberHarga.sumber, tanggal: data.sumberHarga.tanggal })}
+              </p>
+            ) : null}
+          </div>
         </>
       ) : null}
     </div>
