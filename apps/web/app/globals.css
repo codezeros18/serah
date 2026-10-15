@@ -1,11 +1,6 @@
 @import "tailwindcss";
+@import "../../../packages/ui/src/token.css";
 
-/* Token desain lengkap diisi jalur B (S04) di packages/ui. */
-:root {
-  color-scheme: light;
-}
-
-body {
-  background: #ffffff;
-  color: #111827;
-}
+/* Tailwind hanya memindai folder aplikasi; paket UI & komponen klien ada di luar app/. */
+@source "../../../packages/ui/src";
+@source "../lib/klien";

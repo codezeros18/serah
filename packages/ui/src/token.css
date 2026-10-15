@@ -1,0 +1,75 @@
+/* Token desain SERAH (S04-1). Sementara — menunggu P-07 (token desain bersama designer).
+   Pasangan latar/teks dirancang ≥ 4,5:1 (WCAG AA). Tailwind v4: variabel @theme menjadi utilitas. */
+@theme {
+  /* Aliran (Pergub 102 Ps. 7) — selalu dipakai bersama label teks */
+  --color-aliran-hijau: #15803d;
+  --color-aliran-hijau-teks: #ffffff;
+  --color-aliran-kuning: #facc15;
+  --color-aliran-kuning-teks: #1f2937;
+  --color-aliran-merah: #b91c1c;
+  --color-aliran-merah-teks: #ffffff;
+  --color-aliran-abu: #4b5563;
+  --color-aliran-abu-teks: #ffffff;
+
+  /* Netral */
+  --color-kertas: #ffffff;
+  --color-latar: #f3f4f6;
+  --color-garis: #6b7280;
+  --color-garis-halus: #d1d5db;
+  --color-tinta: #111827;
+  --color-tinta-redup: #4b5563;
+
+  /* Aksi utama & fokus */
+  --color-aksi: #1d4ed8;
+  --color-aksi-teks: #ffffff;
+  --color-fokus: #7c3aed;
+
+  /* Peringatan = kuning tua + ikon (bukan merah) */
+  --color-peringatan: #92400e;
+  --color-peringatan-latar: #fef3c7;
+  --color-peringatan-garis: #b45309;
+
+  /* Tolak aturan = panel garis tebal + ikon kunci */
+  --color-tolak: #1f2937;
+  --color-tolak-latar: #f9fafb;
+
+  /* Status serah — tanpa merah (merah = aliran B3) */
+  --color-status-draf: #374151;
+  --color-status-draf-latar: #e5e7eb;
+  --color-status-menunggu: #92400e;
+  --color-status-menunggu-latar: #fef3c7;
+  --color-status-angkut: #1e40af;
+  --color-status-angkut-latar: #dbeafe;
+  --color-status-selesai: #115e59;
+  --color-status-selesai-latar: #ccfbf1;
+  --color-status-sebagian: #3730a3;
+  --color-status-sebagian-latar: #e0e7ff;
+  --color-status-tolak: #581c87;
+  --color-status-tolak-latar: #f3e8ff;
+
+  /* Galat sistem (bukan aliran): garis tebal gelap, bukan merah */
+  --color-galat: #1f2937;
+  --color-galat-latar: #f3f4f6;
+
+  /* Bentuk */
+  --radius-kartu: 0.75rem;
+  --radius-kontrol: 0.5rem;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-latar);
+    color: var(--color-tinta);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-fokus);
+    outline-offset: 2px;
+  }
+}

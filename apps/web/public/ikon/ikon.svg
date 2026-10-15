@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SERAH">
+  <rect width="512" height="512" rx="96" fill="#15803d"/>
+  <path d="M148 330c0-60 44-96 108-96s108 36 108 96" fill="none" stroke="#fff" stroke-width="40" stroke-linecap="round"/>
+  <path d="M148 182c0 60 44 96 108 96s108-36 108-96" fill="none" stroke="#facc15" stroke-width="40" stroke-linecap="round"/>
+</svg>
