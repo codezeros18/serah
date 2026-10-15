@@ -1,10 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test, type Page } from "@playwright/test";
+import { expect as expectDasar, test, type Page } from "@playwright/test";
 import { TEKS } from "@serah/kontrak/teks";
 
 // S12-5 — layar laporan terhadap API NYATA. Syarat: DB ber-seed demo (`DEMO_MODE=true pnpm db:reset`), dev server
 // dengan NEXT_PUBLIC_API_MOCK=false, DEMO_MODE=true, BASE_URL = alamat server uji. Dilewati bila mock aktif.
 // PDF (ekspor & Lembar Neraca) belum diuji nyata: menunggu S23.
+
+// Dev server kompilasi per halaman saat pertama dibuka; beri asersi waktu lebih panjang daripada bawaan 5 dtk.
+const expect = expectDasar.configure({ timeout: 40_000 });
 
 test.skip(process.env.NEXT_PUBLIC_API_MOCK === "true", "spesifikasi ini khusus API nyata");
 
