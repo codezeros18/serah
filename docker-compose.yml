@@ -1,0 +1,23 @@
+# PostgreSQL 16 lokal untuk pengembangan. `pnpm db:up` / `pnpm db:down`.
+# Port host dapat diganti lewat SERAH_DB_PORT di .env (bawaan 5432).
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: serah-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_dev
+      POSTGRES_DB: serah
+    ports:
+      - "${SERAH_DB_PORT:-5432}:5432"
+    volumes:
+      - serah-pg:/var/lib/postgresql/data
+      - ./scripts/db-init.sql:/docker-entrypoint-initdb.d/00-db-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d serah"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+volumes:
+  serah-pg:
