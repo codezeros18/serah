@@ -1,0 +1,19 @@
+{
+  "name": "@serah/kontrak",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./teks": "./src/teks.ts",
+    "./enum": "./src/enum.ts",
+    "./galat": "./src/galat.ts",
+    "./hak": "./src/hak.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}

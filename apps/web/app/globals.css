@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Token desain lengkap diisi jalur B (S04) di packages/ui. */
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #ffffff;
+  color: #111827;
+}
