@@ -9,6 +9,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "db:init-prod": "node ../../scripts/db-init-prod.mjs",
     "db:migrate": "node ../../scripts/db-migrate.mjs",
     "db:seed": "node ../../scripts/db-seed.mjs",
     "db:reset": "node ../../scripts/db-reset.mjs",
