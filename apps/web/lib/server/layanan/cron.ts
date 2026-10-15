@@ -3,6 +3,7 @@ import { awalHariWib, tanggalWib } from "@serah/core/waktu";
 import type { Prisma } from "@serah/db";
 import { denganSistem, type Tx } from "../db";
 import { muatEnv } from "../env";
+import { GalatApi } from "../galat";
 import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi-stub";
 import { nowcastBerlaku, prioritasTps, simpanNowcast, simpanPrakiraan, type PrakiraanTersimpan } from "./cuaca";
 import { catatNotifikasi } from "./notifikasi";
@@ -54,17 +55,34 @@ async function sudahHariIni(tx: Tx, jenis: Prisma.NotifikasiWhereInput["jenis"],
 
 // ── sepuluh-menit: R-07, nowcast, R-10, R-05/R-06 ─────────────────────────
 
-async function r07(tx: Tx, sekarang: Date, opsi: OpsiCron): Promise<number> {
-  const diangkut = await tx.serah.findMany({
-    where: { status: "DIANGKUT", ...(opsi.hanyaSerah ? { kode: { in: [...opsi.hanyaSerah] } } : {}) },
-    select: { id: true, kode: true, kawasanId: true },
-  });
+/**
+ * R-07: setiap serah ditandai di transaksinya SENDIRI, agar kunci rantai kawasan hanya dipegang sesingkat satu
+ * transisi (bukan selama seluruh pekerjaan cron). Serah yang berubah status bersamaan (mis. baru ditutup) dilewati.
+ */
+async function r07(sekarang: Date, opsi: OpsiCron): Promise<number> {
+  const diangkut = await denganSistem((tx) =>
+    tx.serah.findMany({
+      where: { status: "DIANGKUT", ...(opsi.hanyaSerah ? { kode: { in: [...opsi.hanyaSerah] } } : {}) },
+      select: { id: true, kode: true, kawasanId: true },
+    }),
+  );
   let n = 0;
   for (const s of diangkut) {
+    try {
+      if (await denganSistem((tx) => tandaiSatu(tx, s, sekarang))) n += 1;
+    } catch (e) {
+      if (!(e instanceof GalatApi) || (e.kode !== "KONFLIK_VERSI" && e.kode !== "TRANSISI_TIDAK_SAH")) throw e;
+    }
+  }
+  return n;
+}
+
+async function tandaiSatu(tx: Tx, s: { id: string; kode: string; kawasanId: string }, sekarang: Date): Promise<boolean> {
+  {
     const setuju = await tx.event.findFirst({ where: { serahId: s.id, jenis: "SERAH_DISETUJUI" }, orderBy: { urutanRantai: "desc" }, select: { diterimaPada: true } });
-    if (!setuju) continue;
+    if (!setuju) return false;
     const hasil = evaluasiMenggantung({ yurisdiksi: await yurisdiksiKawasan(tx, s.kawasanId), sekarang, kodeSerah: s.kode, status: "DIANGKUT", disetujuiPada: setuju.diterimaPada });
-    if (hasil.length === 0) continue;
+    if (hasil.length === 0) return false;
     const h = await layananTransisi(tx, {
       serah: await muatSerah(tx, s.kode),
       aksi: { jenis: "TANDAI_MENGGANTUNG" },
@@ -83,9 +101,8 @@ async function r07(tx: Tx, sekarang: Date, opsi: OpsiCron): Promise<number> {
       ],
       sekarang,
     );
-    n += 1;
+    return true;
   }
-  return n;
 }
 
 async function r10(tx: Tx, sekarang: Date): Promise<number> {
@@ -97,7 +114,7 @@ async function r10(tx: Tx, sekarang: Date): Promise<number> {
     const ada = await tx.prioritasTercatat.count({ where: { tpsId: tps.id, acuan: p.acuan, aliran: p.aliran } });
     if (ada > 0) continue;
     // weather_desc: deskripsi slot prakiraan, atau peristiwa CAP untuk nowcast.
-    let weatherDesc = "";
+    let weatherDesc: string;
     if (p.sumberCuaca === "PRAKIRAAN") {
       const k = await tx.kawasan.findUnique({ where: { id: tps.kawasanId }, select: { adm4: true } });
       weatherDesc = (k && cache.prakiraan.get(k.adm4)?.slot.find((s) => s.slotUtc.toISOString() === p.acuan)?.weatherDesc) ?? "";
@@ -169,11 +186,11 @@ async function ambilData(nama: NamaCron): Promise<Prefetch> {
   return { nowcast: null, prakiraan };
 }
 
-async function kerja(tx: Tx, nama: NamaCron, sekarang: Date, data: Prefetch, opsi: OpsiCron): Promise<Record<string, number | boolean>> {
+/** Bagian pekerjaan yang tidak menyentuh rantai: satu transaksi sistem. */
+async function kerja(tx: Tx, nama: NamaCron, sekarang: Date, data: Prefetch): Promise<Record<string, number | boolean>> {
   switch (nama) {
     case "sepuluh-menit":
       return {
-        menggantung: await r07(tx, sekarang, opsi),
         nowcastTersedia: data.nowcast !== null,
         nowcastBaru: data.nowcast ? await simpanNowcast(tx, data.nowcast, sekarang) : 0,
         prioritas: await r10(tx, sekarang),
@@ -195,14 +212,14 @@ async function kerja(tx: Tx, nama: NamaCron, sekarang: Date, data: Prefetch, ops
 
 export async function jalankanCron(nama: NamaCron, sekarang: Date, opsi: OpsiCron = {}) {
   const jendela = opsi.jendela ?? jendelaCron(nama, sekarang);
-  const sudah = await denganSistem((tx) => tx.pekerjaanCron.findUnique({ where: { nama_jendela: { nama, jendela } }, select: { nama: true } }));
-  if (sudah) return { pekerjaan: nama, jendela, dilewati: true };
+  // 1. Klaim jendela (transaksi pendek). Sudah diklaim → dilewati.
+  const klaim = await denganSistem((tx) => tx.$executeRaw`INSERT INTO pekerjaan_cron (nama, jendela, mulai_pada) VALUES (${nama}, ${jendela}, ${sekarang}) ON CONFLICT DO NOTHING`);
+  if (klaim === 0) return { pekerjaan: nama, jendela, dilewati: true };
+  // 2. Kerja. Semua efek idempoten: bila terputus di tengah, jendela berikutnya menyelesaikannya tanpa ganda.
   const data = await ambilData(nama);
-  return denganSistem(async (tx) => {
-    const klaim = await tx.$executeRaw`INSERT INTO pekerjaan_cron (nama, jendela, mulai_pada) VALUES (${nama}, ${jendela}, ${sekarang}) ON CONFLICT DO NOTHING`;
-    if (klaim === 0) return { pekerjaan: nama, jendela, dilewati: true };
-    const hasil = await kerja(tx, nama, sekarang, data, opsi);
-    await tx.pekerjaanCron.update({ where: { nama_jendela: { nama, jendela } }, data: { selesaiPada: new Date(), hasil } });
-    return { pekerjaan: nama, jendela, dilewati: false };
-  });
+  const menggantung = nama === "sepuluh-menit" ? { menggantung: await r07(sekarang, opsi) } : {};
+  const hasil = { ...menggantung, ...(await denganSistem((tx) => kerja(tx, nama, sekarang, data))) };
+  // 3. Tandai selesai.
+  await denganSistem((tx) => tx.pekerjaanCron.update({ where: { nama_jendela: { nama, jendela } }, data: { selesaiPada: new Date(), hasil } }));
+  return { pekerjaan: nama, jendela, dilewati: false };
 }

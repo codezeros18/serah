@@ -15,7 +15,18 @@ export default defineConfig({
       { test: { name: "ui", include: ["packages/ui/**/*.test.{ts,tsx}"] } },
       {
         resolve: { alias: { "@/": `${resolve("apps/web")}/` } },
-        test: { name: "web", include: ["apps/web/**/*.test.{ts,tsx}"], exclude: ["**/node_modules/**", "apps/web/e2e/**", "apps/web/.next/**"] },
+        // Integrasi web memakai Postgres sungguhan (+ argon2 di auth). Semua berkas menulis ke kawasan demo yang sama,
+        // sehingga penulisan event mengantre pada kunci rantai kawasan; terlalu banyak berkas paralel menghabiskan
+        // kolam koneksi (P2028). Batasi pekerja & beri waktu yang wajar untuk alur penuh (T06, T18).
+        test: {
+          name: "web",
+          include: ["apps/web/**/*.test.{ts,tsx}"],
+          exclude: ["**/node_modules/**", "apps/web/e2e/**", "apps/web/.next/**"],
+          maxWorkers: 3,
+          sequence: { groupOrder: 1 },
+          testTimeout: 20_000,
+          hookTimeout: 30_000,
+        },
       },
       { test: { name: "scripts", include: ["scripts/**/*.test.ts"] } },
     ],

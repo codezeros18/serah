@@ -24,7 +24,14 @@ describe("akses DB aplikasi (role serah_app)", () => {
       event: await tx.event.count({ where: { kawasanId: d.kawasan } }),
       internal: await tx.organisasi.count({ where: { id: d.orgInternal } }),
     }));
-    expect(hasil).toEqual({ wadah: d.jumlahWadah, event: d.jumlahEvent, internal: 0 });
+    // Test lain boleh menambah data kawasan yang sama secara paralel: hasil RLS harus berada di antara hitungan
+    // pemilik sebelum dan sesudah kueri (tidak ada baris kawasan yang tersembunyi).
+    const sesudah = await idDemo();
+    expect(hasil.internal).toBe(0);
+    expect(hasil.wadah).toBeGreaterThanOrEqual(d.jumlahWadah);
+    expect(hasil.wadah).toBeLessThanOrEqual(sesudah.jumlahWadah);
+    expect(hasil.event).toBeGreaterThanOrEqual(d.jumlahEvent);
+    expect(hasil.event).toBeLessThanOrEqual(sesudah.jumlahEvent);
   });
 
   it("konteks tidak bocor ke transaksi berikutnya (SET LOCAL)", async () => {
@@ -36,7 +43,9 @@ describe("akses DB aplikasi (role serah_app)", () => {
     const r = await denganAkses({ penggunaId: "uji", orgIds: [d.orgPengangkut], peran: "PENGANGKUT" }, (tx) =>
       tx.$queryRaw<{ utuh: boolean; jumlah: number; patah_di_urutan: number | null }[]>`SELECT * FROM verifikasi_rantai(${d.kawasan})`,
     );
-    expect(r[0]).toEqual({ utuh: true, jumlah: d.jumlahEvent, patah_di_urutan: null });
+    expect(r[0]).toMatchObject({ utuh: true, patah_di_urutan: null });
+    expect(r[0]?.jumlah).toBeGreaterThanOrEqual(d.jumlahEvent);
+    expect(r[0]?.jumlah).toBeLessThanOrEqual((await idDemo()).jumlahEvent);
     await expect(
       denganAkses({ penggunaId: "uji", orgIds: ["org-lain"], peran: "PENGANGKUT" }, (tx) => tx.$queryRaw`SELECT * FROM verifikasi_rantai(${d.kawasan})`),
     ).rejects.toThrow();
@@ -54,7 +63,8 @@ describe("akses DB aplikasi (role serah_app)", () => {
       objekId: d.kawasan,
       organisasiId: d.orgKawasan,
     });
-    expect(wadah).toBe(d.jumlahWadah);
+    expect(wadah).toBeGreaterThanOrEqual(d.jumlahWadah);
+    expect(wadah).toBeLessThanOrEqual((await idDemo()).jumlahWadah);
     const audit = await denganSistem((tx) => tx.auditLog.findMany({ where: { alasan } }));
     expect(audit).toHaveLength(1);
     expect(audit[0]).toMatchObject({ peran: "ADMIN", aksi: "UJI_BACA", objekId: d.kawasan, organisasiId: d.orgKawasan });
