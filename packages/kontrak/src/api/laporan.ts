@@ -66,7 +66,8 @@ export const RingkasanKeluaran = z.object({
   bulanIni: z.array(TotalAliran),
   menungguSetuju: z.number().int().min(0),
   menggantung: z.number().int().min(0),
-  prioritas: z.array(z.object({ tpsId: Id, tpsKode: KodeTps, teks: z.string() })),
+  /** `catatan` selalu diisi server (R10_CATATAN: bukan peringatan dini resmi); opsional di skema agar mock lama tetap sah. */
+  prioritas: z.array(z.object({ tpsId: Id, tpsKode: KodeTps, teks: z.string(), catatan: z.string().optional() })),
   peringatan: z.array(RujukanAturan),
 });
 

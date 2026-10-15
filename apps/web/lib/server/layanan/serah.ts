@@ -190,7 +190,7 @@ export type MasukanTutup = {
 
 type BarisFinal = { target_jenis: string; target_id: string; nilai_final_g: number | null };
 
-async function nilaiFinal(tx: Tx, ids: readonly string[]): Promise<Map<string, number | null>> {
+export async function nilaiFinal(tx: Tx, ids: readonly string[]): Promise<Map<string, number | null>> {
   if (ids.length === 0) return new Map();
   const baris = await tx.$queryRaw<BarisFinal[]>`SELECT target_jenis::text, target_id, nilai_final_g FROM v_nilai_final WHERE target_id = ANY(${[...ids]})`;
   return new Map(baris.map((b) => [`${b.target_jenis}:${b.target_id}`, b.nilai_final_g]));
