@@ -164,6 +164,7 @@ const state = {
   tagihan: tagihanContoh(),
   urutSerah: 7,
   urutLain: 100,
+  kunciTerapan: new Set<string>(),
   diinisialisasi: false,
 };
 
@@ -747,12 +748,29 @@ const HANDLER: Record<string, Handler> = {
     }
     return { nomorTiket: "TKT-CONTOH-001", beratKgTeks: "30", tanggal: null, keyakinan: "TINGGI" as const, model: "claude-haiku-5-5" };
   },
-  "POST /api/sinkron": (c) => ({
-    hasil: ((c.body.aksi as Array<{ idempotencyKey: string }> | undefined) ?? []).map((a) => ({
-      idempotencyKey: a.idempotencyKey,
-      status: "DITERAPKAN" as const,
-    })),
-  }),
+  "POST /api/sinkron": (c) => {
+    // Meniru server: satu efek per idempotencyKey; tiap aksi dievaluasi terhadap keadaan saat diterima.
+    const aksi = (c.body.aksi as Array<{ idempotencyKey: string; jenis: string; payload: Record<string, unknown> }> | undefined) ?? [];
+    return {
+      hasil: aksi.map((a) => {
+        if (state.kunciTerapan.has(a.idempotencyKey)) return { idempotencyKey: a.idempotencyKey, status: "DUPLIKAT" as const };
+        const handler =
+          a.jenis === "WADAH_CATAT" ? HANDLER["POST /api/wadah"] : a.jenis === "SERAH_BUAT" ? HANDLER["POST /api/serah"] : undefined;
+        try {
+          handler?.({ params: {}, kueri: {}, body: a.payload, sekarang: c.sekarang });
+          state.kunciTerapan.add(a.idempotencyKey);
+          return { idempotencyKey: a.idempotencyKey, status: "DITERAPKAN" as const };
+        } catch (e) {
+          if (!(e instanceof GalatMock)) throw e;
+          return {
+            idempotencyKey: a.idempotencyKey,
+            status: "DITOLAK" as const,
+            galat: { kode: e.kode, pesan: e.message, ...(e.aturan ? { aturan: e.aturan } : {}) },
+          };
+        }
+      }),
+    };
+  },
 
   // Rantai & cuaca
   "GET /api/rantai/verifikasi": () => ({ utuh: true, jumlah: state.serah.length * 3, patahDiUrutan: null }),
@@ -1025,6 +1043,7 @@ export function reset(): void {
   state.tagihan = tagihanContoh();
   state.urutSerah = 7;
   state.urutLain = 100;
+  state.kunciTerapan = new Set();
   state.diinisialisasi = false;
 }
 

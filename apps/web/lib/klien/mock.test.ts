@@ -51,7 +51,16 @@ const BODY: Record<string, Record<string, unknown>> = {
     rincian: [{ aliran: "KUNING", diterimaG: 30_000, ditolakG: 0 }],
   },
   "POST /api/serah/[kode]/koreksi": { alasan: "contoh", perubahan: [{ target: "TIKET", targetId: idm("tkt", 3), nilaiFinalG: 29_000 }] },
-  "POST /api/sinkron": { aksi: [{ idempotencyKey: "00000000-0000-4000-8000-000000000001", jenis: "WADAH_CATAT" }] },
+  "POST /api/sinkron": {
+    aksi: [
+      {
+        idempotencyKey: "00000000-0000-4000-8000-000000000001",
+        jenis: "WADAH_CATAT",
+        terjadiPada: "2026-10-15T05:00:00.000Z",
+        payload: { tpsId: idm("tps", 1), aliran: "KUNING", beratG: 1000, terjadiPada: "2026-10-15T05:00:00.000Z" },
+      },
+    ],
+  },
   "POST /api/tagihan-angkut/terbitkan": { kontrakId: idm("ktr", 1), periode: "2026-10" },
   "POST /api/admin/aturan": { kode: "R05", yurisdiksi: "DKI", sumber: "contoh", aksi: "PERINGATAN", ambang: { jam: 72 }, kunciTeks: "ATURAN_R05", berlakuDari: "2026-10-15T00:00:00Z" },
 };

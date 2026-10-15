@@ -20,6 +20,7 @@
     "@serah/kontrak": "workspace:*",
     "@serah/ui": "workspace:*",
     "fast-xml-parser": "5.11.2",
+    "idb": "8.0.4",
     "jsqr": "^1",
     "next": "16.4.1",
     "qrcode": "^1",

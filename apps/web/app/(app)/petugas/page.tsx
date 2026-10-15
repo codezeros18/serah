@@ -1,5 +1,5 @@
-import { HalamanKosong } from "@/lib/klien/komponen/halaman-kosong";
+import { CatatWadah } from "./catat-wadah";
 
 export default function Halaman() {
-  return <HalamanKosong judul="T1_JUDUL" kosong="K_KOSONG_TPS" />;
+  return <CatatWadah />;
 }

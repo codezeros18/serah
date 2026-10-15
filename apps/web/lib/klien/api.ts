@@ -146,9 +146,16 @@ function kueriKeString(kueri: Record<string, unknown> | undefined): string {
   return s ? `?${s}` : "";
 }
 
+/** True bila kegagalan karena perangkat tidak tersambung (bukan penolakan server). */
+export function adalahGalatJaringan(h: HasilApi<unknown>): boolean {
+  return !h.ok && h.galat.pesan === "jaringan";
+}
+
 /** Panggilan tak bertipe: dipakai `panggil` dan antrean offline. */
 export async function panggilMentah(metode: string, jalur: string, opsi: OpsiMentah = {}): Promise<HasilApi<unknown>> {
   if (MOCK_AKTIF) {
+    // Mock meniru perangkat tanpa sambungan agar antrean offline dapat diuji tanpa server.
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return galatJaringan();
     const { panggilMock } = await import("./mock");
     return panggilMock(metode, jalur, opsi);
   }
