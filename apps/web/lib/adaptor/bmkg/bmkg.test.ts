@@ -167,10 +167,15 @@ describe("antrean batas laju ≤ 50/menit", () => {
 
 describe("S27-2 fallback otomatis snapshot BMKG", () => {
   it("mode live jatuh ke snapshot bila live gagal", async () => {
-    const s = buatSumberCuaca("live");
-    // Di lingkungan uji tanpa fetch BMKG live, akan fallback otomatis ke snapshot
-    const p = await s.prakiraan(ADM4);
-    expect(p.mode).toBe("SNAPSHOT");
-    expect(p.slot.length).toBeGreaterThan(0);
+    const asliFetch = globalThis.fetch;
+    globalThis.fetch = vi.fn().mockRejectedValue(new Error("jaringan putus"));
+    try {
+      const s = buatSumberCuaca("live");
+      const p = await s.prakiraan(ADM4);
+      expect(p.mode).toBe("SNAPSHOT");
+      expect(p.slot.length).toBeGreaterThan(0);
+    } finally {
+      globalThis.fetch = asliFetch;
+    }
   });
 });
