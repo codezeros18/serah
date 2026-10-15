@@ -13,21 +13,21 @@ export type NotifikasiBaru = {
   data?: Record<string, string | number | boolean | null>;
 };
 
+/**
+ * createMany (tanpa RETURNING): pelaku sering menulis notifikasi untuk organisasi LAIN yang barisnya tidak boleh
+ * ia baca (RLS SELECT), sehingga INSERT … RETURNING akan ditolak.
+ */
 export async function catatNotifikasi(tx: Tx, daftar: readonly NotifikasiBaru[], sekarang: Date): Promise<number> {
-  let n = 0;
-  for (const x of daftar) {
-    if (!x.organisasiId) continue;
-    await tx.notifikasi.create({
-      data: {
-        organisasiId: x.organisasiId,
-        peranTujuan: x.peranTujuan,
-        jenis: x.jenis,
-        objekKode: x.objekKode,
-        data: (x.data ?? {}) as Prisma.InputJsonValue,
-        dibuatPada: sekarang,
-      },
-    });
-    n += 1;
-  }
-  return n;
+  const baris = daftar
+    .filter((x): x is NotifikasiBaru & { organisasiId: string } => x.organisasiId !== null)
+    .map((x) => ({
+      organisasiId: x.organisasiId,
+      peranTujuan: x.peranTujuan,
+      jenis: x.jenis,
+      objekKode: x.objekKode,
+      data: (x.data ?? {}) as Prisma.InputJsonValue,
+      dibuatPada: sekarang,
+    }));
+  if (baris.length === 0) return 0;
+  return (await tx.notifikasi.createMany({ data: baris })).count;
 }
