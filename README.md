@@ -98,8 +98,8 @@ packages/ui         token desain & komponen
 git clone https://github.com/{org}/serah.git
 cd serah
 pnpm install
-cp .env.example .env          # isi sesuai tabel di bawah; untuk mencoba: DEMO_MODE=true
-pnpm db:up                    # PostgreSQL 16 di Docker
+cp .env.example .env          # isi TOKEN_PEPPER & SESI_SECRET (≥32 karakter acak); untuk mencoba: DEMO_MODE=true
+pnpm db:up                    # PostgreSQL 16 di Docker (port host: SERAH_DB_PORT, bawaan 5432)
 pnpm --filter @serah/db db:migrate
 pnpm --filter @serah/db db:seed
 pnpm dev                      # http://localhost:3000
@@ -124,29 +124,33 @@ Semua nama kawasan, pengangkut, dan penerima di data demo adalah contoh.
 | `DATABASE_URL` | Koneksi aplikasi (role tanpa superuser) | Gagal start |
 | `DATABASE_URL_MIGRASI` | Migrasi | Migrasi tidak jalan |
 | `BASE_URL` | Tautan & pemeriksaan asal permintaan | Gagal start |
-| `TOKEN_PEPPER`, `SESI_SECRET` | Hash token & sesi | Gagal start |
+| `TOKEN_PEPPER`, `SESI_SECRET` | Hash token & sesi (≥32 karakter) | Gagal start |
 | `CRON_SECRET` | Pekerjaan terjadwal | Cron menolak |
 | `DEMO_MODE` | Data & akun demo, `/demo` | `false` |
-| `PENYIMPANAN_MODE` | `lokal` / `r2` | `lokal` di dev |
+| `NEXT_PUBLIC_API_MOCK` | Data contoh di klien tanpa API | `false` |
+| `PENYIMPANAN_MODE` | `lokal` / `r2` | `lokal` di dev; gagal start di produksi |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Penyimpanan foto | Wajib bila `r2` |
 | `ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_MODEL_CADANGAN` | Pembacaan tiket | Tanpa kunci: isian manual saja |
 | `BMKG_MODE` | `live` / `snapshot` | `snapshot` |
-| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY` | Pembayaran mode uji (sandbox) | Hanya transfer manual |
+| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION` | Pembayaran mode uji (sandbox) | Hanya transfer manual; `MIDTRANS_IS_PRODUCTION=true` → gagal start |
 | `TRANSFER_REKENING_TEKS` | Instruksi transfer | Tombol transfer disembunyikan |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Email | Dev: dicetak ke terminal |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Email | Dev: dicetak ke terminal; produksi: gagal start |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Notifikasi push | Push dimatikan |
 | `SENTRY_DSN` | Pelaporan galat | Tidak dikirim |
 | `RETENSI_FOTO_HARI` | Lama simpan foto | 180 |
 | `EMAIL_KONTAK` | Kontak di kebijakan privasi | Gagal start di produksi |
+| `PORT` | Port aplikasi | 3000 |
+| `SERAH_DB_PORT` | Port host PostgreSQL Docker lokal | 5432 |
 
 ### Perintah
 ```bash
 pnpm verify          # lint + typecheck + test + pemeriksaan struktural
-pnpm test            # Vitest (unit & integrasi, butuh PostgreSQL lokal)
-pnpm test:e2e        # Playwright (alur utama di viewport HP & laptop)
+pnpm test            # Vitest (unit & integrasi)
+pnpm test:e2e        # Playwright (viewport HP & laptop); sekali: pnpm --filter @serah/web exec playwright install chromium
 pnpm guard           # pemeriksaan struktural (batas impor, teks, privasi, tabel catat-saja, dll.)
-pnpm demo:reset      # mengembalikan data demo ke awal (DEMO_MODE)
-pnpm db:up | db:down
+pnpm build           # build produksi Next.js
+pnpm db:up           # PostgreSQL 16 lokal di Docker
+pnpm db:down         # hentikan PostgreSQL lokal
 ```
 
 ## Sumber data & atribusi
