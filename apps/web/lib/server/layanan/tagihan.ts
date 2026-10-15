@@ -205,6 +205,33 @@ export async function terimaNotifikasi(isi: Record<string, unknown>, sekarang: D
   return { status: "TERCATAT", duplikat: false };
 }
 
+// ── Konfirmasi admin atas transfer manual (S21-2) ──────────────────────────
+
+/**
+ * Keputusan admin atas bukti transfer. Dipanggil di dalam `denganAdmin` (alasan ≥15 & audit_log dari pintu itu).
+ * SETUJUI → LUNAS + langganan AKTIF (harga beku, K-10); TOLAK → kembali TERBIT. Selalu menulis konfirmasi_manual (🔒).
+ * Pelunasan manual dicatat sebagai TAGIHAN_LUNAS dengan id transaksi `manual:<nomor>` agar pembayaran online yang
+ * datang kemudian untuk tagihan yang sama terdeteksi sebagai BAYAR_GANDA (antrean tinjauan), bukan diabaikan.
+ */
+export async function konfirmasiTransfer(tx: Tx, tagihanId: string, keputusan: "SETUJUI" | "TOLAK", alasan: string, sekarang: Date): Promise<Tagihan> {
+  const t = await tx.tagihan.findUnique({ where: { id: tagihanId } });
+  if (!t) throw new GalatApi("TIDAK_DITEMUKAN");
+  if (t.status !== "MENUNGGU_KONFIRMASI") throw new GalatApi("TRANSISI_TIDAK_SAH");
+
+  const bukti = await tx.peristiwaBayar.findFirst({ where: { tagihanId, penyedia: "MANUAL", jenis: "BUKTI_TRANSFER" }, orderBy: { diterimaPada: "desc" }, select: { payload: true } });
+  const fotoBuktiId = (bukti?.payload as { fotoBuktiId?: string } | null)?.fotoBuktiId ?? null;
+  await tx.konfirmasiManual.createMany({ data: [{ tagihanId, fotoBuktiId, keputusan, alasan: alasan.trim(), dibuatPada: sekarang }] });
+
+  if (keputusan === "SETUJUI") {
+    const baru = await tx.tagihan.update({ where: { id: t.id }, data: { status: "LUNAS" } });
+    await catatPeristiwa(tx, { penyedia: "MANUAL", kunci: `lunas:${t.nomor}`, tagihanId: t.id, jenis: "TAGIHAN_LUNAS", jumlahIdr: t.totalIdr, payload: { idTransaksi: `manual:${t.nomor}` } }, sekarang);
+    await aktifkanSetelahLunas(tx, t.organisasiId, t.hargaPerTpsIdr, sekarang, `tagihan ${t.nomor} lunas (konfirmasi admin)`);
+    return keDtoTagihan(baru);
+  }
+  const baru = await tx.tagihan.update({ where: { id: t.id }, data: { status: "TERBIT" } });
+  return keDtoTagihan(baru);
+}
+
 // ── Transfer manual ────────────────────────────────────────────────────────
 
 /** Unggah bukti transfer → MENUNGGU_KONFIRMASI (konfirmasi admin teraudit di S21). Tanpa TRANSFER_REKENING_TEKS → 404. */
