@@ -164,7 +164,7 @@ export async function eksporCsv(tx: Tx, sesi: Sesi, pihak: PihakLaporan, periode
 
 // ── Neraca periode (ringkasan & indikator) ─────────────────────────────────
 
-async function dataNeraca(tx: Tx, kawasanId: string, dari: Date, sampai: Date): Promise<{ wadah: WadahNeraca[]; rincian: RincianNeraca[] }> {
+export async function dataNeraca(tx: Tx, kawasanId: string, dari: Date, sampai: Date): Promise<{ wadah: WadahNeraca[]; rincian: RincianNeraca[] }> {
   const w = await tx.wadahCatat.findMany({
     where: { kawasanId, terjadiPada: { gte: dari, lt: sampai } },
     select: { id: true, tpsId: true, kawasanId: true, aliran: true, beratG: true, jumlahWadah: true, terjadiPada: true },
