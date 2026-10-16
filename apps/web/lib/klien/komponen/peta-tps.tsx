@@ -24,7 +24,8 @@ function ikonPin(aktif: boolean): L.DivIcon {
 
 function buatPeta(el: HTMLElement): L.Map {
   const peta = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView(PUSAT_AWAL, 12);
-  L.tileLayer(UBIN, { maxZoom: 19, attribution: TEKS.PETA_ATRIBUSI }).addTo(peta);
+  // OSM menolak ubin tanpa Referer; Referrer-Policy situs same-origin → kirim hanya asal (tanpa path) khusus untuk ubin.
+  L.tileLayer(UBIN, { maxZoom: 19, referrerPolicy: "strict-origin-when-cross-origin", attribution: TEKS.PETA_ATRIBUSI }).addTo(peta);
   // Dialog/tab membuka dengan animasi: ukur ulang saat wadah berubah ukuran.
   const ro = new ResizeObserver(() => peta.invalidateSize());
   ro.observe(el);

@@ -64,7 +64,7 @@ export default function HalamanTps() {
     setSedangCari(true);
     setInfoCari(null);
     try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" } });
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" }, referrerPolicy: "strict-origin-when-cross-origin" });
       if (!r.ok) throw new Error("gagal");
       const h = (await r.json()) as { lat: string; lon: string }[];
       if (h.length === 0) setInfoCari(TEKS.PETA_CARI_KOSONG);
