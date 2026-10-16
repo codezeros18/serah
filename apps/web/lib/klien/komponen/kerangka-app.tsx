@@ -43,6 +43,7 @@ const NAV: Record<Peran, readonly ItemNav[]> = {
     { href: "/kawasan/ditolak", kunci: "K3_JUDUL", pendek: "NAV_DITOLAK", ikon: "ditolak" },
     { href: "/kawasan/laporan", kunci: "K4_JUDUL", pendek: "NAV_LAPORAN", ikon: "laporan" },
     { href: "/kawasan/tps", kunci: "TPS_JUDUL", pendek: "NAV_TPS", ikon: "tps" },
+    { href: "/kawasan/langganan", kunci: "LGN_JUDUL", pendek: "NAV_LANGGANAN", ikon: "kontrak" },
     { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENERIMA: [

@@ -552,6 +552,7 @@ export const TEKS = {
   NAV_BERANDA: "Beranda",
   NAV_DITOLAK: "Ditolak",
   NAV_TPS: "TPS",
+  NAV_LANGGANAN: "Langganan",
   NAV_TERIMA: "Terima",
   NAV_AKUN: "Akun",
   NAV_ADMIN: "Admin",
