@@ -16,6 +16,8 @@ const SkemaEnv = z
     TOKEN_PEPPER: Rahasia,
     SESI_SECRET: Rahasia,
     CRON_SECRET: Rahasia.optional(),
+    /** true → penjadwal dalam proses menjalankan tiga cron (lib/server/penjadwal.ts). */
+    CRON_INTERNAL: Bendera,
     DEMO_MODE: Bendera,
     NEXT_PUBLIC_API_MOCK: Bendera,
     PENYIMPANAN_MODE: z.enum(["lokal", "r2"]).optional(),

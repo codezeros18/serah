@@ -3,7 +3,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, GetObjectCommand, NoSuchKey, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export interface Penyimpanan {
@@ -105,6 +105,18 @@ export class PenyimpananR2 implements Penyimpanan {
   async simpan(kunci: string, buffer: Buffer, mime: string): Promise<void> {
     if (!kunciSah(kunci)) throw new Error("Kunci penyimpanan tidak sah");
     await this.s3.send(new PutObjectCommand({ Bucket: this.o.bucket, Key: kunci, Body: buffer, ContentType: mime }));
+  }
+
+  /** Isi objek, atau null bila tidak ada (dipakai server untuk menyajikan foto lewat URL bertanda tangan aplikasi). */
+  async baca(kunci: string): Promise<Buffer | null> {
+    if (!kunciSah(kunci)) throw new Error("Kunci penyimpanan tidak sah");
+    try {
+      const r = await this.s3.send(new GetObjectCommand({ Bucket: this.o.bucket, Key: kunci }));
+      return r.Body ? Buffer.from(await r.Body.transformToByteArray()) : null;
+    } catch (e) {
+      if (e instanceof NoSuchKey || (e as { name?: string }).name === "NoSuchKey") return null;
+      throw e;
+    }
   }
 
   urlBertandaTangan(kunci: string, detik: number): Promise<string> {

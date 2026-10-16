@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import type { KeyakinanAi, ModeData } from "@serah/kontrak";
 import { muatEnv } from "./env";
 import { GalatApi } from "./galat";
+import { buatPenyimpanan } from "../adaptor/penyimpanan";
 
 // Pengganti sementara integrasi jalur B (S05 BMKG, S06 foto/penyimpanan/AI) — UTANG, disambung di S28.
 // Antarmuka di sini adalah yang dipakai layanan S08; adaptor B nanti dipasang lewat aturIntegrasi().
@@ -251,20 +252,50 @@ export const penyimpananLokal: Penyimpanan = {
   },
 };
 
-const penyimpananR2Belum: Penyimpanan = {
-  async simpan() {
-    throw new GalatApi("GALAT_SERVER"); // R2 = adaptor S06
-  },
-  async baca() {
-    throw new GalatApi("GALAT_SERVER");
-  },
-  async hapus() {
-    throw new GalatApi("GALAT_SERVER");
-  },
-  urlBertanda() {
-    throw new GalatApi("GALAT_SERVER");
-  },
+/** Bagian adaptor Penyimpanan (lib/adaptor/penyimpanan) yang dipakai server. */
+export type AdaptorObjek = {
+  simpan(kunci: string, buffer: Buffer, mime: string): Promise<void>;
+  baca(kunci: string): Promise<Buffer | null>;
+  hapus(kunci: string): Promise<void>;
 };
+
+/**
+ * Penyimpanan berbasis adaptor objek (R2). Bucket PRIVAT: URL yang diberikan ke klien selalu URL aplikasi
+ * bertanda tangan HMAC (5 menit) yang disajikan /api/foto/berkas — sama persis dengan mode lokal, sehingga CSP,
+ * antarmuka sinkron `urlBertanda`, dan pemeriksaan hak akses tidak berubah.
+ */
+export function penyimpananDariAdaptor(a: AdaptorObjek): Penyimpanan {
+  return {
+    async simpan(kunci, isi, mime) {
+      if (!kunciObjekSah(kunci)) throw new GalatApi("VALIDASI_GAGAL");
+      await a.simpan(kunci, Buffer.from(isi), mime);
+    },
+    async baca(kunci) {
+      if (!kunciObjekSah(kunci)) return null;
+      const b = await a.baca(kunci);
+      return b ? new Uint8Array(b) : null;
+    },
+    async hapus(kunci) {
+      // Kunci di luar format penyimpanan ini (mis. seed demo) tidak pernah punya objek.
+      if (!kunciObjekSah(kunci)) return;
+      await a.hapus(kunci);
+    },
+    urlBertanda: penyimpananLokal.urlBertanda,
+  };
+}
+
+function penyimpananR2(): Penyimpanan {
+  const e = muatEnv();
+  return penyimpananDariAdaptor(
+    buatPenyimpanan({
+      PENYIMPANAN_MODE: "r2",
+      ...(e.R2_ACCOUNT_ID ? { R2_ACCOUNT_ID: e.R2_ACCOUNT_ID } : {}),
+      ...(e.R2_ACCESS_KEY_ID ? { R2_ACCESS_KEY_ID: e.R2_ACCESS_KEY_ID } : {}),
+      ...(e.R2_SECRET_ACCESS_KEY ? { R2_SECRET_ACCESS_KEY: e.R2_SECRET_ACCESS_KEY } : {}),
+      ...(e.R2_BUCKET ? { R2_BUCKET: e.R2_BUCKET } : {}),
+    }) as unknown as AdaptorObjek,
+  );
+}
 
 // ── Pembaca tiket manual & sumber cuaca tanpa jaringan ─────────────────────
 
@@ -292,7 +323,7 @@ let terpasang: Integrasi | null = null;
 export function integrasi(): Integrasi {
   terpasang ??= {
     foto: pemrosesFotoStub,
-    penyimpanan: muatEnv().PENYIMPANAN_MODE === "r2" ? penyimpananR2Belum : penyimpananLokal,
+    penyimpanan: muatEnv().PENYIMPANAN_MODE === "r2" ? penyimpananR2() : penyimpananLokal,
     pembacaTiket: manualPembaca,
     cuaca: cuacaTanpaJaringan,
   };
