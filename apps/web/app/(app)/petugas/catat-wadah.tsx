@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ALIRAN, type AksiAturan, type Aliran, type KodeAturan } from "@serah/kontrak/enum";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, IsianBerat, KELAS_ALIRAN, KUNCI_ALIRAN, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
+import { BannerGalat, IsianBerat, KELAS_ALIRAN_LEMBUT, KUNCI_ALIRAN, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { antreanBersama } from "@/lib/klien/antrean/bersama";
@@ -160,7 +160,7 @@ export function CatatWadah() {
                     data-aliran-pilih={a}
                     aria-pressed={terpilih}
                     onClick={() => setAliran(a)}
-                    className={`min-h-20 rounded-3xl px-4 py-3 text-lg font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] shadow-sm ${KELAS_ALIRAN[a]} ${
+                    className={`min-h-20 rounded-3xl px-4 py-3 text-lg font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] shadow-sm ${KELAS_ALIRAN_LEMBUT[a]} ${
                       terpilih ? "outline outline-4 outline-offset-2 outline-fokus" : ""
                     }`}
                   >

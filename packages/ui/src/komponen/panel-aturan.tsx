@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { AksiAturan, KodeAturan } from "@serah/kontrak/enum";
 import { TEKS, isi } from "@serah/kontrak/teks";
 
@@ -8,25 +9,40 @@ const JUDUL: Record<AksiAturan, string> = {
   STATUS: TEKS.ATURAN_JUDUL_PERINGATAN,
 };
 
-function Kunci() {
+const P = { strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" } as const;
+
+function Ikon({ children }: { children: ReactNode }) {
   return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 shrink-0" fill="currentColor">
-      <path d="M17 9V7a5 5 0 0 0-10 0v2H5v12h14V9h-2Zm-8 0V7a3 3 0 0 1 6 0v2H9Z" />
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor">
+      {children}
     </svg>
   );
 }
 
-function Segitiga() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-6 w-6 shrink-0" fill="currentColor">
-      <path d="M12 2 1 21h22L12 2Zm1 15h-2v-2h2v2Zm0-4h-2V9h2v4Z" />
-    </svg>
-  );
-}
+const IKON: Record<"kunci" | "peringatan" | "bendera", ReactNode> = {
+  kunci: (
+    <Ikon>
+      <rect {...P} x="5.500" y="10.500" width="13" height="9.500" rx="2.500" />
+      <path {...P} d="M8.500 10.500V8a3.500 3.500 0 0 1 7 0v2.500" />
+    </Ikon>
+  ),
+  peringatan: (
+    <Ikon>
+      <path {...P} d="M12 4.500 20.500 19h-17L12 4.500Z" />
+      <path {...P} d="M12 10v4M12 16.800v.01" />
+    </Ikon>
+  ),
+  bendera: (
+    <Ikon>
+      <path {...P} d="M6 21V4.500M6 5h10.500l-1.800 3.500 1.800 3.500H6" />
+    </Ikon>
+  ),
+};
 
 /**
  * Panel aturan berpasal. Menyebut kode aturan dan teks §M; tidak pernah menyatakan
  * seseorang bersalah. PRIORITAS selalu disertai catatan R10_CATATAN.
+ * TOLAK memakai garis tebal gelap + ikon kunci (tanda non-warna); lainnya kartu lembut beraksen kuning.
  */
 export function PanelAturan({
   aksi,
@@ -40,27 +56,33 @@ export function PanelAturan({
   sumber?: string;
 }) {
   const tolak = aksi === "TOLAK";
+  const prioritas = aksi === "PRIORITAS";
   const gaya = tolak
-    ? "border-[3px] border-tolak bg-tolak-latar text-tinta shadow-[0_12px_32px_rgba(15,23,42,0.10)]"
-    : "border border-l-8 border-peringatan-garis/40 border-l-peringatan-garis bg-peringatan-latar text-tinta";
+    ? "border-[3px] border-tolak bg-white shadow-[0_12px_32px_rgba(15,23,42,0.10)]"
+    : "border border-amber-200/80 bg-gradient-to-br from-amber-50/80 to-white shadow-[0_4px_16px_rgba(180,83,9,0.07)]";
+  const ikonTile = tolak ? "bg-tinta text-white" : "bg-amber-100 text-amber-700";
   return (
     <section
       role={tolak ? "alert" : "note"}
       data-aturan={kode}
       data-aksi={aksi}
-      className={`rounded-3xl p-4 sm:p-5 ${gaya}`}
+      className={`flex gap-3.5 rounded-2xl p-4 text-tinta ${gaya}`}
     >
-      <h3 className="flex items-center gap-3 text-base font-semibold">
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/80">
-          {tolak ? <Kunci /> : <Segitiga />}
-        </span>
-        <span>{JUDUL[aksi]}</span>
-        <span className="ml-auto rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold">{`R-${kode.slice(1)}`}</span>
-      </h3>
-      <p className="mt-3 text-base leading-relaxed">{teks}</p>
-      {sumber ? <p className="mt-2 text-sm text-tinta-redup">{isi("ATURAN_RUJUKAN", { sumber })}</p> : null}
-      {aksi === "PRIORITAS" ? <p className="mt-2 text-sm font-semibold">{TEKS.R10_CATATAN}</p> : null}
-      {tolak ? <p className="mt-2 text-sm text-tinta-redup">{TEKS.ATURAN_BUKAN_NASIHAT}</p> : null}
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${ikonTile}`}>
+        {tolak ? IKON.kunci : prioritas ? IKON.bendera : IKON.peringatan}
+      </span>
+      <div className="min-w-0 flex-1">
+        <h3 className="flex items-center justify-between gap-2 text-sm font-semibold leading-tight">
+          <span>{JUDUL[aksi]}</span>
+          <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-tinta-redup ring-1 ring-garis-halus">
+            {`R-${kode.slice(1)}`}
+          </span>
+        </h3>
+        <p className="mt-1.5 text-sm leading-relaxed">{teks}</p>
+        {sumber ? <p className="mt-2 text-xs text-tinta-redup">{isi("ATURAN_RUJUKAN", { sumber })}</p> : null}
+        {prioritas ? <p className="mt-2 text-xs font-medium text-amber-800">{TEKS.R10_CATATAN}</p> : null}
+        {tolak ? <p className="mt-2 text-xs text-tinta-redup">{TEKS.ATURAN_BUKAN_NASIHAT}</p> : null}
+      </div>
     </section>
   );
 }

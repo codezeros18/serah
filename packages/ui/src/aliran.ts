@@ -45,3 +45,19 @@ export const GAYA_STATUS: Record<StatusSerah, { kelas: string; ikon: string }> =
   DITOLAK: { kelas: "bg-status-tolak-latar text-status-tolak border-status-tolak", ikon: "✕" },
   MENGGANTUNG: { kelas: "bg-status-menunggu-latar text-status-menunggu border-status-menunggu", ikon: "!" },
 };
+
+/** Versi lembut (SaaS): latar tinta + cincin halus; dipakai untuk lencana, kartu, dan tombol pilihan. */
+export const KELAS_ALIRAN_LEMBUT: Record<Aliran, string> = {
+  HIJAU: "bg-emerald-50 text-emerald-900 ring-1 ring-inset ring-emerald-600/25",
+  KUNING: "bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-500/35",
+  MERAH: "bg-rose-50 text-rose-900 ring-1 ring-inset ring-rose-600/25",
+  ABU: "bg-slate-100 text-slate-800 ring-1 ring-inset ring-slate-500/25",
+};
+
+/** Warna glif/ikon per aliran (dipasangkan dengan KELAS_ALIRAN_LEMBUT). */
+export const WARNA_GLIF_ALIRAN: Record<Aliran, string> = {
+  HIJAU: "text-emerald-600",
+  KUNING: "text-amber-500",
+  MERAH: "text-rose-600",
+  ABU: "text-slate-500",
+};
