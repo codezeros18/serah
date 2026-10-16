@@ -13,10 +13,15 @@ export function KameraFoto({
   petunjuk,
   labelAmbil,
   onFoto,
+  ikonSaja = false,
+  sibuk = false,
 }: {
   petunjuk: string;
   labelAmbil: string;
   onFoto: (blob: Blob) => void;
+  /** Tombol rana bundar tanpa teks (label tetap untuk pembaca layar). */
+  ikonSaja?: boolean;
+  sibuk?: boolean;
 }) {
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -57,7 +62,7 @@ export function KameraFoto({
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-sm leading-relaxed text-tinta-redup">{petunjuk}</p>
+      {petunjuk ? <p className="text-sm leading-relaxed text-tinta-redup">{petunjuk}</p> : null}
       <div className="relative overflow-hidden rounded-3xl bg-black">
         <video
           ref={video}
@@ -80,6 +85,22 @@ export function KameraFoto({
           </div>
         ) : null}
       </div>
+      {ikonSaja ? (
+        <button
+          type="button"
+          onClick={() => void ambil()}
+          disabled={!siap || sibuk}
+          aria-label={labelAmbil}
+          title={labelAmbil}
+          className="group mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_rgba(36,87,197,0.22)] ring-4 ring-aksi/20 transition-all duration-200 hover:ring-aksi/35 active:scale-95 disabled:opacity-60"
+        >
+          {sibuk ? (
+            <span className="h-9 w-9 animate-spin rounded-full border-[3px] border-aksi border-t-transparent" />
+          ) : (
+            <span className="h-14 w-14 rounded-full bg-aksi transition-transform duration-200 group-active:scale-90" />
+          )}
+        </button>
+      ) : (
       <button
         type="button"
         onClick={() => void ambil()}
@@ -91,6 +112,7 @@ export function KameraFoto({
         </span>
         {labelAmbil}
       </button>
+      )}
     </div>
   );
 }
