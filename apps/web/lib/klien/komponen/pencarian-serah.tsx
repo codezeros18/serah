@@ -40,11 +40,11 @@ export function PencarianSerah() {
   }
 
   return (
-    <form onSubmit={kirim} role="search" className="relative w-full">
+    <form onSubmit={kirim} role="search" className="relative w-full max-w-sm">
       <label htmlFor="cari-serah" className="sr-only">
         {TEKS.NAV_CARI}
       </label>
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-tinta-redup">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-tinta-redup">
         <circle cx="11" cy="11" r="6.500" stroke="currentColor" strokeWidth="1.900" />
         <path d="m16 16 4 4" stroke="currentColor" strokeWidth="1.900" strokeLinecap="round" />
       </svg>
@@ -59,10 +59,9 @@ export function PencarianSerah() {
           setSalah(false);
         }}
         placeholder={`${TEKS.NAV_CARI} (SRH-…)`}
-        className={`h-11 w-full rounded-xl border bg-white pl-11 pr-12 text-base text-tinta shadow-sm transition-all duration-200 placeholder:text-tinta-redup hover:border-aksi/50 focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15 ${
-          salah ? "border-rose-300" : "border-garis"
-        }`}
-      />
+        className={`h-10 w-full rounded-full border bg-white/55 pl-10 pr-10 text-sm text-tinta shadow-[0_4px_16px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150 transition-all duration-200 placeholder:text-tinta-redup hover:bg-white/80 focus:border-aksi focus:bg-white/90 focus:outline-none focus:ring-4 focus:ring-aksi/15 ${
+          salah ? "border-rose-300" : "border-white/70"
+        }`}      />
       <kbd
         aria-hidden="true"
         className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-garis-halus bg-white px-1.5 py-0.5 font-mono text-[11px] text-tinta-redup"
