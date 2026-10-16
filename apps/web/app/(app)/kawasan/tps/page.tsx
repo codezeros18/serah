@@ -22,6 +22,10 @@ export default function HalamanTps() {
   const [galat, setGalat] = useState<string | null>(null);
 
   const [tambahTerbuka, setTambahTerbuka] = useState(false);
+  const [ubahId, setUbahId] = useState<string | null>(null);
+  const [kataCari, setKataCari] = useState("");
+  const [infoCari, setInfoCari] = useState<string | null>(null);
+  const [sedangCari, setSedangCari] = useState(false);
   const [nama, setNama] = useState("");
   const [latTeks, setLatTeks] = useState("");
   const [lonTeks, setLonTeks] = useState("");
@@ -54,6 +58,42 @@ export default function HalamanTps() {
     void muat();
   }, [muat]);
 
+  async function cariAlamat() {
+    const q = kataCari.trim();
+    if (q.length < 3) return;
+    setSedangCari(true);
+    setInfoCari(null);
+    try {
+      const r = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=id&q=${encodeURIComponent(q)}`, { headers: { Accept: "application/json" } });
+      if (!r.ok) throw new Error("gagal");
+      const h = (await r.json()) as { lat: string; lon: string }[];
+      if (h.length === 0) setInfoCari(TEKS.PETA_CARI_KOSONG);
+      else {
+        setLatTeks(Number(h[0]!.lat).toFixed(6));
+        setLonTeks(Number(h[0]!.lon).toFixed(6));
+      }
+    } catch {
+      setInfoCari(TEKS.PETA_CARI_GAGAL);
+    }
+    setSedangCari(false);
+  }
+
+  function bukaTambah() {
+    setUbahId(null);
+    setNama("");
+    setLatTeks("");
+    setLonTeks("");
+    setTambahTerbuka(true);
+  }
+
+  function bukaUbah(t: Tps) {
+    setUbahId(t.id);
+    setNama(t.nama);
+    setLatTeks((t.latE6 / 1e6).toFixed(6));
+    setLonTeks((t.lonE6 / 1e6).toFixed(6));
+    setTambahTerbuka(true);
+  }
+
   async function tanganiTambah(e: FormEvent) {
     e.preventDefault();
     if (!kawasan) return;
@@ -67,14 +107,9 @@ export default function HalamanTps() {
 
     setSedangSimpan(true);
     setGalat(null);
-    const res = await panggil("POST", "/api/tps", {
-      body: {
-        kawasanId: kawasan.id,
-        nama,
-        latE6,
-        lonE6,
-      },
-    });
+    const res = ubahId
+      ? await panggil("PATCH", "/api/tps/[id]", { params: { id: ubahId }, body: { nama, latE6, lonE6 } })
+      : await panggil("POST", "/api/tps", { body: { kawasanId: kawasan.id, nama, latE6, lonE6 } });
     setSedangSimpan(false);
 
     if (res.ok) {
@@ -120,7 +155,7 @@ export default function HalamanTps() {
           >
             {TEKS.TPS_CETAK_QR}
           </Link>
-          <Tombol onClick={() => setTambahTerbuka(true)}>{TEKS.TPS_TAMBAH}</Tombol>
+          <Tombol onClick={bukaTambah}>{TEKS.TPS_TAMBAH}</Tombol>
         </div>
       </div>
 
@@ -193,6 +228,9 @@ export default function HalamanTps() {
               >
                 {TEKS.TPS_QR_BARU}
               </Tombol>
+              <Tombol varian="sekunder" className="min-h-10 flex-1 text-sm" onClick={() => bukaUbah(tps)}>
+                {TEKS.TPS_UBAH_LOKASI}
+              </Tombol>
             </div>
           </Kartu>
         ))}
@@ -200,7 +238,7 @@ export default function HalamanTps() {
 
       <Dialog
         terbuka={tambahTerbuka}
-        judul={TEKS.TPS_TAMBAH}
+        judul={ubahId ? TEKS.TPS_UBAH_JUDUL : TEKS.TPS_TAMBAH}
         onTutup={() => setTambahTerbuka(false)}
       >
         <form onSubmit={tanganiTambah} className="flex flex-col gap-4">
@@ -238,6 +276,26 @@ export default function HalamanTps() {
                 className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base font-mono text-tinta transition-colors focus:border-aksi focus:outline-none"
               />
             </div>
+            <div className="flex gap-2">
+              <input
+                type="search"
+                aria-label={TEKS.PETA_CARI_LABEL}
+                placeholder={TEKS.PETA_CARI_LABEL}
+                value={kataCari}
+                onChange={(e) => setKataCari(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void cariAlamat();
+                  }
+                }}
+                className="min-h-12 min-w-0 flex-1 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base text-tinta focus:border-aksi focus:outline-none"
+              />
+              <Tombol varian="sekunder" onClick={() => void cariAlamat()} disabled={sedangCari || kataCari.trim().length < 3}>
+                {TEKS.PETA_CARI_TOMBOL}
+              </Tombol>
+            </div>
+            {infoCari ? <p role="status" className="text-xs text-tinta-redup">{infoCari}</p> : null}
             <p className="text-xs text-tinta-redup">{TEKS.PETA_PILIH_PETUNJUK}</p>
             <div className="h-60 sm:h-72">
               <PetaPilihTitik

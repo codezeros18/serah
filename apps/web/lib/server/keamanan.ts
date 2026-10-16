@@ -30,7 +30,7 @@ export function susunCsp(o: OpsiCsp): string {
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' blob: data: ${r2} https://*.basemaps.cartocdn.com`,
     "font-src 'self' data:",
-    `connect-src 'self' ${bayar} ${r2}`,
+    `connect-src 'self' ${bayar} ${r2} https://nominatim.openstreetmap.org`,
     `frame-src 'self' ${bayar}`,
     "worker-src 'self'",
     "manifest-src 'self'",
