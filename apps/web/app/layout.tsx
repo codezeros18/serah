@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: TEKS.APP_DESKRIPSI,
   applicationName: TEKS.APP_NAMA,
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/ikon/favicon.png", shortcut: "/ikon/favicon.png", apple: "/ikon/apple-touch.png" },
+  icons: { icon: "/ikon/favicon.png?v=2", shortcut: "/ikon/favicon.png?v=2", apple: "/ikon/apple-touch.png?v=2" },
 };
 
 export const viewport: Viewport = {

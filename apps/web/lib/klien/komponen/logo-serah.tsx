@@ -18,9 +18,9 @@ export function LogoSerah({
 
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
-      {/* Logo SERAH: tiga figur saling merangkul (aset /ikon/logo.png dari SERAH1.png) */}
+      {/* Logo SERAH: tiga figur saling merangkul (aset /ikon/logo.png dari SERAH2.png) */}
       <img
-        src="/ikon/logo.png"
+        src="/ikon/logo.png?v=2"
         alt=""
         aria-hidden="true"
         width={dimensi}
