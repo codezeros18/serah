@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { ALASAN_TOLAK, type AlasanTolak } from "@serah/kontrak/enum";
 import type { RujukanAturan } from "@serah/kontrak/galat";
 import { TEKS, isi, type KunciTeks } from "@serah/kontrak/teks";
-import { BannerGalat, Dialog, IsianBerat, Kartu, LencanaAliran, LencanaStatus, PanelAturan, Tombol } from "@serah/ui";
+import { BannerGalat, Dialog, IsianBerat, LencanaAliran, LencanaStatus, PanelAturan, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { unggahFoto } from "@/lib/klien/foto";
