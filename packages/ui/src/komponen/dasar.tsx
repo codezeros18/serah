@@ -64,7 +64,14 @@ export function BannerGalat({ pesan, onCoba }: { pesan: string; onCoba?: () => v
         !
       </span>
       <p className="min-w-0 flex-1 text-sm leading-relaxed text-tinta">{pesan}</p>
-      {onCoba ? (
+      {pesan === TEKS.G_SESI_HABIS ? (
+        <a
+          href="/masuk"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-aksi px-4 text-sm font-medium text-white transition-colors hover:bg-aksi-hover"
+        >
+          {TEKS.MASUK_TOMBOL}
+        </a>
+      ) : onCoba ? (
         <Tombol varian="sekunder" onClick={onCoba} className="min-h-11 rounded-xl px-4 text-sm font-medium">
           {TEKS.UMUM_COBA_LAGI}
         </Tombol>

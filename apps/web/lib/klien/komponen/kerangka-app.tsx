@@ -116,6 +116,28 @@ function Isi({ children }: { children: ReactNode }) {
       </div>
     );
   }
+  if (keadaan.status === "galat" && keadaan.habis) {
+    // Sesi berakhir (mis. kembali ke halaman setelah keluar): arahkan dengan jelas ke halaman masuk.
+    return (
+      <div className={`${poppins.className} flex min-h-dvh items-center justify-center bg-gradient-to-b from-latar to-white p-5`}>
+        <div className="flex w-full max-w-sm flex-col items-center gap-6 rounded-[2rem] bg-white p-8 text-center shadow-[0_24px_70px_rgba(15,23,42,0.10)] ring-1 ring-garis-halus/70">
+          <LogoSerah ukuran="md" />
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-aksi-latar text-aksi">
+            <IkonNav nama="perisai" className="h-8 w-8" />
+          </span>
+          <p role="alert" className="text-base font-medium leading-relaxed text-tinta">
+            {keadaan.pesan}
+          </p>
+          <Link
+            href="/masuk"
+            className="inline-flex min-h-14 w-full items-center justify-center rounded-2xl bg-aksi text-base font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover active:translate-y-0 active:scale-[0.98]"
+          >
+            {TEKS.MASUK_TOMBOL}
+          </Link>
+        </div>
+      </div>
+    );
+  }
   if (keadaan.status === "galat") {
     return (
       <div className={`${poppins.className} min-h-dvh bg-kertas p-4`}>
@@ -136,7 +158,7 @@ function Isi({ children }: { children: ReactNode }) {
 
   async function keluar() {
     await panggil("POST", "/api/auth/keluar");
-    router.push("/masuk");
+    router.replace("/masuk");
   }
 
   const adalahAktif = (href: string) =>
