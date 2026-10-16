@@ -40,11 +40,11 @@ export function PencarianSerah() {
   }
 
   return (
-    <form onSubmit={kirim} role="search" className="relative w-full max-w-md">
+    <form onSubmit={kirim} role="search" className="relative w-full">
       <label htmlFor="cari-serah" className="sr-only">
         {TEKS.NAV_CARI}
       </label>
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-tinta-redup">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-tinta-redup">
         <circle cx="11" cy="11" r="6.500" stroke="currentColor" strokeWidth="1.900" />
         <path d="m16 16 4 4" stroke="currentColor" strokeWidth="1.900" strokeLinecap="round" />
       </svg>
@@ -59,8 +59,8 @@ export function PencarianSerah() {
           setSalah(false);
         }}
         placeholder={`${TEKS.NAV_CARI} (SRH-…)`}
-        className={`h-10 w-full rounded-xl border bg-latar pl-10 pr-10 text-sm text-tinta transition-all duration-200 placeholder:text-tinta-redup hover:border-garis focus:border-aksi focus:bg-white focus:outline-none focus:ring-4 focus:ring-aksi/15 ${
-          salah ? "border-rose-300" : "border-transparent"
+        className={`h-11 w-full rounded-xl border bg-white pl-11 pr-12 text-base text-tinta shadow-sm transition-all duration-200 placeholder:text-tinta-redup hover:border-aksi/50 focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15 ${
+          salah ? "border-rose-300" : "border-garis"
         }`}
       />
       <kbd

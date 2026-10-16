@@ -160,6 +160,7 @@ export const TEKS = {
   A2_PINDAI: "Pindai QR serah",
   A2_FOTO: "Foto muatan",
   A2_FOTO_PETUNJUK: "Foto muatan sampah, bukan orang. Foto diambil langsung dari kamera.",
+  SD_FOTO_KOSONG: "Foto belum tersedia",
   A2_FOTO_ULANG: "Ambil ulang",
   A2_KENDARAAN: "Kendaraan",
   A2_PENERIMA: "Tujuan (penerima)",

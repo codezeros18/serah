@@ -204,7 +204,7 @@ function Isi({ children }: { children: ReactNode }) {
                 {sesi.organisasiAktif ? <p className="truncate text-xs text-tinta-redup">{sesi.organisasiAktif.nama}</p> : null}
               </div>
             </div>
-            <div className="flex flex-1 justify-center">
+            <div className="flex min-w-0 flex-1 items-center">
               <PencarianSerah />
             </div>
             <div className="flex shrink-0 items-center gap-2">
