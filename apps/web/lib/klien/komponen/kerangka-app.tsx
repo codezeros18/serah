@@ -221,7 +221,7 @@ function Isi({ children }: { children: ReactNode }) {
         ) : null}
 
         {/* Bilah atas kaca: HP */}
-        <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 lg:hidden">
+        <header className="sticky top-0 z-30 bg-gradient-to-b from-latar from-70% to-transparent px-3 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] sm:px-5 lg:hidden">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/60 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
             <div className="flex min-w-0 items-center gap-3">
               <Link

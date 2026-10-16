@@ -106,7 +106,7 @@ function KartuFoto({ judul, url, tiket = false }: { judul: string; url?: string;
 
 function Info({ ikon, label, nilai, mono = false }: { ikon: NamaIkonNav; label: string; nilai: string; mono?: boolean }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-white/80 p-3.5 ring-1 ring-garis-halus/70 backdrop-blur">
+    <div className="flex min-w-0 items-center gap-3 rounded-2xl bg-white/80 p-3.5 ring-1 ring-garis-halus/70 backdrop-blur">
       <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-aksi-latar text-aksi">
         <IkonNav nama={ikon} className="h-5 w-5" />
       </span>
@@ -193,7 +193,7 @@ export default function DetailSerah() {
                 ))}
               </div>
             </div>
-            <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <Info ikon="tps" label={TEKS.KOL_LOKASI} nilai={`${d.tps.kode} · ${d.kawasan.nama}`} />
               <Info ikon="akun" label={TEKS.KOL_PENGANGKUT} nilai={d.pengangkut?.nama ?? "—"} />
               <Info ikon="truk" label={TEKS.KOL_PLAT} nilai={d.kendaraan?.plat ?? "—"} mono />
