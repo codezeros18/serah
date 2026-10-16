@@ -31,7 +31,7 @@ beforeAll(async () => {
 });
 afterEach(() => aturIntegrasi({ pembacaTiket: manualPembaca }));
 
-/** Serah KUNING (2 wadah × 10 kg) sampai status yang diminta, ke Daur Ulang Contoh Mandiri. */
+/** Serah KUNING (2 wadah × 10 kg) sampai status yang diminta, ke CV Daur Ulang Mandiri. */
 async function serahSampai(tahap: "MENUNGGU_SETUJU" | "DIANGKUT"): Promise<string> {
   const ids: string[] = [];
   for (let i = 0; i < 2; i++) {

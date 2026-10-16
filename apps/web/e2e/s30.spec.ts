@@ -123,7 +123,7 @@ test.describe("S30-3: Peran Pengangkut (/pengangkut, /pengangkut/serah/[kode], /
     await page.getByLabel(TEKS.A2_KENDARAAN).selectOption({ index: 1 });
 
     // Coba pilih TPST untuk muatan kuning -> R-01 tolak
-    await page.getByRole("radio", { name: /TPST Contoh/ }).check();
+    await page.getByRole("radio", { name: /TPST Rawa Kuning/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     const panelR01 = page.locator('[data-aturan="R01"]');
     await expect(panelR01).toBeVisible();
@@ -131,8 +131,8 @@ test.describe("S30-3: Peran Pengangkut (/pengangkut, /pengangkut/serah/[kode], /
     await expect(panelR01).toContainText("Pasal 20 ayat (2) huruf d");
     await axeBersih(page, "pengangkut-r01-tolak");
 
-    // Ganti ke Daur Ulang Contoh Mandiri -> Kirim
-    await page.getByRole("radio", { name: /Daur Ulang Contoh Mandiri/ }).check();
+    // Ganti ke CV Daur Ulang Mandiri -> Kirim
+    await page.getByRole("radio", { name: /CV Daur Ulang Mandiri/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     await expect(page.getByText(TEKS.A2_TERKIRIM)).toBeVisible();
     await axeBersih(page, "pengangkut-terkirim");

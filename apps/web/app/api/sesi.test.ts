@@ -27,14 +27,14 @@ describe("alur sesi demo", () => {
     expect(masuk.status).toBe(200);
     const isiMasuk = await masuk.json();
     expect(isiMasuk.data.sesi.peranAktif).toBe("PENGELOLA");
-    expect(isiMasuk.data.sesi.organisasi[0]).toMatchObject({ nama: "Pasar Contoh Sejahtera", jenis: "KAWASAN", peran: ["PENGELOLA"] });
+    expect(isiMasuk.data.sesi.organisasi[0]).toMatchObject({ nama: "Pasar Mekar Sari Kemayoran", jenis: "KAWASAN", peran: ["PENGELOLA"] });
     const cookie = ambilCookie(masuk);
 
     const s = await sesi(permintaan("/api/sesi", { cookie }));
     expect(s.status).toBe(200);
     const isi = await s.json();
     expect(isi.ok).toBe(true);
-    expect(isi.data.organisasiAktif).toMatchObject({ kode: "ORG-PCS", nama: "Pasar Contoh Sejahtera", jenis: "KAWASAN" });
+    expect(isi.data.organisasiAktif).toMatchObject({ kode: "ORG-PCS", nama: "Pasar Mekar Sari Kemayoran", jenis: "KAWASAN" });
     expect(isi.data.peran).toBe("PENGELOLA");
     expect(isi.data.paket).toBe("KAWASAN_UJI_COBA");
     expect(isi.data.hak).toHaveLength(8);

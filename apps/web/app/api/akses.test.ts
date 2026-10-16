@@ -58,8 +58,8 @@ describe("GET /api/serah/[kode] & /api/serah", () => {
         kode,
         status: "MENUNGGU_SETUJU",
         tps: { kode: "TPS-PCS-01" },
-        pengangkut: { nama: "Angkut Contoh Bersih" },
-        penerima: { nama: "Daur Ulang Contoh Mandiri" },
+        pengangkut: { nama: "PT Angkut Bersih Nusantara" },
+        penerima: { nama: "CV Daur Ulang Mandiri" },
         kendaraan: { plat: "B 9001 SRH" },
         aliran: ["KUNING"],
       });

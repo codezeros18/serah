@@ -115,7 +115,7 @@ test("T29-2 pengangkut: foto muatan â†’ R-01 menolak TPST dengan kutipan pasal â
   await page.locator("#kendaraan").selectOption({ index: 1 });
 
   // Momen wow 1: aturan hukum bekerja di layar.
-  await page.getByRole("radio", { name: /TPST Contoh/ }).check();
+  await page.getByRole("radio", { name: /TPST Rawa Kuning/ }).check();
   await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
   const panelR01 = page.locator('[data-aturan="R01"]');
   await expect(panelR01).toBeVisible();
@@ -123,7 +123,7 @@ test("T29-2 pengangkut: foto muatan â†’ R-01 menolak TPST dengan kutipan pasal â
   await expect(panelR01).toContainText("Pasal 20 ayat (2) huruf d");
   await axeBersih(page, "t29-pengangkut-r01");
 
-  await page.getByRole("radio", { name: /Daur Ulang Contoh Mandiri/ }).check();
+  await page.getByRole("radio", { name: /CV Daur Ulang Mandiri/ }).check();
   await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
   await expect(page.getByText(TEKS.A2_TERKIRIM)).toBeVisible();
 

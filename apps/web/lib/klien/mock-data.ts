@@ -71,14 +71,14 @@ function org(
 }
 
 export const ORGANISASI: Organisasi[] = [
-  org(ORG.kawasan, "KWS-PCS", "Pasar Contoh Sejahtera", "KAWASAN", null, [], "BELUM_DIAJUKAN"),
-  org(ORG.pengangkut, "PGK-ACB", "Angkut Contoh Bersih", "PENGANGKUT", null, [], "TERVERIFIKASI"),
-  org(ORG.daurUlang, "PNM-DCM", "Daur Ulang Contoh Mandiri", "PENERIMA", "FASILITAS_BERIZIN", ["KUNING"], "TERVERIFIKASI"),
-  org(ORG.pelapakBerkah, "PNM-PCB", "Pelapak Contoh Berkah", "PENERIMA", "PELAPAK_BERIZIN", ["KUNING"], "TERVERIFIKASI"),
-  org(ORG.pelapakBaru, "PNM-PCN", "Pelapak Contoh Baru", "PENERIMA", "PELAPAK_BERIZIN", ["KUNING"], "MENUNGGU"),
-  org(ORG.tpst, "PNM-TPC", "TPST Contoh", "PENERIMA", "TPA_TPST", ["ABU"], "TERVERIFIKASI"),
-  org(ORG.b3, "PNM-FBC", "Fasilitas B3 Contoh", "PENERIMA", "FASILITAS_BERIZIN", ["MERAH"], "TERVERIFIKASI"),
-  org(ORG.tps3r, "PNM-T3C", "TPS3R Contoh", "PENERIMA", "TPS3R", ["HIJAU"], "TERVERIFIKASI"),
+  org(ORG.kawasan, "KWS-PCS", "Pasar Mekar Sari Kemayoran", "KAWASAN", null, [], "BELUM_DIAJUKAN"),
+  org(ORG.pengangkut, "PGK-ACB", "PT Angkut Bersih Nusantara", "PENGANGKUT", null, [], "TERVERIFIKASI"),
+  org(ORG.daurUlang, "PNM-DCM", "CV Daur Ulang Mandiri", "PENERIMA", "FASILITAS_BERIZIN", ["KUNING"], "TERVERIFIKASI"),
+  org(ORG.pelapakBerkah, "PNM-PCB", "Pelapak Berkah Jaya", "PENERIMA", "PELAPAK_BERIZIN", ["KUNING"], "TERVERIFIKASI"),
+  org(ORG.pelapakBaru, "PNM-PCN", "Pelapak Sumber Rezeki", "PENERIMA", "PELAPAK_BERIZIN", ["KUNING"], "MENUNGGU"),
+  org(ORG.tpst, "PNM-TPC", "TPST Rawa Kuning", "PENERIMA", "TPA_TPST", ["ABU"], "TERVERIFIKASI"),
+  org(ORG.b3, "PNM-FBC", "PT Pengelola Limbah B3 Sentosa", "PENERIMA", "FASILITAS_BERIZIN", ["MERAH"], "TERVERIFIKASI"),
+  org(ORG.tps3r, "PNM-T3C", "TPS3R Kemayoran Lestari", "PENERIMA", "TPS3R", ["HIJAU"], "TERVERIFIKASI"),
   org(ORG.internal, "INT-SRH", "SERAH Internal", "INTERNAL", null, [], "TERVERIFIKASI"),
 ];
 
@@ -86,7 +86,7 @@ export const KAWASAN: Kawasan = {
   id: idm("kws", 1),
   organisasiId: ORG.kawasan,
   kode: "KWS-PCS",
-  nama: "Pasar Contoh Sejahtera",
+  nama: "Pasar Mekar Sari Kemayoran",
   jenis: "KOMERSIAL",
   alamat: "Alamat contoh (data demo)",
   adm4: "31.71.03.1001",
@@ -125,7 +125,7 @@ function kontrakAktif(n: number, penerima: Organisasi, aliran: Aliran[], status:
     id: idm("ktr", n),
     kawasanId: KAWASAN.id,
     kawasan: { id: KAWASAN.id, nama: KAWASAN.nama },
-    pengangkut: { id: ORG.pengangkut, nama: "Angkut Contoh Bersih" },
+    pengangkut: { id: ORG.pengangkut, nama: "PT Angkut Bersih Nusantara" },
     penerima: { id: penerima.id, nama: penerima.nama },
     aliran,
     berlakuDari: "2026-01-01",

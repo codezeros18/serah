@@ -24,7 +24,7 @@ beforeAll(async () => {
   pengangkut = await masuk("PENGANGKUT");
   penerima = await masuk("PENERIMA");
   // Kontrak uji (tabel bukan catat-saja): ABU → Daur Ulang (penerima tidak menerima ABU → R-03 saja),
-  // KUNING → Pelapak Contoh Baru AKTIF (izin MENUNGGU → R-11 saja).
+  // KUNING → Pelapak Sumber Rezeki AKTIF (izin MENUNGGU → R-11 saja).
   await denganPemilik(async (k) => {
     for (const [penerimaId, aliran] of [
       [d.org.daurUlang, "ABU"],

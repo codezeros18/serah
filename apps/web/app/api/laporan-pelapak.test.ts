@@ -74,7 +74,7 @@ describe("S15-3 pelapak berizin", () => {
         beratDiterimaG: 9_000,
         beratDitolakG: 3_000,
         alasanTolak: "BASAH_KOTOR",
-        penerimaNama: "Pelapak Contoh Berkah",
+        penerimaNama: "Pelapak Berkah Jaya",
         penerimaJenis: "PELAPAK_BERIZIN",
         status: "DITERIMA_SEBAGIAN",
       }),
@@ -94,6 +94,6 @@ describe("S15-3 pelapak berizin", () => {
     expect(r.status).toBe(200);
     const baris2 = (await r.text()).split("\r\n").filter((g) => g.includes(kode));
     expect(baris2).toHaveLength(1);
-    expect(baris2[0]).toContain(`Pelapak Contoh Berkah (${TEKS.JENIS_PENERIMA_PELAPAK_BERIZIN})`);
+    expect(baris2[0]).toContain(`Pelapak Berkah Jaya (${TEKS.JENIS_PENERIMA_PELAPAK_BERIZIN})`);
   });
 });

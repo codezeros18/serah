@@ -305,7 +305,7 @@ function detail(s: SerahState, sekarang: number) {
   const kendaraan = state.kendaraan.find((k) => k.id === s.kendaraanId);
   return {
     ...ringkas(s, sekarang),
-    pengangkut: s.status === "DRAF" ? null : { id: ORG.pengangkut, nama: "Angkut Contoh Bersih" },
+    pengangkut: s.status === "DRAF" ? null : { id: ORG.pengangkut, nama: "PT Angkut Bersih Nusantara" },
     penerima: penerima ? { id: penerima.id, nama: penerima.nama } : null,
     kendaraan: kendaraan ? { id: kendaraan.id, plat: kendaraan.plat } : null,
     wadah,
@@ -360,7 +360,7 @@ function barisLaporan(sekarang: number) {
           tpsKode: t?.kode ?? "TPS-PCS-01",
           kawasanNama: KAWASAN.nama,
           kawasanAlamat: KAWASAN.alamat,
-          pengangkutNama: "Angkut Contoh Bersih",
+          pengangkutNama: "PT Angkut Bersih Nusantara",
           plat: "B 9001 SRH",
           penerimaNama: penerima?.nama ?? null,
           penerimaJenis: penerima?.jenisPenerima ?? null,

@@ -30,7 +30,7 @@ describe("GET /api/tps/qr/[token]", () => {
   it("token QR TPS demo → TPS & kawasan", async () => {
     const h = await panggil(qrTps, { jalur: "/api/tps/qr/demo-qr-TPS-PCS-01", cookie: petugas, params: { token: "demo-qr-TPS-PCS-01" } });
     expect(h.status).toBe(200);
-    expect(data(h)).toMatchObject({ tps: { id: d.tps1, kode: "TPS-PCS-01" }, kawasan: { kode: "KWS-PCS", nama: "Pasar Contoh Sejahtera" } });
+    expect(data(h)).toMatchObject({ tps: { id: d.tps1, kode: "TPS-PCS-01" }, kawasan: { kode: "KWS-PCS", nama: "Pasar Mekar Sari Kemayoran" } });
   });
   it("token tidak dikenal → 404 dengan teks G_QR_TIDAK_DIKENAL", async () => {
     const h = await panggil(qrTps, { jalur: "/api/tps/qr/x", cookie: petugas, params: { token: "token-qr-yang-tidak-ada" } });

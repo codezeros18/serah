@@ -52,7 +52,7 @@ test.describe("A2", () => {
 
   test("R-01: memilih TPST untuk muatan KUNING → panel TOLAK dengan kutipan pasal", async ({ page }) => {
     await sampaiTujuan(page);
-    await page.getByRole("radio", { name: /TPST Contoh/ }).check();
+    await page.getByRole("radio", { name: /TPST Rawa Kuning/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     const panel = page.locator('[data-aturan="R01"]');
     await expect(panel).toBeVisible();
@@ -65,14 +65,14 @@ test.describe("A2", () => {
 
   test("R-11: penerima izin belum terverifikasi", async ({ page }) => {
     await sampaiTujuan(page);
-    await page.getByRole("radio", { name: /Pelapak Contoh Baru/ }).check();
+    await page.getByRole("radio", { name: /Pelapak Sumber Rezeki/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     await expect(page.locator('[data-aturan="R11"]')).toContainText(TEKS.ATURAN_R11);
   });
 
   test("R-03: penerima tidak menerima aliran muatan", async ({ page }) => {
     await sampaiTujuan(page);
-    await page.getByRole("radio", { name: /TPS3R Contoh/ }).check();
+    await page.getByRole("radio", { name: /TPS3R Kemayoran Lestari/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     await expect(page.locator('[data-aturan="R03"]')).toContainText(isi("ATURAN_R03", { aliran: "KUNING" }));
   });
@@ -88,7 +88,7 @@ test.describe("A2", () => {
   test("tujuan sah → menunggu persetujuan; tanpa input galeri", async ({ page }) => {
     await sampaiTujuan(page);
     expect(await page.locator('input[type="file"]').count()).toBe(0);
-    await page.getByRole("radio", { name: /Daur Ulang Contoh Mandiri/ }).check();
+    await page.getByRole("radio", { name: /CV Daur Ulang Mandiri/ }).check();
     await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
     await expect(page.getByText(TEKS.A2_TERKIRIM)).toBeVisible();
   });

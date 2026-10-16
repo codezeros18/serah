@@ -261,16 +261,16 @@ describe("S13-3 kendaraan & direktori", () => {
     const cookie = await cookieDemo("PENGELOLA");
     const semua = (await (await direktori(permintaan("/api/direktori/mitra", { metode: "GET", cookie }))).json()).data.mitra as Record<string, unknown>[];
     const nama = semua.map((m) => m.nama);
-    expect(nama).toEqual(expect.arrayContaining(["Angkut Contoh Bersih", "Daur Ulang Contoh Mandiri", "Pelapak Contoh Baru", "TPST Contoh"]));
+    expect(nama).toEqual(expect.arrayContaining(["PT Angkut Bersih Nusantara", "CV Daur Ulang Mandiri", "Pelapak Sumber Rezeki", "TPST Rawa Kuning"]));
     expect(semua.every((m) => m.jenis === "PENGANGKUT" || m.jenis === "PENERIMA")).toBe(true);
-    expect(nama).not.toContain("Pasar Contoh Sejahtera");
+    expect(nama).not.toContain("Pasar Mekar Sari Kemayoran");
     for (const m of semua) expect(Object.keys(m).sort()).toEqual(["aliranDiterima", "id", "jenis", "jenisPenerima", "nama", "statusIzin"]);
     expect(JSON.stringify(semua)).not.toContain("@");
 
     const hanyaPengangkut = (await (await direktori(permintaan("/api/direktori/mitra?jenis=PENGANGKUT", { metode: "GET", cookie }))).json()).data.mitra as { jenis: string }[];
     expect(hanyaPengangkut.length).toBeGreaterThan(0);
     expect(hanyaPengangkut.every((m) => m.jenis === "PENGANGKUT")).toBe(true);
-    const pelapak = semua.find((m) => m.nama === "Pelapak Contoh Baru");
+    const pelapak = semua.find((m) => m.nama === "Pelapak Sumber Rezeki");
     expect(pelapak).toMatchObject({ jenisPenerima: "PELAPAK_BERIZIN", statusIzin: "MENUNGGU", aliranDiterima: ["KUNING"] });
 
     expect((await direktori(permintaan("/api/direktori/mitra", { metode: "GET", cookie: await cookieDemo("PETUGAS") }))).status).toBe(403);

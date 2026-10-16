@@ -85,7 +85,7 @@ describe("S23-1 PDF tiga laporan = CSV", () => {
     expect(csv.status).toBe(200);
     expect(pdf.header.get(HEADER_SIDIK_ISI)).toBe(csv.header.get(HEADER_SIDIK_ISI));
 
-    const garis = teksBerkas(csv).slice(1).split("\r\n").filter(Boolean);
+    const garis = teksBerkas(csv).slice(1).split("\r\n").filter((g) => g && !g.startsWith("sep="));
     const sel = garis.slice(1, -1).map((g) => g.split(";"));
     const kodeSerah = [...new Set(sel.filter((s) => s[1]).map((s) => s[1]!))];
     expect(kodeSerah.length).toBeGreaterThan(5);

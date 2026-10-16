@@ -89,8 +89,8 @@ describe("buatNotifikasi — penerima peran per jenis (S17-2)", () => {
   });
 
   it("teks dari NTF_* dengan placeholder terisi", () => {
-    expect(kalimatNotifikasi("SERAH_DIANGKUT", { kode: "SRH-20261015-0001", penerima: "Daur Ulang Contoh Mandiri" })).toBe(
-      TEKS.NTF_SERAH_DIANGKUT.replace("{kode}", "SRH-20261015-0001").replace("{penerima}", "Daur Ulang Contoh Mandiri"),
+    expect(kalimatNotifikasi("SERAH_DIANGKUT", { kode: "SRH-20261015-0001", penerima: "CV Daur Ulang Mandiri" })).toBe(
+      TEKS.NTF_SERAH_DIANGKUT.replace("{kode}", "SRH-20261015-0001").replace("{penerima}", "CV Daur Ulang Mandiri"),
     );
   });
 });

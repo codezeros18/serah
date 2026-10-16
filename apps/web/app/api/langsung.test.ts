@@ -77,7 +77,7 @@ describe("T28 — GET /api/langsung", () => {
     const petugas = await masuk("PETUGAS");
     const pengelola = await masuk("PENGELOLA");
     const pengangkut = await masuk("PENGANGKUT");
-    const penerima = await masuk("PENERIMA"); // Daur Ulang Contoh Mandiri (tujuan)
+    const penerima = await masuk("PENERIMA"); // CV Daur Ulang Mandiri (tujuan)
     const penerimaLain = await masuk("PENERIMA", d.org.tpst); // berkontrak dengan kawasan, bukan pihak serah ini
 
     const [aPengelola, aPetugas, aPenerima, aLain] = [await buka(pengelola), await buka(petugas), await buka(penerima), await buka(penerimaLain)];

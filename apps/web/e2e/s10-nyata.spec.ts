@@ -33,10 +33,10 @@ type Detail = Ringkas & {
 };
 
 const PENERIMA_PER_ALIRAN: Record<string, RegExp> = {
-  KUNING: /Daur Ulang Contoh Mandiri/,
-  ABU: /TPST Contoh/,
-  HIJAU: /TPS3R Contoh/,
-  MERAH: /Fasilitas B3 Contoh/,
+  KUNING: /CV Daur Ulang Mandiri/,
+  ABU: /TPST Rawa Kuning/,
+  HIJAU: /TPS3R Kemayoran Lestari/,
+  MERAH: /PT Pengelola Limbah B3 Sentosa/,
 };
 
 /**
@@ -143,7 +143,7 @@ test("A2 nyata: R-01 terlihat saat memilih TPST untuk muatan KUNING", async ({ p
   await expect(ambil).toBeEnabled();
   await ambil.click();
   await page.getByLabel(TEKS.A2_KENDARAAN).selectOption({ index: 1 });
-  await page.getByRole("radio", { name: /TPST Contoh/ }).check();
+  await page.getByRole("radio", { name: /TPST Rawa Kuning/ }).check();
   await page.getByRole("button", { name: TEKS.A2_KIRIM }).click();
   const panel = page.locator('[data-aturan="R01"]');
   await expect(panel).toContainText(TEKS.ATURAN_JUDUL_TOLAK);
@@ -162,7 +162,7 @@ test("K2 nyata: menyetujui serah yang menunggu", async ({ page }) => {
   let kode = daftar.serah[0]!.kode;
   for (const s of daftar.serah) {
     const d = await api<Detail & { penerima: { nama: string } | null }>(page, `/api/serah/${s.kode}`);
-    if (d.penerima && /Daur Ulang Contoh Mandiri/.test(d.penerima.nama)) {
+    if (d.penerima && /CV Daur Ulang Mandiri/.test(d.penerima.nama)) {
       kode = s.kode;
       break;
     }

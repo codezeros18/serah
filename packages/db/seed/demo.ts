@@ -1,18 +1,21 @@
-import { createHash } from "node:crypto";
+﻿import { createHash } from "node:crypto";
 import { emailDemo } from "@serah/kontrak/demo";
 import { HARI_MS, JAM_MS, acakBerbenih, awalHariWib, idBaru, sisip, tanggalWib, tulis, type Klien } from "./alat.ts";
 import { VERSI_PERSETUJUAN } from "./global.ts";
 
-// Seed demo §H.5 — HANYA bila DEMO_MODE=true. Semua nama adalah contoh berlabel; tidak ada nama pelanggan nyata.
-// Koordinat TPS: KEPUTUSAN K-15 belum diisi (P-06) → "koordinat contoh sementara", diganti lewat prompt (g).
+// Seed demo Â§H.5 â€” HANYA bila DEMO_MODE=true. Nama dibuat rekaan yang terdengar nyata; tidak ada pelanggan atau lokasi usaha sungguhan.
+// Koordinat TPS: titik rekaan di sekitar Kemayoran, Jakarta Pusat (bukan lokasi fasilitas sungguhan).
 
 export const KODE_ORG_DEMO = "ORG-PCS";
 
-const KOORDINAT_SEMENTARA = {
-  // koordinat contoh sementara (K-15 MENUNGGU P-06)
-  "TPS-PCS-01": { lat: -6161234, lon: 106845678 },
-  "TPS-PCS-02": { lat: -6162345, lon: 106846789 },
-} as const;
+const DAFTAR_TPS = [
+  { kode: "TPS-PCS-01", nama: "TPS Gerbang Utara", lat: -6164620, lon: 106845310 },
+  { kode: "TPS-PCS-02", nama: "TPS Blok Sayur dan Buah", lat: -6165480, lon: 106846720 },
+  { kode: "TPS-PCS-03", nama: "TPS Blok Daging dan Ikan", lat: -6166310, lon: 106845980 },
+  { kode: "TPS-PCS-04", nama: "TPS Kuliner dan Food Court", lat: -6165090, lon: 106844470 },
+  { kode: "TPS-PCS-05", nama: "TPS Parkir Selatan", lat: -6167040, lon: 106847260 },
+] as const;
+const PLAT_KENDARAAN = ["B 9001 SRH", "B 1234 XYZ", "B 9145 TXA", "B 9203 KDW", "B 9387 FRN", "B 9412 LMS"] as const;
 
 type Event = {
   t: Date;
@@ -31,7 +34,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
   if (process.env.DEMO_MODE !== "true") throw new Error("Seed demo ditolak: DEMO_MODE bukan true");
   const ada = await k.query(`SELECT 1 FROM organisasi WHERE kode = $1`, [KODE_ORG_DEMO]);
   if (ada.rowCount) {
-    tulis("· data demo sudah ada — dilewati (pakai pnpm db:reset untuk mengulang dari awal)");
+    tulis("Â· data demo sudah ada â€” dilewati (pakai pnpm db:reset untuk mengulang dari awal)");
     return false;
   }
   const acak = acakBerbenih(102_2021);
@@ -39,7 +42,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
   const hari = (n: number) => new Date(sekarang.getTime() - n * HARI_MS);
   const pepper = process.env.TOKEN_PEPPER ?? "";
 
-  // ── Organisasi ────────────────────────────────────────────────────────────
+  // â”€â”€ Organisasi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const org = {
     kawasan: idBaru(),
     pengangkut: idBaru(),
@@ -52,15 +55,15 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     internal: idBaru(),
   };
   const daftarOrg = [
-    { id: org.kawasan, kode: KODE_ORG_DEMO, nama: "Pasar Contoh Sejahtera", jenis: "KAWASAN", jp: null, aliran: [], izin: "BELUM_DIAJUKAN" },
-    { id: org.pengangkut, kode: "ORG-ACB", nama: "Angkut Contoh Bersih", jenis: "PENGANGKUT", jp: null, aliran: [], izin: "TERVERIFIKASI" },
-    { id: org.daurUlang, kode: "ORG-DUCM", nama: "Daur Ulang Contoh Mandiri", jenis: "PENERIMA", jp: "FASILITAS_BERIZIN", aliran: ["KUNING"], izin: "TERVERIFIKASI" },
-    { id: org.pelapakBerkah, kode: "ORG-PCBK", nama: "Pelapak Contoh Berkah", jenis: "PENERIMA", jp: "PELAPAK_BERIZIN", aliran: ["KUNING"], izin: "TERVERIFIKASI" },
-    { id: org.pelapakBaru, kode: "ORG-PCBR", nama: "Pelapak Contoh Baru", jenis: "PENERIMA", jp: "PELAPAK_BERIZIN", aliran: ["KUNING"], izin: "MENUNGGU" },
-    { id: org.tpst, kode: "ORG-TPSTC", nama: "TPST Contoh", jenis: "PENERIMA", jp: "TPA_TPST", aliran: ["ABU"], izin: "TERVERIFIKASI" },
-    { id: org.b3, kode: "ORG-FB3C", nama: "Fasilitas B3 Contoh", jenis: "PENERIMA", jp: "FASILITAS_BERIZIN", aliran: ["MERAH"], izin: "TERVERIFIKASI" },
-    { id: org.tps3r, kode: "ORG-TPS3RC", nama: "TPS3R Contoh", jenis: "PENERIMA", jp: "TPS3R", aliran: ["HIJAU"], izin: "TERVERIFIKASI" },
-    { id: org.internal, kode: "ORG-INTERNAL", nama: "Admin SERAH (contoh)", jenis: "INTERNAL", jp: null, aliran: [], izin: "BELUM_DIAJUKAN" },
+    { id: org.kawasan, kode: KODE_ORG_DEMO, nama: "Pasar Mekar Sari Kemayoran", jenis: "KAWASAN", jp: null, aliran: [], izin: "BELUM_DIAJUKAN" },
+    { id: org.pengangkut, kode: "ORG-ACB", nama: "PT Angkut Bersih Nusantara", jenis: "PENGANGKUT", jp: null, aliran: [], izin: "TERVERIFIKASI" },
+    { id: org.daurUlang, kode: "ORG-DUCM", nama: "CV Daur Ulang Mandiri", jenis: "PENERIMA", jp: "FASILITAS_BERIZIN", aliran: ["KUNING"], izin: "TERVERIFIKASI" },
+    { id: org.pelapakBerkah, kode: "ORG-PCBK", nama: "Pelapak Berkah Jaya", jenis: "PENERIMA", jp: "PELAPAK_BERIZIN", aliran: ["KUNING"], izin: "TERVERIFIKASI" },
+    { id: org.pelapakBaru, kode: "ORG-PCBR", nama: "Pelapak Sumber Rezeki", jenis: "PENERIMA", jp: "PELAPAK_BERIZIN", aliran: ["KUNING"], izin: "MENUNGGU" },
+    { id: org.tpst, kode: "ORG-TPSTC", nama: "TPST Rawa Kuning", jenis: "PENERIMA", jp: "TPA_TPST", aliran: ["ABU"], izin: "TERVERIFIKASI" },
+    { id: org.b3, kode: "ORG-FB3C", nama: "PT Pengelola Limbah B3 Sentosa", jenis: "PENERIMA", jp: "FASILITAS_BERIZIN", aliran: ["MERAH"], izin: "TERVERIFIKASI" },
+    { id: org.tps3r, kode: "ORG-TPS3RC", nama: "TPS3R Kemayoran Lestari", jenis: "PENERIMA", jp: "TPS3R", aliran: ["HIJAU"], izin: "TERVERIFIKASI" },
+    { id: org.internal, kode: "ORG-INTERNAL", nama: "Admin SERAH", jenis: "INTERNAL", jp: null, aliran: [], izin: "BELUM_DIAJUKAN" },
   ];
   for (const o of daftarOrg) {
     await sisip(k, "organisasi", {
@@ -70,7 +73,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       jenis: o.jenis,
       jenis_penerima: o.jp,
       aliran_diterima: o.aliran,
-      nomor_izin: o.izin === "BELUM_DIAJUKAN" ? null : `IZIN-CONTOH-${o.kode}`,
+      nomor_izin: o.izin === "BELUM_DIAJUKAN" ? null : `SK-IZIN-${o.kode}-2024`,
       status_izin: o.izin,
       yurisdiksi: "DKI",
       demo: true,
@@ -78,7 +81,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     });
   }
 
-  // ── Akun demo per peran (masuk lewat tombol demo, tanpa sandi) ───────────
+  // â”€â”€ Akun demo per peran (masuk lewat tombol demo, tanpa sandi) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const akun = [
     { peran: "PETUGAS", org: org.kawasan, pengurus: false },
     { peran: "PENGELOLA", org: org.kawasan, pengurus: true },
@@ -93,15 +96,15 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     await sisip(k, "keanggotaan", { id: idBaru(), pengguna_id: pengguna, organisasi_id: a.org, peran: a.peran, pengurus: a.pengurus, aktif: true, dibuat_pada: hari(60) });
   }
 
-  // ── Kawasan, TPS, kendaraan, kontrak, langganan ─────────────────────────
+  // â”€â”€ Kawasan, TPS, kendaraan, kontrak, langganan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const kawasan = idBaru();
   await sisip(k, "kawasan", {
     id: kawasan,
     organisasi_id: org.kawasan,
     kode: "KWS-PCS",
-    nama: "Pasar Contoh Sejahtera",
+    nama: "Pasar Mekar Sari Kemayoran",
     jenis: "KOMERSIAL",
-    alamat: "Alamat contoh, Kemayoran, Jakarta Pusat",
+    alamat: "Jl. Kemayoran Gempol Raya, Kemayoran, Jakarta Pusat",
     adm4: "31.71.03.1001",
     kode_kecamatan: "31.71.03",
     nama_kelurahan: "Kemayoran",
@@ -110,27 +113,28 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     dibuat_pada: hari(60),
   });
   const tps: { id: string; kode: string }[] = [];
-  for (const [i, kode] of (["TPS-PCS-01", "TPS-PCS-02"] as const).entries()) {
+  for (const t of DAFTAR_TPS) {
+    const kode = t.kode;
     const id = idBaru();
     tps.push({ id, kode });
-    // Token QR demo dapat ditebak (hanya DEMO_MODE) agar QR contoh bisa dicetak ulang: "demo-qr-<kode>".
+    // Token QR demo dapat ditebak (hanya DEMO_MODE) agar QR bisa dicetak ulang: "demo-qr-<kode>".
     const hashQr = createHash("sha256").update(`demo-qr-${kode}${pepper}`, "utf8").digest("hex");
     await sisip(k, "tps", {
       id,
       kawasan_id: kawasan,
       organisasi_id: org.kawasan,
       kode,
-      nama: `TPS ${i + 1} (contoh)`,
-      lat_e6: KOORDINAT_SEMENTARA[kode].lat,
-      lon_e6: KOORDINAT_SEMENTARA[kode].lon,
+      nama: t.nama,
+      lat_e6: t.lat,
+      lon_e6: t.lon,
       qr_token_hash: hashQr,
       qr_versi: 1,
       aktif: true,
       dibuat_pada: hari(60),
     });
   }
-  const kendaraan = [idBaru(), idBaru()];
-  for (const [i, plat] of ["B 9001 SRH", "B 9002 SRH"].entries()) {
+  const kendaraan = PLAT_KENDARAAN.map(() => idBaru());
+  for (const [i, plat] of PLAT_KENDARAAN.entries()) {
     await sisip(k, "kendaraan", { id: kendaraan[i], organisasi_id: org.pengangkut, plat, aktif: true, dibuat_pada: hari(60) });
   }
 
@@ -174,24 +178,27 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
   });
   await sisip(k, "peristiwa_langganan", { id: idBaru(), langganan_id: langganan, dari: null, ke: "UJI_COBA", sebab: "seed demo", dibuat_pada: sekarang });
 
-  // Tagihan contoh berstatus TERBIT agar alur bayar (Midtrans sandbox / transfer) bisa dicoba di /kawasan/langganan.
-  const hariIni = tanggalWib(sekarang);
-  const periodeIni = `${hariIni.slice(0, 4)}-${hariIni.slice(4, 6)}`;
-  const jt = tanggalWib(new Date(sekarang.getTime() + 14 * HARI_MS));
+  // Tagihan awal berstatus TERBIT (periode bulan lalu, jatuh tempo masih ke depan) agar alur bayar (Midtrans sandbox /
+  // transfer) bisa dicoba di /kawasan/langganan. Periode bulan berjalan dibiarkan kosong untuk tagihan yang diterbitkan cron.
+  const lalu = new Date(sekarang.getTime() - 31 * HARI_MS);
+  const tglLalu = tanggalWib(lalu);
+  const periodeLalu = `${tglLalu.slice(0, 4)}-${tglLalu.slice(4, 6)}`;
+  const jt = tanggalWib(new Date(sekarang.getTime() + 10 * HARI_MS));
   await sisip(k, "tagihan", {
     id: idBaru(),
-    nomor: `TGH-${periodeIni.replace("-", "")}-0001`,
+    nomor: `TGH-${periodeLalu.replace("-", "")}-0001`,
     organisasi_id: org.kawasan,
-    periode: periodeIni,
-    jumlah_tps: 2,
+    periode: periodeLalu,
+    jumlah_tps: DAFTAR_TPS.length,
     harga_per_tps_idr: 350000,
-    total_idr: 700000,
+    total_idr: DAFTAR_TPS.length * 350000,
     status: "TERBIT",
     jatuh_tempo: `${jt.slice(0, 4)}-${jt.slice(4, 6)}-${jt.slice(6, 8)}`,
-    dibuat_pada: sekarang,
+    dibuat_pada: lalu,
   });
+  await sisip(k, "penomoran", { jenis: "TGH", tanggal_atau_periode: periodeLalu, nomor_terakhir: 1 });
 
-  // ── Riwayat 30 hari sintetis ─────────────────────────────────────────────
+  // â”€â”€ Riwayat 30 hari sintetis â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const event: Event[] = [];
   const dasarEvent = { kawasanId: kawasan, orgKawasan: org.kawasan, orgPengangkut: null, orgPenerima: null, serahId: null, serahKode: null };
 
@@ -218,7 +225,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     if (kunciKelompok) wadahPer.set(kunciKelompok, [...(wadahPer.get(kunciKelompok) ?? []), w]);
   }
 
-  // Blok 3 hari × 10 (hari ke-30 … ke-1 sebelum hari ini): KUNING & ABU per TPS, lalu diserahkan per blok.
+  // Blok 3 hari Ã— 10 (hari ke-30 â€¦ ke-1 sebelum hari ini): KUNING & ABU per TPS, lalu diserahkan per blok.
   for (let blok = 0; blok < 10; blok++) {
     for (let d = 0; d < 3; d++) {
       const hariKe = 30 - blok * 3 - d;
@@ -238,19 +245,22 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     }
   }
 
-  // 40 serah: urutan kronologis; 5 terakhir sedang berjalan.
+  // Serah (jumlah TPS Ã— 2 aliran Ã— 10 blok): urutan kronologis; 5 terakhir sedang berjalan.
   type RencanaSerah = { tps: { id: string; kode: string }; aliran: string; blok: number };
   const rencana: RencanaSerah[] = [];
-  for (let blok = 0; blok < 10; blok++) for (const t of tps) for (const aliran of ["KUNING", "ABU"]) rencana.push({ tps: t, aliran, blok });
+  // Blok terakhir: TPS lain lebih dulu, TPS-PCS-01 dan TPS-PCS-02 terakhir, sehingga serah berjalan (MENGGANTUNG, DIANGKUT,
+  // MENUNGGU_SETUJU, DRAF) jatuh di dua TPS itu seperti pada seed awal; TPS lain tetap punya riwayat penuh.
+  for (let blok = 0; blok < 10; blok++) for (const t of blok === 9 ? [...tps.slice(2).reverse(), ...tps.slice(0, 2)] : tps) for (const aliran of ["KUNING", "ABU"]) rencana.push({ tps: t, aliran, blok });
 
-  const kuningSelesai = rencana.map((r, i) => (r.aliran === "KUNING" && i < 35 ? i : -1)).filter((i) => i >= 0);
-  const indeksDitolak = new Set([kuningSelesai[3], kuningSelesai[8], kuningSelesai[13]]);
-  const indeksSebagian = new Set([1, 5, 7, 10, 12, 15, 16].map((n) => kuningSelesai[n]));
+  const total = rencana.length;
+  const kuningSelesai = rencana.map((r, i) => (r.aliran === "KUNING" && i < total - 5 ? i : -1)).filter((i) => i >= 0);
+  const indeksDitolak = new Set(kuningSelesai.filter((_, n) => n % 9 === 3));
+  const indeksSebagian = new Set(kuningSelesai.filter((_, n) => n % 4 === 1));
   const statusUntuk = (i: number): string => {
-    if (i === 39) return "DRAF";
-    if (i === 38) return "MENUNGGU_SETUJU";
-    if (i === 37) return "DIANGKUT";
-    if (i === 36 || i === 35) return "MENGGANTUNG";
+    if (i === total - 1) return "DRAF";
+    if (i === total - 2) return "MENUNGGU_SETUJU";
+    if (i === total - 3) return "DIANGKUT";
+    if (i === total - 4 || i === total - 5) return "MENGGANTUNG";
     if (indeksDitolak.has(i)) return "DITOLAK";
     if (indeksSebagian.has(i)) return "DITERIMA_SEBAGIAN";
     return "DITERIMA";
@@ -270,7 +280,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       DRAF: new Date(sekarang.getTime() - 1 * JAM_MS),
       MENUNGGU_SETUJU: new Date(sekarang.getTime() - 3 * JAM_MS),
       DIANGKUT: new Date(sekarang.getTime() - 6 * JAM_MS),
-      MENGGANTUNG: new Date(sekarang.getTime() - (i === 36 ? 26 : 30) * JAM_MS),
+      MENGGANTUNG: new Date(sekarang.getTime() - (i === total - 4 ? 26 : 30) * JAM_MS),
     };
     const dibuat = jadwal[status] ?? new Date(akhirBlok.getTime() + 14 * JAM_MS);
     const tanggal = tanggalWib(dibuat);
@@ -280,7 +290,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     const serahId = idBaru();
     const penerima = penerimaUntuk(r.aliran, i);
     const sudahAmbil = status !== "DRAF";
-    const kendaraanId = kendaraan[i % 2] ?? null;
+    const kendaraanId = kendaraan[i % kendaraan.length] ?? null;
     const tAmbil = new Date(dibuat.getTime() + 60 * 60_000);
     const tSetuju = new Date(dibuat.getTime() + 75 * 60_000);
     const tTutup = new Date(dibuat.getTime() + 3 * JAM_MS);
@@ -331,7 +341,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
 
     // Penutupan
     const totalTps = wadah.reduce((s, w) => s + w.beratG, 0);
-    const melenceng = i === 6 || i === 22; // dua tiket memicu R-08 (>20%) di demo
+    const melenceng = i % 17 === 6; // dua tiket memicu R-08 (>20%) di demo
     const beratTiket = melenceng ? Math.round(totalTps * 1.25) : totalTps + antara(-300, 300);
     const ditolak = status === "DITOLAK" ? beratTiket : status === "DITERIMA_SEBAGIAN" ? Math.round(beratTiket * (0.1 + acak() * 0.3)) : 0;
     const alasan = ditolak > 0 ? (alasanTolak[i % alasanTolak.length] ?? "LAINNYA") : null;
@@ -355,7 +365,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       id: tiket,
       serah_id: serahId,
       foto_id: fotoTiket,
-      nomor: `TK-CONTOH-${String(i + 1).padStart(3, "0")}`,
+      nomor: `TT-${String(i + 1).padStart(4, "0")}`,
       berat_g: beratTiket,
       sumber: pakaiAi ? "AI_DIKONFIRMASI" : "MANUAL",
       ai_model: pakaiAi ? "claude-haiku-5-5" : null,
@@ -383,7 +393,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     serahSelesai.push({ id: serahId, kode, wadah });
   }
 
-  // ── Permintaan koreksi: 3 disetujui (→ 3 koreksi wadah) + 1 menunggu ─────
+  // â”€â”€ Permintaan koreksi: 3 disetujui (â†’ 3 koreksi wadah) + 1 menunggu â”€â”€â”€â”€â”€
   const nomorPkr = new Map<string, number>();
   const sasaran = [serahSelesai[2], serahSelesai[9], serahSelesai[17], serahSelesai[25]];
   for (const [n, s] of sasaran.entries()) {
@@ -405,14 +415,14 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       org_kawasan_id: org.kawasan,
       org_penerima_id: null,
       nilai_usulan_g: usulan,
-      alasan: "Contoh: salah ketik berat di TPS",
+      alasan: "Salah ketik berat di TPS",
       peran_pengaju: "PETUGAS",
       dibuat_pada: tAju,
     });
     event.push({ ...dasarEvent, t: tAju, jenis: "PERMINTAAN_KOREKSI_DIAJUKAN", peran: "PETUGAS", payload: { permintaanId: pkr, kode: kodePkr, targetJenis: "WADAH", targetId: w.id, nilaiUsulanG: usulan } });
     if (n === 3) continue; // yang keempat dibiarkan menunggu keputusan
     const tPutus = new Date(tAju.getTime() + JAM_MS);
-    await sisip(k, "permintaan_koreksi_putusan", { id: idBaru(), permintaan_id: pkr, keputusan: "DISETUJUI", alasan: "Contoh: sesuai buku TPS", peran: "PENGELOLA", dibuat_pada: tPutus });
+    await sisip(k, "permintaan_koreksi_putusan", { id: idBaru(), permintaan_id: pkr, keputusan: "DISETUJUI", alasan: "Sesuai buku catatan TPS", peran: "PENGELOLA", dibuat_pada: tPutus });
     await sisip(k, "koreksi", {
       id: idBaru(),
       target_jenis: "WADAH",
@@ -422,7 +432,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       org_kawasan_id: org.kawasan,
       nilai_asli_g: w.beratG,
       nilai_final_g: usulan,
-      alasan: "Contoh: sesuai buku TPS",
+      alasan: "Sesuai buku catatan TPS",
       peran: "PENGELOLA",
       permintaan_id: pkr,
       dibuat_pada: tPutus,
@@ -430,7 +440,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     event.push({ ...dasarEvent, t: tPutus, jenis: "PERMINTAAN_KOREKSI_DISETUJUI", peran: "PENGELOLA", payload: { permintaanId: pkr, nilaiAsliG: w.beratG, nilaiFinalG: usulan } });
   }
 
-  // ── Rantai: event disisipkan berurutan waktu; hash dihitung fungsi SQL hash_event (satu sumber kebenaran) ──
+  // â”€â”€ Rantai: event disisipkan berurutan waktu; hash dihitung fungsi SQL hash_event (satu sumber kebenaran) â”€â”€
   event.sort((a, b) => a.t.getTime() - b.t.getTime());
   let prev = "0".repeat(64);
   for (const [n, e] of event.entries()) {
@@ -445,10 +455,10 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
     prev = rows[0]?.hash ?? prev;
   }
 
-  // ── Penomoran harian (kode baru melanjutkan nomor seed) ──────────────────
+  // â”€â”€ Penomoran harian (kode baru melanjutkan nomor seed) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   for (const [tgl, nomor] of nomorHarian) await sisip(k, "penomoran", { jenis: "SRH", tanggal_atau_periode: tgl, nomor_terakhir: nomor });
   for (const [tgl, nomor] of nomorPkr) await sisip(k, "penomoran", { jenis: "PKR", tanggal_atau_periode: tgl, nomor_terakhir: nomor });
 
-  tulis(`✓ demo: ${daftarOrg.length} organisasi, ${rencana.length} serah, ${event.length} event berantai`);
+  tulis(`âœ“ demo: ${daftarOrg.length} organisasi, ${rencana.length} serah, ${event.length} event berantai`);
   return true;
 }

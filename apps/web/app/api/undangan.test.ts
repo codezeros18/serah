@@ -45,7 +45,7 @@ async function akunTerverifikasi(): Promise<{ email: string; cookie: string; id:
   return { email, cookie, id: (await ambilSesi(cookie)).pengguna.id };
 }
 
-/** Pengelola demo mengundang `email` sebagai PETUGAS ke Pasar Contoh Sejahtera; kembalikan token undangan. */
+/** Pengelola demo mengundang `email` sebagai PETUGAS ke Pasar Mekar Sari Kemayoran; kembalikan token undangan. */
 async function undangPetugas(email: string): Promise<string> {
   const r = await undang(permintaan("/api/undangan", { cookie: cookiePengelola, body: { email, peran: "PETUGAS" } }));
   expect(r.status).toBe(200);
@@ -74,7 +74,7 @@ describe("S07-2 undangan", () => {
     const baris = await kueriPemilik(`SELECT * FROM token_sekali WHERE jenis = 'UNDANGAN' AND organisasi_id = $1 ORDER BY dibuat_pada DESC LIMIT 1`, [org["ORG-PCS"]]);
     expect(baris[0]).toMatchObject({ peran: "PETUGAS", pengguna_id: null });
     expect(JSON.stringify(baris[0])).not.toContain(email);
-    expect(rekam.terkirim.at(-1)?.teks).toContain("Pasar Contoh Sejahtera");
+    expect(rekam.terkirim.at(-1)?.teks).toContain("Pasar Mekar Sari Kemayoran");
   });
 
   it("menolak: peran tak sesuai jenis organisasi, field organisasi dari klien, anggota bukan pengurus", async () => {
@@ -179,7 +179,7 @@ describe("S07-3 akun pribadi", () => {
     expect(r.headers.get("content-disposition")).toMatch(/attachment/);
     const d = (await r.json()).data;
     expect(d.pengguna.email).toBe(p.email);
-    expect(d.keanggotaan).toEqual([expect.objectContaining({ organisasiNama: "Pasar Contoh Sejahtera", peran: "PETUGAS", aktif: true })]);
+    expect(d.keanggotaan).toEqual([expect.objectContaining({ organisasiNama: "Pasar Mekar Sari Kemayoran", peran: "PETUGAS", aktif: true })]);
     expect(d.persetujuan).toEqual([expect.objectContaining({ versi: VERSI, jenis: "LAYANAN" })]);
     expect(JSON.stringify(d)).not.toContain("demo.serah.id");
   });

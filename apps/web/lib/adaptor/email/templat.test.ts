@@ -9,7 +9,7 @@ const TAUTAN = "https://serah.contoh/verifikasi?token=abc";
 const semua: [string, Templat][] = [
   ["verifikasi", templatVerifikasi(TAUTAN)],
   ["reset", templatReset(TAUTAN)],
-  ["undangan", templatUndangan(TAUTAN, "Pasar Contoh Sejahtera", "PERAN_PETUGAS")],
+  ["undangan", templatUndangan(TAUTAN, "Pasar Mekar Sari Kemayoran", "PERAN_PETUGAS")],
   ["notifikasi", templatNotifikasi("NTF_SERAH_MENUNGGU_SETUJU", { kode: "SRH-20261015-0001" }, TAUTAN)],
   ["tagihan", templatTagihan("TGH-202610-0001", "700.000")],
 ];
@@ -34,8 +34,8 @@ describe("templat email dari teks §M", () => {
   });
 
   it("isi undangan memakai nama organisasi & label peran dari TEKS", () => {
-    const p = susunEmail("x@contoh.test", templatUndangan(TAUTAN, "Pasar Contoh Sejahtera", "PERAN_PETUGAS"));
-    expect(p.teks).toContain(isi("UND_PENJELASAN", { nama_organisasi: "Pasar Contoh Sejahtera", peran: TEKS.PERAN_PETUGAS }));
+    const p = susunEmail("x@contoh.test", templatUndangan(TAUTAN, "Pasar Mekar Sari Kemayoran", "PERAN_PETUGAS"));
+    expect(p.teks).toContain(isi("UND_PENJELASAN", { nama_organisasi: "Pasar Mekar Sari Kemayoran", peran: TEKS.PERAN_PETUGAS }));
     expect(p.subjek).toBe(isi("EMAIL_SUBJEK_NOTIFIKASI", { judul: TEKS.UND_JUDUL }));
   });
 });

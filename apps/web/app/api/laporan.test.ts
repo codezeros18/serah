@@ -150,9 +150,9 @@ describe("T14 integrasi — tiga laporan dari satu serah identik", () => {
         tpsKode: a.kodeTps,
         kawasanNama: a.nama,
         kawasanAlamat: "Jl. Uji S11 No. 1",
-        pengangkutNama: "Angkut Contoh Bersih",
+        pengangkutNama: "PT Angkut Bersih Nusantara",
         plat: "B 9001 SRH",
-        penerimaNama: "Daur Ulang Contoh Mandiri",
+        penerimaNama: "CV Daur Ulang Mandiri",
         penerimaJenis: "FASILITAS_BERIZIN",
         status: "DITERIMA_SEBAGIAN",
         sidikEvent: sidik.hash,
@@ -298,7 +298,7 @@ describe("S11-5 — akses per pihak", () => {
       expect(tanpaFilter.total).toEqual([]);
       const csv = await unduh(cookie, pihak, `periode=${periode}&format=csv`);
       expect(csv.status).toBe(200);
-      expect((await csv.text()).split("\r\n").filter(Boolean)).toHaveLength(2); // header + catatan, tanpa data siapa pun
+      expect((await csv.text()).split("\r\n").filter(Boolean)).toHaveLength(3); // sep=; + header + catatan, tanpa data siapa pun
     }
   });
 
