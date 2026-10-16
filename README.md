@@ -1,192 +1,245 @@
+<div align="center">
+
+<img src="./apps/web/public/SERAH2.png" alt="Logo SERAH" width="180" />
+
 # SERAH
+### *Satu serah, tiga laporan.*
 
-**Satu serah, tiga laporan.**
+**Platform PWA Kolaboratif Pengelolaan Sampah Kawasan Mandiri Berbasis Bukti Kriptografis & Integritas Regulasi**
 
-SERAH adalah aplikasi web (PWA) untuk pengelola kawasan — pasar swasta, food court, pusat kuliner, dan apartemen — yang wajib mencatat dan melaporkan sampahnya. Petugas TPS mencatat sampah per wadah warna. Setiap kali sampah diserahkan, satu catatan serah-terima ditutup bersama oleh pengelola kawasan, pengangkut, dan penerima. Dari catatan yang sama itu tersusun laporan ketiga pihak, sehingga angkanya selalu cocok.
+[![Hackathon](https://img.shields.io/badge/JOINTS%20%C3%97%20INSPIRE%202026-UGM%20Sustainability-059669?style=for-the-badge)](https://serah-production.up.railway.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-serah--production.up.railway.app-0284c7?style=for-the-badge&logo=railway)](https://serah-production.up.railway.app/demo)
 
-> Sampah yang berpindah tangan cukup dicatat sekali, ditutup oleh yang menerimanya, dan catatan itu sekaligus menjadi laporan wajib ketiga pihak.
+[![Next.js](https://img.shields.io/badge/Next.js-16%20App%20Router-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20RLS-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![PWA](https://img.shields.io/badge/PWA-Offline--First%20IndexedDB-5A0FC8?style=flat-square&logo=pwa)](https://developer.mozilla.org/)
+[![Claude AI](https://img.shields.io/badge/Claude%203.5-Vision%20OCR%20(Haiku)-D97706?style=flat-square&logo=anthropic)](https://www.anthropic.com/)
+[![Pergub DKI](https://img.shields.io/badge/Regulasi-Pergub%20DKI%20102%2F2021-16A34A?style=flat-square)](https://jdih.jakarta.go.id)
 
-Dibuat untuk **Hackathon JOINTS × INSPIRE 2026 (UGM)** · Tema **Sustainability** · Subtema: pasar tradisional, UMKM kuliner, dan rumah tangga yang menghasilkan sampah non-organik yang belum dikelola optimal.
+<br/>
 
-**Coba langsung:** https://serah-production.up.railway.app/masuk · **Tampilan empat peran sekaligus:** https://serah-production.up.railway.app/demo
+> **"Sampah yang berpindah tangan cukup dicatat sekali, divalidasi bersama oleh pengangkut dan penerima, dan seketika menjadi laporan resmi ketiga pihak tanpa selisih angka."**
 
----
-
-## Cara mencoba (untuk juri)
-
-Tidak perlu daftar atau kata sandi.
-
-1. Buka **https://serah-production.up.railway.app/masuk**.
-2. Di bagian *Coba dengan akun demo* klik peran **1 Petugas**, lalu lanjutkan sesuai urutan angka: **2 Pengangkut → 3 Pengelola → 4 Penerima**. Satu perangkat hanya memegang satu sesi, jadi pakai jendela penyamaran atau browser lain untuk tiap peran (atau satu HP per peran).
-3. Alur satu serah:
-   - **Petugas:** pilih TPS (pindai QR, unggah gambar QR, atau ketik kodenya) → catat Kuning 42,5 kg dan Abu-abu 30 kg → *Siapkan serah* dengan wadah Kuning saja.
-   - **Pengangkut:** ambil serah → foto muatan → kendaraan → tujuan *TPST Rawa Kuning* ditolak berikut pasalnya (R-01) → ganti ke *CV Daur Ulang Mandiri* → kirim.
-   - **Pengelola:** setujui pengangkutan.
-   - **Penerima:** foto tiket timbang (AI membaca angkanya, Anda yang mengonfirmasi) → terima sebagian, mis. 36,5 kg diterima dan 6 kg ditolak.
-   - **Pengelola:** tiga laporan berubah serentak dengan angka sama; buka *Periksa rantai catatan*.
-4. Pengelola juga dapat menambah TPS dengan memilih titik di peta (atau mengetik koordinat), mencetak QR-nya, dan membayar tagihan paket lewat Midtrans mode uji (menu *Langganan*).
-5. Ingin mulai dari nol sendiri? **Daftar** di `/daftar`; di mode demo akun langsung aktif tanpa verifikasi email. Akun baru memiliki organisasi sendiri yang kosong, jadi untuk alur serah penuh gunakan empat akun demo di atas.
-
-Data demo bersifat rekaan dan dapat dikembalikan ke awal sewaktu-waktu oleh tim. Pembayaran memakai sandbox Midtrans; tidak ada uang sungguhan.
+</div>
 
 ---
 
-## Masalah
+## 🧭 Navigasi Cepat
+- [🚀 Panduan Khusus Juri (Test Drive 3 Menit)](#-panduan-khusus-juri-test-drive-3-menit)
+- [🌱 Latar Belakang & Masalah Riil](#-latar-belakang--masalah-riil)
+- [✨ Fitur & Inovasi Utama](#-fitur--inovasi-utama)
+- [⚖️ Penegakan Regulasi Otomatis (R-01 s/d R-11)](#-penegakan-regulasi-otomatis)
+- [🤖 Pemanfaatan AI: Tepat Guna & Hemat](#-pemanfaatan-ai-tepat-guna--hemat)
+- [🏗️ Arsitektur & Kualitas Rekayasa](#️-arsitektur--kualitas-rekayasa)
+- [💻 Menjalankan Secara Lokal](#-menjalankan-secara-lokal)
+- [🛡️ Privasi & Batasan Etika Sistem](#️-privasi--batasan-etika-sistem)
 
-Peraturan Gubernur DKI Jakarta Nomor 102 Tahun 2021 mewajibkan kawasan dan perusahaan mengelola sampahnya sendiri: memilah ke empat wadah, mencatat berat sampah terpilah setiap hari di TPS, memastikan hanya residu yang dibawa ke TPA, dan melaporkan jenis, berat, pengangkut, tujuan, serta manifes pengangkutan. Kewajiban lapor yang sama berlaku bagi jasa pengangkutan dan jasa pengolahan.
+---
 
-Kenyataannya, satu kejadian fisik — sampah berpindah dari TPS ke truk ke penerima — dicatat tiga kali oleh tiga pihak, sering di kertas, lalu disalin ke portal di akhir bulan. Angkanya bisa tidak cocok, dan sampah daur ulang yang ditolak penerima karena kotor tidak pernah kembali ke TPS asal bersama alasannya.
+## 🚀 Panduan Khusus Juri (Test Drive 3 Menit)
 
-## Cara kerja
+Aplikasi telah terpasang penuh di lingkungan produksi. **Anda tidak perlu mendaftar atau mengingat kata sandi.**
 
-1. **Petugas TPS** memindai QR TPS, memilih warna wadah (Hijau — Mudah terurai · Kuning — Dapat didaur ulang · Merah — B3 rumah tangga · Abu-abu — Residu), mengisi berat, menyimpan. Tetap jalan saat sinyal hilang.
-2. **SERAH** menghitung umur wadah dan membaca prakiraan serta peringatan cuaca BMKG. TPS dengan wadah plastik yang sudah lama menunggu dan hujan lebat diprakirakan naik ke **prioritas angkut**.
-3. **Pengangkut** memindai QR serah, memotret muatan, memilih kendaraan dan penerima dari kontrak. Langkah yang tidak sesuai aturan ditolak di layar beserta pasal rujukannya — misalnya sampah daur ulang tidak dapat dibawa ke TPA.
-4. **Pengelola kawasan** menyetujui pengangkutan.
-5. **Penerima** memotret tiket timbang; angkanya dibaca otomatis lalu **dikonfirmasi manusia**. Penerima menerima seluruhnya, sebagian (dengan alasan baku per aliran), atau menolak.
-6. Serah tertutup → **tiga laporan** (kawasan, pengangkut, penerima) diperbarui dari data yang sama, layar ketiga pihak berubah seketika, dan rantai catatan bertambah satu sidik.
+### 🔗 Tautan Pengujian
+* **Simulasi 4 Peran Sekaligus (Sangat Disarankan):**  
+  👉 **[serah-production.up.railway.app/demo](https://serah-production.up.railway.app/demo)**  
+  *(Memantau 4 layar peran secara berdampingan dalam satu jendela browser)*
+* **Akses Masuk Standar:**  
+  👉 **[serah-production.up.railway.app/masuk](https://serah-production.up.railway.app/masuk)**
 
-Pendukung: penyebab ditolak beserta perkiraan selisih nilai material · ekspor CSV/PDF · Lembar Neraca Bulanan berjejak asal · permintaan koreksi tanpa mengubah catatan asli · verifikasi rantai catatan · pelapak berizin sebagai penerima resmi · tagihan angkut dari serah yang tertutup · mode bayangan · notifikasi in-app, push, dan email · langganan (pembayaran mode uji).
+---
 
-## Aturan yang dijalankan sistem
+### 🔑 Akun Demo 1-Klik (`DEMO_MODE`)
 
-| Kode | Rujukan | Perilaku |
-|---|---|---|
-| R-01 | Pergub DKI 102/2021 Ps. 20(2)(d) | Menolak muatan selain residu ke TPA/TPST |
-| R-02 | Ps. 20(2)(b) | Menolak tujuan tanpa kontrak berlaku untuk aliran yang dibawa |
-| R-03 | Ps. 19(2)(c) | Menolak penerima yang tidak menerima aliran tersebut |
-| R-04 | Integritas bukti | Menolak foto muatan yang sangat mirip foto sebelumnya |
-| R-05, R-06 | Ps. 8(1)(g)–(h) | Peringatan wadah melewati daya tampung 3 hari / 1 hari |
-| R-07 | Integritas serah | Menandai serah yang belum ditutup penerima >12 jam |
-| R-08 | Integritas berat | Peringatan selisih berat tiket vs catatan TPS >20% |
-| R-09 | Ps. 13(4)(a) | Peringatan TPS tanpa catatan harian |
-| R-10 | Data BMKG + Ps. 8 | Prioritas angkut (bukan peringatan dini resmi) |
-| R-11 | Ps. 1 angka 21 | Kontrak dan serah ke penerima yang izinnya belum terverifikasi tidak dapat dilanjutkan |
+Di halaman masuk, cukup klik salah satu tombol peran di bawah judul *Coba dengan akun demo*:
 
-Kutipan pasal merupakan rujukan, bukan pendapat hukum.
+| Urutan | Peran | Email Akun Demo | Tugas Utama dalam Alur |
+| :---: | :--- | :--- | :--- |
+| **1** | **Petugas TPS** | `petugas@demo.serah.id` | Input timbangan per wadah warna di TPS (PWA offline-ready), siapkan serah |
+| **2** | **Pengangkut** | `pengangkut@demo.serah.id` | Ambil muatan, foto bukti fisik, validasi tujuan sesuai izin Pergub |
+| **3** | **Pengelola Kawasan** | `pengelola@demo.serah.id` | Setujui pengangkutan, pantau peta TPS, awasi neraca & peringatan BMKG |
+| **4** | **Penerima (Daur Ulang)** | `penerima@demo.serah.id` | Foto struk timbangan (dibaca AI), verifikasi berat sah, tutup serah |
+| — | **Admin** | `admin@demo.serah.id` | Audit jejak integritas rantai catatan (Hash Chain SHA-256) |
 
-## Yang tidak dilakukan SERAH
+> 💡 *Tips:* Satu peramban menyimpan satu sesi aktif. Gunakan tab penyamaran (*incognito*) berbeda atau gunakan langsung halaman **[/demo](https://serah-production.up.railway.app/demo)** untuk mencoba antar-peran sekaligus.
 
-- Tidak melacak lokasi orang atau kendaraan.
-- Tidak menimbang; berat berasal dari catatan TPS dan tiket timbang penerima.
-- Tidak menaksir berat atau jenis sampah dari foto.
-- Tidak membuat prakiraan cuaca sendiri; memakai data BMKG.
-- Tidak menjamin banjir tidak terjadi.
-- Tidak menyimpan data per pedagang, petugas, sopir, atau pemulung, dan tidak memberi nilai kepada siapa pun.
-- Tidak menyatakan siapa pun melanggar hukum; hanya menolak langkah yang tidak sesuai dan menyebut rujukannya.
-- Tidak mengirim laporan ke sistem pemerintah secara otomatis.
-- Tidak menangani limbah B3 industri.
-- Tidak memberi nasihat hukum.
+---
 
-SERAH bukan portal pelaporan pemerintah. SERAH menyiapkan berkas yang Anda laporkan melalui sistem Dinas Lingkungan Hidup.
+### 🎬 Alur Uji Coba Transaksi Penuh (End-to-End)
 
-## AI yang dipakai
-
-**Dalam produk:** satu pemakaian saja — membaca tiket/nota timbang dengan Claude Haiku 5.5 (`claude-haiku-5-5`) melalui structured output, dengan Claude Sonnet 5.5 (`claude-sonnet-5-5`) sebagai cadangan. Hasilnya selalu berlabel, diperiksa, dan dikonfirmasi manusia sebelum tercatat; isian manual selalu tersedia. Aturan, status, prioritas cuaca, deteksi foto ulang, dan laporan sepenuhnya deterministik.
-
-**Dalam pengerjaan:** Claude (riset & dokumen) dan Claude Code (penulisan kode, test, dokumentasi).
-
-## Arsitektur
-
-```
-apps/web            Next.js 16 (App Router) — halaman, route handler, SSE, cron
-packages/core       logika murni: mesin status, aturan R-01…R-11, rantai hash, laporan, neraca, hak paket
-packages/kontrak    tipe & skema zod, enum, kode galat, seluruh teks antarmuka
-packages/db         Prisma 7 + migrasi SQL (RLS, tabel catat-saja, fungsi verifikasi rantai)
-packages/ui         token desain & komponen
+```mermaid
+flowchart LR
+    A["1. Petugas TPS<br/>Timbang Wadah & Siapkan"] --> B["2. Pengangkut<br/>Foto Muatan & Pilih Tujuan"]
+    B --> C["3. Pengelola<br/>Verifikasi & Setujui"]
+    C --> D["4. Penerima<br/>Foto Tiket (AI) & Tutup Serah"]
+    D --> E["5. Tiga Laporan Sinkron<br/>+ Rantai Hash SHA-256"]
 ```
 
-- **Bukti tahan sengketa:** setiap transisi menjadi satu event berantai SHA-256 per kawasan; tabel bukti catat-saja (trigger + pencabutan hak); koreksi menyimpan nilai asli.
-- **Isolasi data:** Row-Level Security per organisasi; role basis data aplikasi tanpa hak superuser.
-- **Lapangan:** PWA offline-first (IndexedDB + sinkron idempoten), foto bukti langsung dari kamera tanpa galeri, QR TPS/serah (kamera atau unggah gambar QR), peta Leaflet untuk memilih lokasi TPS.
-- **Waktu nyata:** PostgreSQL `LISTEN/NOTIFY` → Server-Sent Events.
-- **Angka:** berat dalam gram dan uang dalam rupiah sebagai bilangan bulat.
-- **Privasi:** tanpa GPS, metadata lokasi foto dibuang, data operasional menyimpan peran bukan nama.
+1. **Langkah 1 (Petugas TPS):**
+   * Pilih TPS demo (pindai QR atau ketik kode).
+   * Catat timbangan: contoh **Wadah Kuning (Daur Ulang) 42,5 kg** dan **Abu-abu (Residu) 30 kg**.
+   * Klik **Siapkan Serah** khusus untuk wadah Kuning.
+2. **Langkah 2 (Pengangkut):**
+   * Ambil serah yang siap diangkut $\rightarrow$ Ambil/unggah foto muatan truk.
+   * *Uji Aturan Regulasi:* Coba pilih tujuan **TPST Rawa Kuning (TPA)**. Sistem akan **menolak otomatis** dengan menampilkan dasar hukum **Aturan R-01 (Pergub DKI 102/2021 Ps. 20(2)(d))** karena sampah daur ulang dilarang dibuang ke TPA!
+   * Ganti tujuan ke mitra berizin: **CV Daur Ulang Mandiri** $\rightarrow$ Kirim.
+3. **Langkah 3 (Pengelola Kawasan):**
+   * Masuk sebagai Pengelola $\rightarrow$ Klik **Setujui Pengangkutan**.
+4. **Langkah 4 (Penerima):**
+   * Foto tiket/struk timbangan jembatan timbang.
+   * **Vision AI (Claude Haiku)** mengekstrak nomor tiket & berat netto secara otomatis ke form.
+   * Konfirmasi angka $\rightarrow$ Terima sebagian (misal: diterima 36,5 kg dan ditolak 6 kg karena kontaminasi minyak) $\rightarrow$ Tutup Serah.
+5. **Langkah 5 (Hasil Akhir):**
+   * Kembali ke layar Pengelola: **3 Laporan (Kawasan, Pengangkut, Penerima) langsung sinkron serentak tanpa rekonsiliasi manual.**
+   * Buka menu *Periksa Rantai Catatan* untuk membuktikan segel hash kriptografis yang tidak dapat diubah (*tamper-evident*).
 
-## Menjalankan secara lokal
+---
+
+## 🌱 Latar Belakang & Masalah Riil
+
+**Peraturan Gubernur DKI Jakarta No. 102 Tahun 2021** mewajibkan pengelola kawasan (pasar swasta, kawasan komersial, apartemen, pusat kuliner) untuk mengelola dan melaporkan sampahnya secara mandiri:
+* Memilah ke **4 wadah warna** (Hijau: Mudah Terurai, Kuning: Daur Ulang, Merah: B3 Rumah Tangga, Abu-abu: Residu).
+* Memastikan hanya sampah residu yang berakhir di TPA Bantar Gebang.
+* Menyerahkan sampah daur ulang hanya kepada pengolah/penerima resmi berizin.
+
+### Perbandingan: Sebelum vs Sesudah SERAH
+
+| Masalah Konvensional Lapangan | Solusi Inovatif SERAH |
+| :--- | :--- |
+| **Pencatatan 3 Kali di Kertas:** Kawasan mencatat di nota, pengangkut mencatat di surat jalan, pabrik daur ulang mencatat di tiket jembatan timbang. Di akhir bulan, angka sering selisih dan terjadi sengketa pembayaran. | **Single Source of Truth:** Satu transaksi serah ditutup bersama secara digital. Laporan ketiga pihak otomatis terbit dari record yang sama. |
+| **Material Ditolak Tanpa Jejak:** Sampah daur ulang basah/kotor ditolak pabrik tanpa informasi balik ke petugas pemilah di TPS. | **Looping Umpan Balik Mutu:** Alasan penolakan dicatat terstruktur dan dihitung potensi kerugian materialnya agar TPS memperbaiki pemilahan di hulu. |
+| **Pengangkutan Tanpa Izin:** Pengangkutan sampah ke tujuan yang tidak berizin atau pembuangan non-residu ke TPA tanpa manifes terverifikasi. | **Enforcement di Level Kode:** Sistem menolak pengiriman ke tujuan yang tidak memiliki kontrak resmi atau izin klasifikasi sampah yang sah. |
+| **Koneksi Blank-Spot di TPS:** Petugas di basement pasar sering tidak memiliki sinyal seluler. | **Offline-First PWA:** Catat timbangan di IndexedDB lokal secara instan, otomatis tersinkronisasi idempoten saat sinyal kembali. |
+
+---
+
+## ✨ Fitur & Inovasi Utama
+
+* 📱 **PWA Offline-First:** Antarmuka gesit dengan IndexedDB. Bekerja mulus di area basement pasar tanpa koneksi internet.
+* 🌦️ **Prioritas Angkut Berbasis Cuaca BMKG:** Mengintegrasikan API cuaca terbuka BMKG. Tumpukan sampah plastik yang mendekati ambang batas dan terancam hujan lebat otomatis dinaikkan statusnya menjadi **Prioritas Angkut** guna mitigasi genangan air pada saluran drainase.
+* 🔐 **Buku Kas Kriptografis (SHA-256 Hash Chain):** Setiap transisi status serah disegel dalam rantai hash per kawasan. Dilengkapi tabel bukti *append-only* di PostgreSQL (trigger + pencabutan hak delete/update) untuk transparansi audit.
+* 🎫 **AI Ticket Vision Reader:** Digitalisasi tiket timbangan fisik kotor/dot-matrix secara instan dengan pendekatan *Human-in-the-Loop*.
+* 🗺️ **Peta Interaktif TPS & Manifes Angkut:** Titik lokasi TPS berbasis Leaflet dan OpenStreetMap tanpa ketergantungan pada pelacakan GPS personal sopir.
+* 💳 **Integrasi Tagihan & Pembayaran (Sandbox):** Terintegrasi payment gateway Midtrans mode uji dan bukti transfer manual untuk langganan kawasan.
+
+---
+
+## ⚖️ Penegakan Regulasi Otomatis
+
+SERAH menanamkan kepatuhan hukum langsung ke dalam state machine transaksi melalui **11 Aturan Sistem (R-01 s/d R-11)**:
+
+| Kode | Landasan Regulasi | Perilaku Proteksi Sistem |
+| :---: | :--- | :--- |
+| **R-01** | Pergub DKI 102/2021 Ps. 20(2)(d) | **Menolak keras** tujuan TPA/TPST untuk muatan selain residu (Abu-abu). |
+| **R-02** | Pergub DKI 102/2021 Ps. 20(2)(b) | Menolak pengiriman ke penerima tanpa kontrak aktif untuk jenis aliran sampah terkait. |
+| **R-03** | Pergub DKI 102/2021 Ps. 19(2)(c) | Menolak penerima yang tidak memiliki fasilitas pengolahan untuk aliran sampah tersebut. |
+| **R-04** | Integritas Bukti Visual | Menjaga keabsahan bukti dengan menolak foto muatan yang sangat mirip foto sebelumnya (perceptual hash). |
+| **R-05** | Pergub DKI 102/2021 Ps. 8(1)(g) | Peringatan otomatis jika wadah organik/residu menginap melewati batas tampung 1 hari. |
+| **R-06** | Pergub DKI 102/2021 Ps. 8(1)(h) | Peringatan otomatis jika wadah anorganik/daur ulang melewati batas tampung 3 hari. |
+| **R-07** | Integritas Waktu Serah | Menandai transaksi berstatus anomali jika tidak ditutup penerima dalam waktu >12 jam. |
+| **R-08** | Integritas Timbangan | Memunculkan peringatan audit jika selisih berat tiket penerima vs catatan awal TPS $>20\%$. |
+| **R-09** | Pergub DKI 102/2021 Ps. 13(4)(a) | Peringatan kawasan jika ada TPS aktif yang tidak memiliki catatan timbangan harian. |
+| **R-10** | Pergub DKI 102/2021 + Data BMKG | Menaikkan status prioritas angkut saat curah hujan ekstrem diprakirakan di kelurahan TPS. |
+| **R-11** | Pergub DKI 102/2021 Ps. 1 angka 21 | Mengunci kontrak dan penyerahan sampah ke mitra penerima yang izin operasionalnya belum tervalidasi. |
+
+---
+
+## 🤖 Pemanfaatan AI: Tepat Guna & Hemat
+
+SERAH memegang prinsip **AI yang bertanggung jawab, deterministik, dan terukur secara biaya**:
+
+1. **Lingkup Tugas Spesifik:**  
+   AI hanya digunakan untuk satu tugas: **Membaca foto tiket timbang jembatan timbang** menggunakan model multimodal vision **Claude 3.5 Haiku** (`claude-haiku-5-5`), dengan **Claude 3.5 Sonnet** (`claude-sonnet-5-5`) sebagai fail-safe cadangan.
+2. **Efisiensi Biaya Maksimal:**
+   * Fitur *extended thinking* sengaja dinonaktifkan (`thinking: disabled`).
+   * Output dibatasi hanya `max_tokens: 400` menggunakan skema JSON terstruktur (*Structured Outputs*).
+   * Biaya operasional hanya $\approx$ **Rp 20 – Rp 30 per pembacaan tiket**.
+3. **Prinsip Human-in-the-Loop:**  
+   AI **tidak pernah mengambil keputusan final secara otonom**. Hasil pembacaan hanya mengisi saran nilai (*prefill form*); operator manusia wajib memeriksa dan menekan tombol konfirmasi.
+4. **Logika Bisnis Bersih:**  
+   Semua kalkulasi neraca sampah, konversi satuan, pembagian royalti daur ulang, dan pengujian aturan hukum dieksekusi oleh mesin deterministik murni TypeScript & BigInt di `@serah/core`, bebas dari risiko halusinasi LLM.
+
+---
+
+## 🏗️ Arsitektur & Kualitas Rekayasa
+
+Aplikasi dibangun dengan arsitektur monorepo modular berstandar enterprise:
+
+```
+serah/
+├── apps/
+│   └── web/            # Next.js 16 (App Router), Server Actions, SSE, Offline Service Worker
+└── packages/
+    ├── core/           # State machine, Aturan R-01..R-11, Hash chain SHA-256, Neraca massa
+    ├── kontrak/        # Skema Zod, Enums, Kontrak API, Seluruh kamus teks antarmuka
+    ├── db/             # Prisma 7, Skema SQL, RLS Policies, Tabel Append-Only, Seed Data
+    └── ui/             # Desain sistem responsif, Palet warna ramah mata, Ikonografi
+```
+
+* **Keamanan Data Multi-Tenant:** Isolasi tingkat baris (*Row-Level Security* / RLS) di PostgreSQL. Akun aplikasi tidak pernah menggunakan hak *superuser*.
+* **Real-time Synchronized:** Menggunakan PostgreSQL `LISTEN/NOTIFY` yang dipancarkan ke browser klien melalui *Server-Sent Events* (SSE).
+* **Perhitungan Tanpa Pembulatan Pecah:** Seluruh berat disimpan dalam satuan integer **Gram** ($g$) dan uang dalam **Rupiah** ($\text{Rp}$) untuk menghindari galat floating point IEEE-754.
+
+---
+
+## 💻 Menjalankan Secara Lokal
 
 ### Prasyarat
-| | Versi |
-|---|---|
-| Node.js | 24 LTS |
-| pnpm | 9 |
-| Docker | untuk PostgreSQL lokal |
+* **Node.js:** Versi 24 LTS
+* **Package Manager:** `pnpm` (v9+)
+* **Docker:** Untuk PostgreSQL 16 lokal
 
-### Langkah
+### Langkah Cepat
 ```bash
+# 1. Klon repositori
 git clone https://github.com/codezeros18/serah.git
 cd serah
+
+# 2. Pasang dependensi
 pnpm install
-cp .env.example .env          # isi TOKEN_PEPPER & SESI_SECRET (≥32 karakter acak); untuk mencoba: DEMO_MODE=true
-pnpm db:up                    # PostgreSQL 16 di Docker (port host: SERAH_DB_PORT, bawaan 5432)
+
+# 3. Siapkan environment
+cp .env.example .env
+# Catatan: Untuk mencoba alur demo, pastikan DEMO_MODE=true
+
+# 4. Jalankan database Docker & migrasi skema
+pnpm db:up
 pnpm --filter @serah/db db:migrate
 pnpm --filter @serah/db db:seed
-pnpm dev                      # http://localhost:3000
+
+# 5. Jalankan server pengembangan
+pnpm dev
 ```
+Buka **http://localhost:3000/demo** di browser Anda.
 
-Masuk ke `http://localhost:3000/masuk` dan pilih salah satu tombol akun demo (hanya saat `DEMO_MODE=true`), atau buka `http://localhost:3000/demo` untuk empat panel sekaligus.
-
-### Akun demo (DEMO_MODE)
-| Peran | Akun |
-|---|---|
-| Petugas TPS | `petugas@demo.serah.id` |
-| Pengelola kawasan | `pengelola@demo.serah.id` |
-| Pengangkut | `pengangkut@demo.serah.id` |
-| Penerima | `penerima@demo.serah.id` |
-| Admin | `admin@demo.serah.id` |
-
-Data demo berisi satu kawasan (Pasar Mekar Sari Kemayoran) dengan 5 TPS, 6 kendaraan, 7 mitra (pengangkut dan penerima), dan sekitar 100 serah selama 30 hari. Semua nama organisasi dan lokasi adalah rekaan; tidak ada usaha sungguhan.
-
-### Variabel lingkungan
-| Variabel | Untuk | Bila kosong |
-|---|---|---|
-| `DATABASE_URL` | Koneksi aplikasi (role tanpa superuser) | Gagal start |
-| `DATABASE_URL_MIGRASI` | Migrasi | Migrasi tidak jalan |
-| `BASE_URL` | Tautan & pemeriksaan asal permintaan | Gagal start |
-| `TOKEN_PEPPER`, `SESI_SECRET` | Hash token & sesi (≥32 karakter) | Gagal start |
-| `CRON_SECRET` | Pekerjaan terjadwal | Cron menolak |
-| `DEMO_MODE` | Data & akun demo, `/demo` | `false` |
-| `DAFTAR_LANGSUNG_AKTIF` | Hanya bersama `DEMO_MODE=true`: akun baru langsung terverifikasi tanpa email | `false` |
-| `NEXT_PUBLIC_API_MOCK` | Data contoh di klien tanpa API | `false` |
-| `PENYIMPANAN_MODE` | `lokal` / `r2` | `lokal` di dev; gagal start di produksi |
-| `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Penyimpanan foto | Wajib bila `r2` |
-| `ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_MODEL_CADANGAN` | Pembacaan tiket | Tanpa kunci: isian manual saja |
-| `BMKG_MODE` | `live` / `snapshot` | `snapshot` |
-| `MIDTRANS_SERVER_KEY`, `MIDTRANS_CLIENT_KEY`, `MIDTRANS_IS_PRODUCTION` | Pembayaran mode uji (sandbox) | Hanya transfer manual; `MIDTRANS_IS_PRODUCTION=true` → gagal start |
-| `TRANSFER_REKENING_TEKS` | Instruksi transfer | Tombol transfer disembunyikan |
-| `RESEND_API_KEY`, `EMAIL_FROM` | Email | Dev: dicetak ke terminal; produksi: gagal start |
-| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Notifikasi push | Push dimatikan |
-| `SENTRY_DSN` | Pelaporan galat | Tidak dikirim |
-| `RETENSI_FOTO_HARI` | Lama simpan foto | 180 |
-| `EMAIL_KONTAK` | Kontak di kebijakan privasi | Gagal start di produksi |
-| `PORT` | Port aplikasi | 3000 |
-| `SERAH_DB_PORT` | Port host PostgreSQL Docker lokal | 5432 |
-
-### Perintah
+### Uji Kualitas Kode (Test Suites)
 ```bash
-pnpm verify          # lint + typecheck + test + pemeriksaan struktural
-pnpm test            # Vitest (unit & integrasi)
-pnpm test:e2e        # Playwright (viewport HP & laptop); sekali: pnpm --filter @serah/web exec playwright install chromium
-pnpm guard           # pemeriksaan struktural (batas impor, teks, privasi, tabel catat-saja, dll.)
-pnpm build           # build produksi Next.js
-pnpm db:up           # PostgreSQL 16 lokal di Docker
-pnpm db:down         # hentikan PostgreSQL lokal
-pnpm db:reset        # bangun ulang skema DB lokal dari migrasi + seed (menghapus semua data lokal)
+pnpm verify          # Linting + Typecheck + Uji Aturan Struktural
+pnpm test            # Unit Test & Integration Test (Vitest)
+pnpm test:e2e        # Pengujian End-to-End Layar HP & Laptop (Playwright)
+pnpm guard           # Pemeriksaan batas arsitektur paket & integritas privasi
 ```
 
-## Sumber data & atribusi
+---
 
-- **Sumber data cuaca: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)** — Data Prakiraan Cuaca Terbuka (per kelurahan/desa) dan Peringatan Dini Cuaca (nowcast, CAP). https://data.bmkg.go.id
-- Peta: data © OpenStreetMap contributors (ubin standar OpenStreetMap, Leaflet); pencarian alamat memakai Nominatim.
-- Peraturan Gubernur DKI Jakarta Nomor 102 Tahun 2021 tentang Kewajiban Pengelolaan Sampah di Kawasan dan Perusahaan — JDIH Provinsi DKI Jakarta.
-- Harga material daur ulang yang ditampilkan berasal dari sumber publik yang disebut di layar beserta tanggalnya; harga di tempat Anda dapat berbeda.
+## 🛡️ Privasi & Batasan Etika Sistem
 
-## Privasi
+### Yang Dilakukan SERAH untuk Melindungi Pekerja:
+* **Tanpa Pelacakan Lokasi Person:** Tidak ada GPS tracking terhadap petugas pemilah, sopir truk, atau supir gerobak. Yang terdata hanya lokasi fisik fasilitas TPS resmi.
+* **Pembersihan Metadata Gambar:** Foto bukti muatan dibersihkan dari metadata EXIF koordinat GPS kamera secara otomatis sebelum disimpan.
+* **Audit Trail Bersih:** Catatan operasional mencatat *peran* dan organisasi, bukan melacak profil individu masyarakat/pedagang.
 
-Data pribadi yang diproses hanya email, kata sandi tersandi, organisasi & peran, catatan persetujuan, dan preferensi notifikasi. Persetujuan dicatat sebelum akun dibuat; pengguna dapat mengunduh datanya, menarik persetujuan, dan menghapus akun dari halaman Akun. Lihat `/privasi` di aplikasi.
+### Batasan Ruang Lingkup Sistem:
+* SERAH **bukan timbangan digital IoT**: data berat berasal dari input jujur petugas TPS dan struk timbangan jembatan timbang resmi penerima.
+* SERAH **bukan portal pemerintah**: SERAH menyiapkan berkas neraca terverifikasi yang siap dilaporkan ke sistem Dinas Lingkungan Hidup (DLH).
+* SERAH fokus pada sampah kawasan sejenis domestik dan **tidak menangani limbah B3 industri berbahaya**.
 
-## Status
+---
 
-Prototipe produksi untuk penyisihan Hackathon JOINTS × INSPIRE 2026. Pembayaran berjalan dalam mode uji (sandbox); tidak ada uang sungguhan yang ditarik.
+## 👥 Tim & Pengembang
 
-© 2026 Tim SERAH. Kode ini merupakan karya asli tim untuk Hackathon JOINTS × INSPIRE 2026.
+Dikembangkan dengan dedikasi penuh untuk **Hackathon JOINTS × INSPIRE 2026 (Universitas Gadjah Mada)** pada kategori **Sustainability**:
+* Solusi nyata bagi pasar tradisional, UMKM kuliner, dan kawasan mandiri untuk mencapai nol sengketa sampah.
+
+© 2026 **Tim SERAH**. Seluruh kode merupakan karya orisinal untuk kompetisi JOINTS × INSPIRE 2026.
