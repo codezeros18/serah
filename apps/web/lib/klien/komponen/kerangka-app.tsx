@@ -14,6 +14,7 @@ import { IkonLanding, type NamaIkon } from "./ikon-landing";
 import { IkonNav, type NamaIkonNav } from "./ikon-nav";
 import { IndikatorSinkron } from "./indikator-sinkron";
 import { LegendaIkon } from "./legenda-ikon";
+import { NotifikasiPopover } from "./notifikasi-popover";
 import { PencarianSerah } from "./pencarian-serah";
 import { LogoSerah } from "./logo-serah";
 
@@ -29,14 +30,12 @@ const NAV: Record<Peran, readonly ItemNav[]> = {
   PETUGAS: [
     { href: "/petugas", kunci: "T1_JUDUL", pendek: "NAV_CATAT", ikon: "tps" },
     { href: "/petugas/serah", kunci: "T2_JUDUL", pendek: "NAV_SERAH", ikon: "serah" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
     { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENGANGKUT: [
     { href: "/pengangkut", kunci: "A1_JUDUL", pendek: "NAV_AMBIL", ikon: "beranda" },
     { href: "/pengangkut/kendaraan", kunci: "KND_JUDUL", pendek: "NAV_KENDARAAN", ikon: "truk" },
     { href: "/pengangkut/laporan", kunci: "LAPORAN_PENGANGKUT", pendek: "NAV_LAPORAN", ikon: "laporan" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
     { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENGELOLA: [
@@ -44,13 +43,11 @@ const NAV: Record<Peran, readonly ItemNav[]> = {
     { href: "/kawasan/ditolak", kunci: "K3_JUDUL", pendek: "NAV_DITOLAK", ikon: "ditolak" },
     { href: "/kawasan/laporan", kunci: "K4_JUDUL", pendek: "NAV_LAPORAN", ikon: "laporan" },
     { href: "/kawasan/tps", kunci: "TPS_JUDUL", pendek: "NAV_TPS", ikon: "tps" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
     { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   PENERIMA: [
     { href: "/penerima", kunci: "P1_JUDUL", pendek: "NAV_TERIMA", ikon: "beranda" },
     { href: "/penerima/laporan", kunci: "P2_JUDUL", pendek: "NAV_LAPORAN", ikon: "laporan" },
-    { href: "/notifikasi", kunci: "NTF_JUDUL", pendek: "NTF_JUDUL", ikon: "lonceng" },
     { href: "/akun", kunci: "AKUN_JUDUL", pendek: "NAV_AKUN", ikon: "akun" },
   ],
   ADMIN: [
@@ -151,7 +148,7 @@ function Isi({ children }: { children: ReactNode }) {
   const wajib = PERAN_SEGMEN[jalur.split("/")[1] ?? ""];
   const boleh = !wajib || wajib === peran;
   const nav = peran ? NAV[peran] : [];
-  const navBawah = nav.filter((n) => n.href !== "/notifikasi");
+  const navBawah = nav;
   const ruteHome = peran ? RUTE_HOME[peran] : "/";
   const namaPeran = peran ? TEKS[KUNCI_PERAN[peran]] : TEKS.APP_NAMA;
   const ikonPeran: NamaIkon = peran ? IKON_PERAN[peran] : "aturan";
@@ -167,7 +164,6 @@ function Isi({ children }: { children: ReactNode }) {
       jalur.startsWith(`${href}/`) &&
       !nav.some((m) => m.href.length > href.length && jalur.startsWith(m.href)));
 
-  const notifAktif = jalur === "/notifikasi";
 
   // Halaman fokus (cetak QR): tanpa sidebar, navbar, dan bilah bawah.
   const tanpaShell = jalur.startsWith("/kawasan/tps/cetak");
@@ -238,6 +234,7 @@ function Isi({ children }: { children: ReactNode }) {
             <div className="flex shrink-0 items-center gap-2">
               <IndikatorSinkron />
               <LegendaIkon />
+              <NotifikasiPopover />
             </div>
           </header>
         ) : null}
@@ -265,16 +262,7 @@ function Isi({ children }: { children: ReactNode }) {
 
             <div className="flex shrink-0 items-center gap-2">
               <IndikatorSinkron />
-              <Link
-                href="/notifikasi"
-                aria-label={TEKS.NTF_JUDUL}
-                aria-current={notifAktif ? "page" : undefined}
-                className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-                  notifAktif ? "bg-tinta text-white" : "bg-latar text-tinta hover:bg-aksi-latar hover:text-aksi"
-                }`}
-              >
-                <IkonNav nama="lonceng" className="h-5 w-5" />
-              </Link>
+              <NotifikasiPopover />
               {!adalahPanelDemo ? (
                 <button
                   type="button"
