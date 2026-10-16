@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import type { JenisEvent, PeranEvent } from "@serah/kontrak/enum";
@@ -9,6 +8,7 @@ import { BannerGalat, KUNCI_STATUS, LencanaAliran, LencanaStatus } from "@serah/
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg } from "@/lib/klien/angka";
 import { IkonNav, type NamaIkonNav } from "@/lib/klien/komponen/ikon-nav";
+import { PeriksaRantai } from "@/lib/klien/komponen/periksa-rantai";
 import { RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { TombolAjukanKoreksi } from "@/lib/klien/komponen/tombol-ajukan-koreksi";
 import { useMuat } from "@/lib/klien/muat";
@@ -168,13 +168,7 @@ export default function DetailSerah() {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {d ? <TombolAjukanKoreksi wadah={d.wadah} rincian={d.rincian} onSelesai={() => void ulang()} /> : null}
-          <Link
-            href="/rantai"
-            className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-garis-halus bg-white/80 px-4 text-sm font-medium text-tinta shadow-[0_2px_8px_rgba(15,23,42,0.05)] backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
-          >
-            <IkonNav nama="perisai" className="h-[18px] w-[18px]" />
-            {TEKS.RANTAI_JUDUL}
-          </Link>
+          {d ? <PeriksaRantai kawasanId={d.kawasan.id} ringkas /> : null}
         </div>
       </div>
 

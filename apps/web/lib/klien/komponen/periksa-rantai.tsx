@@ -8,7 +8,7 @@ import { panggil } from "../api";
 type Hasil = { utuh: boolean; teks: string };
 
 /** Tombol periksa rantai satu kawasan; hasilnya tampil di modal tengah (T_RANTAI_UTUH / T_RANTAI_PATAH). */
-export function PeriksaRantai({ kawasanId }: { kawasanId: string }) {
+export function PeriksaRantai({ kawasanId, ringkas = false }: { kawasanId: string; ringkas?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const [buka, setBuka] = useState(false);
   const [sibuk, setSibuk] = useState(false);
@@ -45,9 +45,24 @@ export function PeriksaRantai({ kawasanId }: { kawasanId: string }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <Tombol varian="sekunder" disabled={sibuk} onClick={() => void periksa()} data-aksi="periksa-rantai">
-        {TEKS.RANTAI_PERIKSA}
-      </Tombol>
+      {ringkas ? (
+        <button
+          type="button"
+          disabled={sibuk}
+          onClick={() => void periksa()}
+          data-aksi="periksa-rantai"
+          className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-garis-halus bg-white/80 px-4 text-sm font-medium text-tinta shadow-[0_2px_8px_rgba(15,23,42,0.05)] backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi disabled:opacity-60"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+            <path d="M12 3.500 19 6.500v5.200c0 4.300-2.900 7.200-7 8.800-4.100-1.600-7-4.500-7-8.800V6.500l7-3Z" stroke="currentColor" strokeWidth="1.900" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {TEKS.RANTAI_JUDUL}
+        </button>
+      ) : (
+        <Tombol varian="sekunder" disabled={sibuk} onClick={() => void periksa()} data-aksi="periksa-rantai">
+          {TEKS.RANTAI_PERIKSA}
+        </Tombol>
+      )}
 
       <dialog
         ref={ref}
