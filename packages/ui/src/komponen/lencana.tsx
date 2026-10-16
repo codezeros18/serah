@@ -56,7 +56,7 @@ export function LencanaAliran({
       <span
         data-aliran={aliran}
         title={TEKS[kunci]}
-        className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${KELAS_ALIRAN_LEMBUT[aliran]}`}
+        className={`relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${KELAS_ALIRAN_LEMBUT[aliran]}`}
       >
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" aria-hidden="true" className={WARNA_GLIF_ALIRAN[aliran]}>
           {GLIF_ALIRAN[aliran]}
@@ -88,7 +88,7 @@ export function LencanaStatus({ status, ikon = false }: { status: StatusSerah; i
       <span
         data-status={status}
         title={TEKS[KUNCI_STATUS[status]]}
-        className={`inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${gaya.kelas}`}
+        className={`relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold ${gaya.kelas}`}
       >
         <span aria-hidden="true">{gaya.ikon}</span>
         <span className="sr-only">{TEKS[KUNCI_STATUS[status]]}</span>

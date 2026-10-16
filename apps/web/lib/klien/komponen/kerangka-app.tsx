@@ -204,7 +204,7 @@ function Isi({ children }: { children: ReactNode }) {
         </aside>
       ) : null}
 
-      <div className={adalahPanelDemo ? "" : "lg:pl-[264px]"}>
+      <div className={`overflow-x-clip ${adalahPanelDemo ? "" : "lg:pl-[264px]"}`}>
         {/* Bilah atas kaca: HP dan desktop */}
         <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 lg:hidden">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/60 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">

@@ -25,7 +25,7 @@ export function Tabel<T>({
       role="region"
       aria-label={keterangan}
       tabIndex={0}
-      className="gulir-halus overflow-x-auto rounded-3xl border border-garis-halus bg-kertas shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
+      className="gulir-halus relative overflow-x-auto rounded-3xl border border-garis-halus bg-kertas shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
     >
       <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">{keterangan}</caption>
