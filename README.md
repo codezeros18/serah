@@ -8,7 +8,26 @@ SERAH adalah aplikasi web (PWA) untuk pengelola kawasan — pasar swasta, food c
 
 Dibuat untuk **Hackathon JOINTS × INSPIRE 2026 (UGM)** · Tema **Sustainability** · Subtema: pasar tradisional, UMKM kuliner, dan rumah tangga yang menghasilkan sampah non-organik yang belum dikelola optimal.
 
-**Demo:** https://serah.up.railway.app · **Halaman demo empat panel:** https://serah.up.railway.app/demo
+**Coba langsung:** https://serah-production.up.railway.app/masuk · **Tampilan empat peran sekaligus:** https://serah-production.up.railway.app/demo
+
+---
+
+## Cara mencoba (untuk juri)
+
+Tidak perlu daftar atau kata sandi.
+
+1. Buka **https://serah-production.up.railway.app/masuk**.
+2. Di bagian *Coba dengan akun demo* klik peran **1 Petugas**, lalu lanjutkan sesuai urutan angka: **2 Pengangkut → 3 Pengelola → 4 Penerima**. Satu perangkat hanya memegang satu sesi, jadi pakai jendela penyamaran atau browser lain untuk tiap peran (atau satu HP per peran).
+3. Alur satu serah:
+   - **Petugas:** pilih TPS (pindai QR, unggah gambar QR, atau ketik kodenya) → catat Kuning 42,5 kg dan Abu-abu 30 kg → *Siapkan serah* dengan wadah Kuning saja.
+   - **Pengangkut:** ambil serah → foto muatan → kendaraan → tujuan *TPST Rawa Kuning* ditolak berikut pasalnya (R-01) → ganti ke *CV Daur Ulang Mandiri* → kirim.
+   - **Pengelola:** setujui pengangkutan.
+   - **Penerima:** foto tiket timbang (AI membaca angkanya, Anda yang mengonfirmasi) → terima sebagian, mis. 36,5 kg diterima dan 6 kg ditolak.
+   - **Pengelola:** tiga laporan berubah serentak dengan angka sama; buka *Periksa rantai catatan*.
+4. Pengelola juga dapat menambah TPS dengan memilih titik di peta (atau mengetik koordinat), mencetak QR-nya, dan membayar tagihan paket lewat Midtrans mode uji (menu *Langganan*).
+5. Ingin mulai dari nol sendiri? **Daftar** di `/daftar`; di mode demo akun langsung aktif tanpa verifikasi email. Akun baru memiliki organisasi sendiri yang kosong, jadi untuk alur serah penuh gunakan empat akun demo di atas.
+
+Data demo bersifat rekaan dan dapat dikembalikan ke awal sewaktu-waktu oleh tim. Pembayaran memakai sandbox Midtrans; tidak ada uang sungguhan.
 
 ---
 
@@ -79,7 +98,7 @@ packages/ui         token desain & komponen
 
 - **Bukti tahan sengketa:** setiap transisi menjadi satu event berantai SHA-256 per kawasan; tabel bukti catat-saja (trigger + pencabutan hak); koreksi menyimpan nilai asli.
 - **Isolasi data:** Row-Level Security per organisasi; role basis data aplikasi tanpa hak superuser.
-- **Lapangan:** PWA offline-first (IndexedDB + sinkron idempoten), kamera langsung tanpa galeri, QR.
+- **Lapangan:** PWA offline-first (IndexedDB + sinkron idempoten), foto bukti langsung dari kamera tanpa galeri, QR TPS/serah (kamera atau unggah gambar QR), peta Leaflet untuk memilih lokasi TPS.
 - **Waktu nyata:** PostgreSQL `LISTEN/NOTIFY` → Server-Sent Events.
 - **Angka:** berat dalam gram dan uang dalam rupiah sebagai bilangan bulat.
 - **Privasi:** tanpa GPS, metadata lokasi foto dibuang, data operasional menyimpan peran bukan nama.
@@ -95,7 +114,7 @@ packages/ui         token desain & komponen
 
 ### Langkah
 ```bash
-git clone https://github.com/serah-id/serah.git
+git clone https://github.com/codezeros18/serah.git
 cd serah
 pnpm install
 cp .env.example .env          # isi TOKEN_PEPPER & SESI_SECRET (≥32 karakter acak); untuk mencoba: DEMO_MODE=true
@@ -116,7 +135,7 @@ Masuk ke `http://localhost:3000/masuk` dan pilih salah satu tombol akun demo (ha
 | Penerima | `penerima@demo.serah.id` |
 | Admin | `admin@demo.serah.id` |
 
-Semua nama kawasan, pengangkut, dan penerima di data demo adalah contoh.
+Data demo berisi satu kawasan (Pasar Mekar Sari Kemayoran) dengan 5 TPS, 6 kendaraan, 7 mitra (pengangkut dan penerima), dan sekitar 100 serah selama 30 hari. Semua nama organisasi dan lokasi adalah rekaan; tidak ada usaha sungguhan.
 
 ### Variabel lingkungan
 | Variabel | Untuk | Bila kosong |
@@ -127,6 +146,7 @@ Semua nama kawasan, pengangkut, dan penerima di data demo adalah contoh.
 | `TOKEN_PEPPER`, `SESI_SECRET` | Hash token & sesi (≥32 karakter) | Gagal start |
 | `CRON_SECRET` | Pekerjaan terjadwal | Cron menolak |
 | `DEMO_MODE` | Data & akun demo, `/demo` | `false` |
+| `DAFTAR_LANGSUNG_AKTIF` | Hanya bersama `DEMO_MODE=true`: akun baru langsung terverifikasi tanpa email | `false` |
 | `NEXT_PUBLIC_API_MOCK` | Data contoh di klien tanpa API | `false` |
 | `PENYIMPANAN_MODE` | `lokal` / `r2` | `lokal` di dev; gagal start di produksi |
 | `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET` | Penyimpanan foto | Wajib bila `r2` |
@@ -157,6 +177,7 @@ pnpm db:reset        # bangun ulang skema DB lokal dari migrasi + seed (menghapu
 ## Sumber data & atribusi
 
 - **Sumber data cuaca: BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)** — Data Prakiraan Cuaca Terbuka (per kelurahan/desa) dan Peringatan Dini Cuaca (nowcast, CAP). https://data.bmkg.go.id
+- Peta: data © OpenStreetMap contributors (ubin standar OpenStreetMap, Leaflet); pencarian alamat memakai Nominatim.
 - Peraturan Gubernur DKI Jakarta Nomor 102 Tahun 2021 tentang Kewajiban Pengelolaan Sampah di Kawasan dan Perusahaan — JDIH Provinsi DKI Jakarta.
 - Harga material daur ulang yang ditampilkan berasal dari sumber publik yang disebut di layar beserta tanggalnya; harga di tempat Anda dapat berbeda.
 
