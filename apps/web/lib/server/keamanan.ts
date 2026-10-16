@@ -28,7 +28,7 @@ export function susunCsp(o: OpsiCsp): string {
     "default-src 'self'",
     `script-src 'self' 'nonce-${o.nonce}' 'strict-dynamic' ${bayar}${o.dev ? " 'unsafe-eval'" : ""}`,
     "style-src 'self' 'unsafe-inline'",
-    `img-src 'self' blob: data: ${r2} https://*.basemaps.cartocdn.com`,
+    `img-src 'self' blob: data: ${r2} https://tile.openstreetmap.org`,
     "font-src 'self' data:",
     `connect-src 'self' ${bayar} ${r2} https://nominatim.openstreetmap.org`,
     `frame-src 'self' ${bayar}`,

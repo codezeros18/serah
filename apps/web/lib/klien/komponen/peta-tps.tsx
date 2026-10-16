@@ -5,10 +5,10 @@ import L from "leaflet";
 import { useEffect, useRef } from "react";
 import { TEKS } from "@serah/kontrak/teks";
 
-// Peta Leaflet untuk lokasi TPS. Ubin CARTO Voyager (data OpenStreetMap). Tidak memakai geolokasi perangkat:
+// Peta Leaflet untuk lokasi TPS. Ubin standar OpenStreetMap (tanpa API key; CARTO kini mewajibkan key). Tidak memakai geolokasi perangkat:
 // titik hanya dari klik/geser penanda atau isian koordinat (CLAUDE.md §2.5).
 
-const UBIN = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const UBIN = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 const PUSAT_AWAL: L.LatLngTuple = [-6.1754, 106.8272]; // Jakarta Pusat
 
 function ikonPin(aktif: boolean): L.DivIcon {
@@ -24,7 +24,7 @@ function ikonPin(aktif: boolean): L.DivIcon {
 
 function buatPeta(el: HTMLElement): L.Map {
   const peta = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false }).setView(PUSAT_AWAL, 12);
-  L.tileLayer(UBIN, { subdomains: "abcd", maxZoom: 19, attribution: TEKS.PETA_ATRIBUSI }).addTo(peta);
+  L.tileLayer(UBIN, { maxZoom: 19, attribution: TEKS.PETA_ATRIBUSI }).addTo(peta);
   // Dialog/tab membuka dengan animasi: ukur ulang saat wadah berubah ukuran.
   const ro = new ResizeObserver(() => peta.invalidateSize());
   ro.observe(el);

@@ -236,7 +236,7 @@ export const TEKS = {
   TPS_TAMBAH: "Tambah TPS",
   TPS_NAMA: "Nama TPS",
   PETA_ARIA: "Peta lokasi TPS",
-  PETA_ATRIBUSI: "© OpenStreetMap © CARTO",
+  PETA_ATRIBUSI: "© OpenStreetMap",
   PETA_JUDUL: "Peta semua TPS",
   PETA_PILIH_PETUNJUK: "Atau klik peta, lalu geser penanda untuk menentukan lokasi TPS.",
   TPS_KOORDINAT: "Koordinat TPS",
