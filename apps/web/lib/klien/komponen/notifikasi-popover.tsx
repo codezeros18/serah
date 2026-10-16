@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { TEKS } from "@serah/kontrak/teks";
 import { panggil } from "../api";
 import { type ItemNotifikasi, susunPesanNotifikasi, tautanObjek } from "../notifikasi-teks";
@@ -14,7 +15,16 @@ import { IkonNav } from "./ikon-nav";
  */
 export function NotifikasiPopover() {
   const akar = useRef<HTMLDivElement>(null);
-  const [buka, setBuka] = useState(false);
+  const panel = useRef<HTMLElement>(null);
+  const [buka, setBukaMentah] = useState(false);
+  const [seluler, setSeluler] = useState(false);
+  const setBuka = useCallback((v: boolean | ((b: boolean) => boolean)) => {
+    setBukaMentah((b) => {
+      const baru = typeof v === "function" ? v(b) : v;
+      if (baru && !b) setSeluler(window.innerWidth < 640);
+      return baru;
+    });
+  }, []);
   const [daftar, setDaftar] = useState<ItemNotifikasi[]>([]);
   const [muatAwal, setMuatAwal] = useState(true);
   const [galat, setGalat] = useState<string | null>(null);
@@ -44,7 +54,9 @@ export function NotifikasiPopover() {
   useEffect(() => {
     if (!buka) return;
     const luar = (e: PointerEvent) => {
-      if (akar.current && !akar.current.contains(e.target as Node)) setBuka(false);
+      const t = e.target as Node;
+      if (akar.current?.contains(t) || panel.current?.contains(t)) return;
+      setBuka(false);
     };
     const esc = (e: KeyboardEvent) => {
       if (e.key === "Escape") setBuka(false);
@@ -55,7 +67,7 @@ export function NotifikasiPopover() {
       document.removeEventListener("pointerdown", luar);
       document.removeEventListener("keydown", esc);
     };
-  }, [buka]);
+  }, [buka, setBuka]);
 
   const belum = daftar.filter((n) => !n.dibaca).length;
 
@@ -69,33 +81,13 @@ export function NotifikasiPopover() {
     await panggil("POST", "/api/notifikasi/[id]/baca", { params: { id }, body: {} });
   }
 
-  return (
-    <div ref={akar} className="relative">
-      <button
-        type="button"
-        onClick={() => setBuka((b) => !b)}
-        aria-label={belum > 0 ? `${TEKS.NTF_JUDUL} (${belum})` : TEKS.NTF_JUDUL}
-        aria-expanded={buka}
-        aria-haspopup="dialog"
-        className={`relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
-          buka ? "bg-tinta text-white" : "bg-latar text-tinta hover:bg-aksi-latar hover:text-aksi"
-        }`}
-      >
-        <IkonNav nama="lonceng" className="h-5 w-5" />
-        {belum > 0 ? (
-          <span
-            aria-hidden="true"
-            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-aksi px-1 text-[10px] font-semibold tabular-nums text-white ring-2 ring-white"
-          >
-            {belum > 9 ? "9+" : belum}
-          </span>
-        ) : null}
-      </button>
-
+  const lapisan = (
+    <>
       {buka ? <div aria-hidden="true" onClick={() => setBuka(false)} className="fixed inset-0 z-40 bg-tinta/30 backdrop-blur-sm sm:hidden" /> : null}
 
       {buka ? (
         <section
+          ref={panel}
           role="dialog"
           aria-label={TEKS.NTF_JUDUL}
           className="dropdown-masuk z-50 flex max-h-[70dvh] flex-col overflow-hidden border border-garis-halus bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] max-sm:fixed max-sm:inset-x-3 max-sm:bottom-3 max-sm:rounded-3xl sm:absolute sm:right-0 sm:top-full sm:mt-3 sm:w-[24rem] sm:origin-top-right sm:rounded-3xl"
@@ -210,6 +202,33 @@ export function NotifikasiPopover() {
           </footer>
         </section>
       ) : null}
+    </>
+  );
+
+  return (
+    <div ref={akar} className="relative">
+      <button
+        type="button"
+        onClick={() => setBuka((b) => !b)}
+        aria-label={belum > 0 ? `${TEKS.NTF_JUDUL} (${belum})` : TEKS.NTF_JUDUL}
+        aria-expanded={buka}
+        aria-haspopup="dialog"
+        className={`relative flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 active:scale-95 ${
+          buka ? "bg-tinta text-white" : "bg-latar text-tinta hover:bg-aksi-latar hover:text-aksi"
+        }`}
+      >
+        <IkonNav nama="lonceng" className="h-5 w-5" />
+        {belum > 0 ? (
+          <span
+            aria-hidden="true"
+            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-aksi px-1 text-[10px] font-semibold tabular-nums text-white ring-2 ring-white"
+          >
+            {belum > 9 ? "9+" : belum}
+          </span>
+        ) : null}
+      </button>
+
+      {buka ? (seluler && typeof document !== "undefined" ? createPortal(lapisan, document.body) : lapisan) : null}
     </div>
   );
 }
