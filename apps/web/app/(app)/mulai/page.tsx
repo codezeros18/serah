@@ -408,7 +408,7 @@ export default function HalamanMulai() {
                           type="checkbox"
                           checked={aliranPilihan.includes(a)}
                           onChange={() => toggleAliran(a)}
-                          className="h-4 w-4 text-aksi accent-[#2457c5] focus:ring-aksi"
+                          className="kotak-centang kotak-bulat"
                         />
                         <span className="text-sm text-tinta">
                           {a === "HIJAU"

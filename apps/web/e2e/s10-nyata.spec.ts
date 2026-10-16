@@ -167,6 +167,7 @@ test("K2 nyata: menyetujui serah yang menunggu", async ({ page }) => {
   }
   await page.goto(`/kawasan/setujui/${kode}`);
   await page.getByRole("button", { name: TEKS.K2_SETUJUI }).click();
+  await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
   await expect(page.getByText(isi("K2_DISETUJUI", { kode_serah: kode }))).toBeVisible();
   const sesudah = await api<Detail>(page, `/api/serah/${kode}`);
   expect(sesudah.status).toBe("DIANGKUT");

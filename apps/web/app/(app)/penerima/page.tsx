@@ -126,7 +126,7 @@ export default function LayarP1() {
       {masuk.keadaan.status === "siap" && semua.length === 0 ? <Kosong teks={TEKS.K_KOSONG_MASUK} /> : null}
 
       {masuk.keadaan.status === "siap" ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {tampil.map((s) => {
             const menggantung = s.status === "MENGGANTUNG";
             return (

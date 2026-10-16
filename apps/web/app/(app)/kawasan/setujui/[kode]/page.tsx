@@ -6,6 +6,7 @@ import { useState } from "react";
 import { TEKS, isi } from "@serah/kontrak/teks";
 import { BannerGalat, Kartu, LencanaAliran, LencanaStatus, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
+import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { useMuat } from "@/lib/klien/muat";
 
 /** K2 — pengelola menyetujui atau mengembalikan serah (alasan wajib saat mengembalikan). */
@@ -17,12 +18,14 @@ export default function LayarK2() {
   const [galat, setGalat] = useState<string | null>(null);
   const [hasil, setHasil] = useState<"disetujui" | "dikembalikan" | null>(null);
   const [sibuk, setSibuk] = useState(false);
+  const [konfirmasiSetuju, setKonfirmasiSetuju] = useState(false);
 
   async function setujui() {
     setSibuk(true);
     setGalat(null);
     const h = await panggil("POST", "/api/serah/[kode]/setujui", { params: { kode }, body: {}, idempotencyKey: crypto.randomUUID() });
     setSibuk(false);
+    setKonfirmasiSetuju(false);
     if (h.ok) setHasil("disetujui");
     else if (h.galat.kode === "KONFLIK_VERSI") {
       setGalat(h.pesan);
@@ -126,7 +129,7 @@ export default function LayarK2() {
           <p className="text-base text-tinta-redup">{TEKS.K2_PENJELASAN}</p>
           {d.status !== "MENUNGGU_SETUJU" ? null : (
             <div className="flex flex-col gap-3">
-              <Tombol onClick={() => void setujui()} disabled={sibuk} className="w-full text-base">
+              <Tombol onClick={() => setKonfirmasiSetuju(true)} disabled={sibuk} className="w-full text-base">
                 {`✓ ${TEKS.K2_SETUJUI}`}
               </Tombol>
               {!kembalikan ? (
@@ -157,6 +160,17 @@ export default function LayarK2() {
           )}
         </div>
       ) : null}
+      <KonfirmasiAksi
+        terbuka={konfirmasiSetuju}
+        judul={TEKS.K2_SETUJUI}
+        labelKonfirmasi={TEKS.UMUM_KONFIRMASI}
+        sibuk={sibuk}
+        onKonfirmasi={() => void setujui()}
+        onTutup={() => setKonfirmasiSetuju(false)}
+      >
+        <p className="font-mono text-base font-semibold text-tinta">{kode}</p>
+        <p className="mt-1 text-xs text-tinta-redup">{TEKS.KONF_SETUJUI}</p>
+      </KonfirmasiAksi>
     </div>
   );
 }

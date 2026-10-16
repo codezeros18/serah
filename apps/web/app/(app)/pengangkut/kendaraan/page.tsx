@@ -5,6 +5,7 @@ import type { Kendaraan } from "@serah/kontrak";
 import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
+import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 
 export default function HalamanKendaraan() {
   const [daftarKendaraan, setDaftarKendaraan] = useState<Kendaraan[]>([]);
@@ -14,6 +15,9 @@ export default function HalamanKendaraan() {
   const [tambahTerbuka, setTambahTerbuka] = useState(false);
   const [plat, setPlat] = useState("");
   const [sedangSimpan, setSedangSimpan] = useState(false);
+  const [konfirmasiTambah, setKonfirmasiTambah] = useState(false);
+  const [nonaktifTarget, setNonaktifTarget] = useState<Kendaraan | null>(null);
+  const [sedangNonaktif, setSedangNonaktif] = useState(false);
 
   const muat = useCallback(async () => {
     setSedangMuat(true);
@@ -31,8 +35,13 @@ export default function HalamanKendaraan() {
     void muat();
   }, [muat]);
 
-  async function tanganiTambah(e: FormEvent) {
+  function mintaKonfirmasiTambah(e: FormEvent) {
     e.preventDefault();
+    if (plat.trim() === "") return;
+    setKonfirmasiTambah(true);
+  }
+
+  async function tanganiTambah() {
     setSedangSimpan(true);
     setGalat(null);
 
@@ -41,6 +50,7 @@ export default function HalamanKendaraan() {
     });
 
     setSedangSimpan(false);
+    setKonfirmasiTambah(false);
 
     if (res.ok) {
       setTambahTerbuka(false);
@@ -53,10 +63,13 @@ export default function HalamanKendaraan() {
 
   async function tanganiNonaktif(id: string) {
     setGalat(null);
+    setSedangNonaktif(true);
     const res = await panggil("POST", "/api/kendaraan/[id]/nonaktif", {
       params: { id },
       body: {},
     });
+    setSedangNonaktif(false);
+    setNonaktifTarget(null);
 
     if (res.ok) {
       await muat();
@@ -108,7 +121,7 @@ export default function HalamanKendaraan() {
               <Tombol
                 varian="sekunder"
                 className="min-h-12 border-2 border-garis font-bold hover:bg-latar active:scale-[0.98] transition-all text-sm shrink-0"
-                onClick={() => tanganiNonaktif(k.id)}
+                onClick={() => setNonaktifTarget(k)}
               >
                 {TEKS.KND_NONAKTIF}
               </Tombol>
@@ -122,7 +135,7 @@ export default function HalamanKendaraan() {
         judul={TEKS.KND_TAMBAH}
         onTutup={() => setTambahTerbuka(false)}
       >
-        <form onSubmit={tanganiTambah} className="flex flex-col gap-4">
+        <form onSubmit={mintaKonfirmasiTambah} className="flex flex-col gap-4">
           <label className="flex flex-col gap-2 text-base font-bold text-tinta">
             {TEKS.KND_PLAT}
             <input
@@ -137,14 +150,6 @@ export default function HalamanKendaraan() {
 
           <div className="mt-3 flex justify-end gap-3">
             <Tombol
-              varian="sekunder"
-              className="min-h-12 border-2 border-garis font-bold active:scale-[0.98] transition-all"
-              onClick={() => setTambahTerbuka(false)}
-              disabled={sedangSimpan}
-            >
-              {TEKS.UMUM_BATAL}
-            </Tombol>
-            <Tombol
               type="submit"
               className="min-h-12 bg-aksi text-aksi-teks hover:bg-aksi-hover font-bold active:scale-[0.98] transition-all shadow-sm"
               disabled={sedangSimpan}
@@ -154,6 +159,32 @@ export default function HalamanKendaraan() {
           </div>
         </form>
       </Dialog>
+
+      <KonfirmasiAksi
+        terbuka={konfirmasiTambah}
+        judul={TEKS.KND_TAMBAH}
+        labelKonfirmasi={TEKS.UMUM_SIMPAN}
+        sibuk={sedangSimpan}
+        onKonfirmasi={() => void tanganiTambah()}
+        onTutup={() => setKonfirmasiTambah(false)}
+      >
+        <p className="text-center font-mono text-2xl font-semibold tracking-widest text-tinta">{plat.trim().toUpperCase()}</p>
+        <p className="mt-2 text-center text-xs text-tinta-redup">{TEKS.KONF_TAMBAH_KND}</p>
+      </KonfirmasiAksi>
+
+      <KonfirmasiAksi
+        terbuka={nonaktifTarget !== null}
+        judul={TEKS.KND_NONAKTIF}
+        tingkat="tahan"
+        bahaya
+        labelKonfirmasi={TEKS.KND_NONAKTIF}
+        sibuk={sedangNonaktif}
+        onKonfirmasi={() => nonaktifTarget && void tanganiNonaktif(nonaktifTarget.id)}
+        onTutup={() => setNonaktifTarget(null)}
+      >
+        <p className="text-center font-mono text-2xl font-semibold tracking-widest text-tinta">{nonaktifTarget?.plat}</p>
+        <p className="mt-2 text-center text-xs text-tinta-redup">{TEKS.KONF_NONAKTIF_KND}</p>
+      </KonfirmasiAksi>
     </div>
   );
 }

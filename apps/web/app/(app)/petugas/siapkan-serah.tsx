@@ -77,7 +77,7 @@ export function SiapkanSerah() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto w-full max-w-3xl flex flex-col gap-4">
       <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T2_JUDUL}</h1>
       <PitaAntrean />
 
@@ -166,7 +166,7 @@ export function SiapkanSerah() {
                       >
                         <input
                           type="checkbox"
-                          className="h-7 w-7 shrink-0 cursor-pointer rounded-kontrol border-2 border-garis text-aksi accent-aksi"
+                          className="kotak-centang kotak-bulat"
                           checked={dipilihIni}
                           onChange={() => alih(w.id)}
                           data-wadah={w.id}

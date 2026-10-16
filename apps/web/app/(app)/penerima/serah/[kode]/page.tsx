@@ -203,7 +203,7 @@ export default function LayarTutup() {
   const r08 = peringatan.find((p) => p.kode === "R08");
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-3xl flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
         <div className="flex items-center gap-3">
           <Link

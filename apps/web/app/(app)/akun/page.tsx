@@ -11,6 +11,7 @@ import { rutePeran } from "@/lib/klien/rute-peran";
 import { useSesi } from "@/lib/klien/sesi";
 import { unduhBerkas } from "@/lib/klien/unduh";
 import { Pilih } from "@/lib/klien/komponen/pilih";
+import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 
 type DataSaya = z.infer<typeof AkunDataSayaKeluaran>;
 type ItemAnggota = z.infer<typeof AnggotaDaftarKeluaran>["anggota"][number];
@@ -267,21 +268,21 @@ export default function HalamanAkun() {
           <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_NOTIFIKASI}</h2>
         </div>
         <div className="flex flex-col gap-3.5">
-          <label className="flex items-center gap-3 text-base cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-garis-halus bg-kertas p-3.5 text-base transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar/40 has-[:checked]:border-aksi-garis has-[:checked]:bg-aksi-latar/50">
             <input
               type="checkbox"
               checked={ntfEmail}
               onChange={(e) => void ubahNotifikasi(e.target.checked, ntfPush)}
-              className="h-5 w-5 rounded border-garis text-aksi accent-[#2457c5] focus:ring-aksi"
+              className="kotak-centang kotak-bulat"
             />
             <span className="font-medium text-tinta">{TEKS.AKUN_NTF_EMAIL}</span>
           </label>
-          <label className="flex items-center gap-3 text-base cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-garis-halus bg-kertas p-3.5 text-base transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar/40 has-[:checked]:border-aksi-garis has-[:checked]:bg-aksi-latar/50">
             <input
               type="checkbox"
               checked={ntfPush}
               onChange={(e) => void ubahNotifikasi(ntfEmail, e.target.checked)}
-              className="h-5 w-5 rounded border-garis text-aksi accent-[#2457c5] focus:ring-aksi"
+              className="kotak-centang kotak-bulat"
             />
             <span className="font-medium text-tinta">{TEKS.AKUN_NTF_PUSH}</span>
           </label>
@@ -414,33 +415,19 @@ export default function HalamanAkun() {
         </form>
       </Dialog>
 
-      {/* Dialog Tarik Persetujuan */}
-      <Dialog
+      {/* Tarik persetujuan: tahan untuk konfirmasi */}
+      <KonfirmasiAksi
         terbuka={tarikTerbuka}
         judul={TEKS.AKUN_TARIK}
+        tingkat="tahan"
+        bahaya
+        labelKonfirmasi={TEKS.UMUM_KONFIRMASI}
+        sibuk={sedangTarik}
+        onKonfirmasi={() => void tanganiTarikPersetujuan()}
         onTutup={() => setTarikTerbuka(false)}
       >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm leading-relaxed text-tinta">{TEKS.AKUN_TARIK_PERINGATAN}</p>
-          <div className="flex justify-end gap-2">
-            <Tombol
-              varian="sekunder"
-              onClick={() => setTarikTerbuka(false)}
-              disabled={sedangTarik}
-              className="text-xs font-bold"
-            >
-              {TEKS.UMUM_BATAL}
-            </Tombol>
-            <Tombol
-              onClick={tanganiTarikPersetujuan}
-              disabled={sedangTarik}
-              className="text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-sm"
-            >
-              {TEKS.UMUM_KONFIRMASI}
-            </Tombol>
-          </div>
-        </div>
-      </Dialog>
+        <p className="text-sm leading-relaxed text-tinta">{TEKS.AKUN_TARIK_PERINGATAN}</p>
+      </KonfirmasiAksi>
 
       {/* Dialog Hapus Akun */}
       <Dialog

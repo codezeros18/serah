@@ -11,6 +11,7 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type CSSProperties,
   type KeyboardEvent,
   type ReactNode,
 } from "react";
@@ -75,7 +76,7 @@ export function Pilih({
   const daftar = useRef<HTMLUListElement>(null);
   const [buka, setBuka] = useState(false);
   const [aktif, setAktif] = useState(0);
-  const [keAtas, setKeAtas] = useState(false);
+  const [posisi, setPosisi] = useState<CSSProperties | null>(null);
 
   const opsi = useMemo(() => {
     const k: Opsi[] = [];
@@ -97,14 +98,45 @@ export function Pilih({
     [onChange],
   );
 
+  // Daftar memakai posisi fixed: tidak terpotong oleh dialog/kartu yang bisa digulir.
+  const hitungPosisi = useCallback(() => {
+    const k = akar.current?.getBoundingClientRect();
+    if (!k || window.innerWidth < 640) {
+      setPosisi(null);
+      return;
+    }
+    const bawah = window.innerHeight - k.bottom - 12;
+    const atas = k.top - 12;
+    const naik = bawah < 220 && atas > bawah;
+    const maks = Math.max(140, Math.min(256, (naik ? atas : bawah) - 8));
+    setPosisi({
+      position: "fixed",
+      left: k.left,
+      width: k.width,
+      maxHeight: maks,
+      zIndex: 100,
+      ...(naik ? { bottom: window.innerHeight - k.top + 8 } : { top: k.bottom + 8 }),
+    });
+  }, []);
+
   const bukaDaftar = useCallback(() => {
     if (disabled) return;
-    const kotak = akar.current?.getBoundingClientRect();
-    if (kotak) setKeAtas(window.innerHeight - kotak.bottom < 300 && kotak.top > 300);
+    hitungPosisi();
     const idx = opsi.findIndex((o) => o.nilai === value && !o.nonaktif && o.label !== "");
     setAktif(idx >= 0 ? idx : Math.max(0, opsi.findIndex((o) => !o.nonaktif && o.label !== "")));
     setBuka(true);
-  }, [disabled, opsi, value]);
+  }, [disabled, hitungPosisi, opsi, value]);
+
+  // Ikuti tombol saat halaman/dialog digulir atau ukuran berubah.
+  useEffect(() => {
+    if (!buka) return;
+    window.addEventListener("scroll", hitungPosisi, true);
+    window.addEventListener("resize", hitungPosisi);
+    return () => {
+      window.removeEventListener("scroll", hitungPosisi, true);
+      window.removeEventListener("resize", hitungPosisi);
+    };
+  }, [buka, hitungPosisi]);
 
   // Tutup saat klik di luar.
   useEffect(() => {
@@ -204,9 +236,8 @@ export function Pilih({
           ref={daftar}
           id={idDaftar}
           role="listbox"
-          className={`dropdown-masuk gulir-halus z-50 overflow-auto border border-garis-halus bg-white p-1.5 shadow-[0_20px_50px_rgba(15,23,42,0.18)] max-sm:fixed max-sm:inset-x-3 max-sm:bottom-3 max-sm:max-h-[60dvh] max-sm:rounded-3xl max-sm:p-2 sm:absolute sm:left-0 sm:max-h-64 sm:w-full sm:rounded-2xl ${
-            keAtas ? "sm:bottom-full sm:mb-2 sm:origin-bottom" : "sm:top-full sm:mt-2 sm:origin-top"
-          }`}
+          style={posisi ?? undefined}
+          className="dropdown-masuk gulir-halus z-50 overflow-auto border border-garis-halus bg-white p-1.5 shadow-[0_20px_50px_rgba(15,23,42,0.18)] max-sm:fixed max-sm:inset-x-3 max-sm:bottom-3 max-sm:max-h-[60dvh] max-sm:rounded-3xl max-sm:p-2 sm:rounded-2xl"
         >
           {tampil.map((o) => {
             const indeks = opsi.indexOf(o);

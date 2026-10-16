@@ -72,13 +72,14 @@ export default function LayarA1() {
       {keadaan.status === "galat" ? <BannerGalat pesan={keadaan.pesan} onCoba={() => void ulang()} /> : null}
       {keadaan.status === "siap" && keadaan.data.serah.length === 0 ? <Kosong teks={TEKS.K_KOSONG_AMBIL} /> : null}
 
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
       {tampil.map((s, i) => {
         const unggulan = Boolean(s.prioritas) && i === 0 && saring === "semua";
         return (
           <article
             key={s.kode}
             data-kode={s.kode}
-            className={`muncul group flex flex-col gap-4 rounded-3xl p-5 transition-all duration-300 ${
+            className={`muncul group flex flex-col gap-4 rounded-3xl p-5 transition-all duration-300 ${unggulan ? "lg:col-span-2 2xl:col-span-3" : ""} ${
               unggulan
                 ? "bg-gradient-to-br from-aksi via-[#2f66da] to-[#173a8a] text-white shadow-[0_20px_50px_rgba(36,87,197,0.35)]"
                 : s.prioritas
@@ -154,6 +155,7 @@ export default function LayarA1() {
           </article>
         );
       })}
+      </div>
     </div>
   );
 }

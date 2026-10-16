@@ -25,17 +25,17 @@ export function Tabel<T>({
       role="region"
       aria-label={keterangan}
       tabIndex={0}
-      className="overflow-x-auto rounded-kartu border border-garis-halus bg-kertas shadow-xs"
+      className="gulir-halus overflow-x-auto rounded-3xl border border-garis-halus bg-kertas shadow-[0_8px_30px_rgba(15,23,42,0.05)]"
     >
-      <table className="w-full border-collapse text-left text-sm sm:text-base">
+      <table className="w-full border-collapse text-left text-sm">
         <caption className="sr-only">{keterangan}</caption>
         <thead>
-          <tr className="border-b border-garis-halus bg-slate-100/70 text-tinta font-bold">
+          <tr className="border-b border-garis-halus bg-latar/80">
             {kolom.map((k) => (
               <th
                 key={k.kunci}
                 scope="col"
-                className={`px-4 py-3 text-xs font-bold uppercase tracking-wider text-tinta-redup ${
+                className={`whitespace-nowrap px-4 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-tinta-redup ${
                   k.angka ? "text-right" : ""
                 }`}
               >
@@ -44,17 +44,14 @@ export function Tabel<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-garis-halus">
+        <tbody className="divide-y divide-garis-halus/70">
           {baris.map((b) => (
-            <tr
-              key={kunciBaris(b)}
-              className="transition-colors hover:bg-aksi-latar/40 duration-150"
-            >
+            <tr key={kunciBaris(b)} className="transition-colors duration-150 hover:bg-aksi-latar/40">
               {kolom.map((k) => (
                 <td
                   key={k.kunci}
-                  className={`px-4 py-3 text-tinta font-medium ${
-                    k.angka ? "text-right tabular-nums font-bold font-mono" : ""
+                  className={`whitespace-nowrap px-4 py-3 text-tinta ${
+                    k.angka ? "text-right font-mono font-medium tabular-nums" : ""
                   }`}
                 >
                   {k.sel(b)}

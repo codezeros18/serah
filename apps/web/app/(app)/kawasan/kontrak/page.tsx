@@ -6,6 +6,7 @@ import { ALIRAN, type Aliran, type DirektoriMitraKeluaran, type Kontrak } from "
 import { TEKS, isi } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Kartu, Kosong, LencanaAliran, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
+import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
 import { Pilih } from "@/lib/klien/komponen/pilih";
 
@@ -103,6 +104,10 @@ export default function HalamanKontrak() {
       setGalat(res.pesan);
     }
   }
+
+  const [akhiriId, setAkhiriId] = useState<string | null>(null);
+  const [konfirmasiId, setKonfirmasiId] = useState<string | null>(null);
+  const [sedangAksi, setSedangAksi] = useState(false);
 
   async function tanganiAkhiri(id: string) {
     setGalat(null);
@@ -208,12 +213,12 @@ export default function HalamanKontrak() {
 
             <div className="mt-auto flex flex-wrap gap-2 pt-2 border-t border-garis-halus/60">
               {k.status === "USULAN" ? (
-                <Tombol className="min-h-10 flex-1 text-sm" onClick={() => tanganiKonfirmasi(k.id)}>
+                <Tombol className="min-h-10 flex-1 text-sm" onClick={() => setKonfirmasiId(k.id)}>
                   {TEKS.KTR_KONFIRMASI}
                 </Tombol>
               ) : null}
               {k.status === "USULAN" || k.status === "AKTIF" ? (
-                <Tombol varian="sekunder" className="min-h-10 flex-1 text-sm" onClick={() => tanganiAkhiri(k.id)}>
+                <Tombol varian="sekunder" className="min-h-10 flex-1 text-sm" onClick={() => setAkhiriId(k.id)}>
                   {TEKS.KTR_AKHIRI}
                 </Tombol>
               ) : null}
@@ -263,7 +268,7 @@ export default function HalamanKontrak() {
                     type="checkbox"
                     checked={aliranTerpilih.includes(aliran)}
                     onChange={() => ubahAliran(aliran)}
-                    className="h-5 w-5 rounded border-garis"
+                    className="kotak-centang kotak-bulat"
                   />
                   <LencanaAliran aliran={aliran} pendek />
                 </label>
@@ -332,6 +337,40 @@ export default function HalamanKontrak() {
           </div>
         </form>
       </Dialog>
+
+      <KonfirmasiAksi
+        terbuka={konfirmasiId !== null}
+        judul={TEKS.KTR_KONFIRMASI}
+        labelKonfirmasi={TEKS.KTR_KONFIRMASI}
+        sibuk={sedangAksi}
+        onKonfirmasi={async () => {
+          if (!konfirmasiId) return;
+          setSedangAksi(true);
+          await tanganiKonfirmasi(konfirmasiId);
+          setSedangAksi(false);
+          setKonfirmasiId(null);
+        }}
+        onTutup={() => setKonfirmasiId(null)}
+      />
+
+      <KonfirmasiAksi
+        terbuka={akhiriId !== null}
+        judul={TEKS.KTR_AKHIRI}
+        tingkat="tahan"
+        bahaya
+        labelKonfirmasi={TEKS.KTR_AKHIRI}
+        sibuk={sedangAksi}
+        onKonfirmasi={async () => {
+          if (!akhiriId) return;
+          setSedangAksi(true);
+          await tanganiAkhiri(akhiriId);
+          setSedangAksi(false);
+          setAkhiriId(null);
+        }}
+        onTutup={() => setAkhiriId(null)}
+      >
+        <p className="text-xs text-tinta-redup">{TEKS.KONF_AKHIRI_KTR}</p>
+      </KonfirmasiAksi>
     </div>
   );
 }

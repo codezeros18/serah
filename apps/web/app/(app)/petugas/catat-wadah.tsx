@@ -108,7 +108,7 @@ export function CatatWadah() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T1_JUDUL}</h1>
         <InfoTip judul={TEKS.T1_JUDUL} isi={TEKS.INFO_T1} />

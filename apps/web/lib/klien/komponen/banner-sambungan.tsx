@@ -34,7 +34,7 @@ export function BannerSambungan() {
   const offline = keadaan === "offline";
 
   return (
-    <div className="sticky top-[4.5rem] z-20 px-3 sm:px-5">
+    <div className="sticky top-[4.5rem] z-20 px-3 sm:px-5 lg:top-3">
       <div
         role="status"
         className={`toast-masuk mx-auto mt-2 flex max-w-6xl items-start gap-3 rounded-2xl p-3.5 shadow-[0_12px_32px_rgba(15,23,42,0.12)] ring-1 backdrop-blur-xl ${

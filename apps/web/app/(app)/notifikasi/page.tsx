@@ -5,7 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import type { z } from "zod";
 import type { NotifikasiDaftarKeluaran } from "@serah/kontrak";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, Kartu, Kosong, Tombol } from "@serah/ui";
+import { BannerGalat } from "@serah/ui";
+import { Rangka } from "@/lib/klien/komponen/rangka";
 import { panggil } from "@/lib/klien/api";
 import { cekIosSafari, cekPushDidukung, daftarkanPush } from "@/lib/klien/push";
 import { useLangsung } from "@/lib/klien/sse";
@@ -156,147 +157,166 @@ export default function HalamanNotifikasi() {
   }
 
   const adaBelumDibaca = daftar.some((n) => !n.dibaca);
+  const jumlahBelum = daftar.filter((n) => !n.dibaca).length;
 
   return (
-    <div className="flex flex-col gap-6 text-tinta">
-      {/* Header Notifikasi */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 text-tinta">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-tinta sm:text-3xl">{TEKS.NTF_JUDUL}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.NTF_JUDUL}</h1>
           {adaBelumDibaca ? (
-            <span className="rounded-full bg-aksi px-2.5 py-0.5 text-xs font-bold text-white shadow-xs">
-              {daftar.filter((n) => !n.dibaca).length}
+            <span className="rounded-full bg-aksi px-2.5 py-0.5 text-xs font-semibold tabular-nums text-white">
+              {jumlahBelum}
             </span>
           ) : null}
         </div>
 
         {adaBelumDibaca ? (
-          <Tombol
-            varian="sekunder"
+          <button
+            type="button"
             onClick={tandaiSemuaDibaca}
-            className="text-xs font-bold shadow-2xs hover:border-aksi hover:text-aksi"
+            className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-garis-halus bg-white/80 px-4 text-sm font-medium text-tinta shadow-[0_2px_8px_rgba(15,23,42,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
           >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+              <path d="m4 12.500 4 4L16 8m-3 8.500 1 1L21 8" stroke="currentColor" strokeWidth="1.900" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             {TEKS.NTF_BACA_SEMUA}
-          </Tombol>
+          </button>
         ) : null}
       </div>
 
-      {/* Kartu Izin Push */}
+      {/* Izin push */}
       {bisaPush && izinPush !== "granted" ? (
-        <Kartu className="flex flex-col gap-3 border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/50 p-5 shadow-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-lg" aria-hidden="true">🔔</span>
-            <p className="text-sm font-bold text-tinta">{TEKS.NTF_IZIN_PUSH}</p>
-          </div>
-          {adalahIos ? (
-            <p className="text-xs text-tinta-redup leading-relaxed">{TEKS.NTF_IZIN_PUSH_IOS}</p>
-          ) : null}
-          <div>
-            <Tombol
+        <div className="flex items-center gap-4 rounded-3xl border border-aksi-garis bg-gradient-to-br from-white to-aksi-latar p-4 shadow-[0_12px_32px_rgba(36,87,197,0.10)]">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-aksi shadow-[0_4px_14px_rgba(15,23,42,0.08)]">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" aria-hidden="true">
+              <path d="M6 16.500V11a6 6 0 1 1 12 0v5.500l1.500 2h-15l1.500-2ZM10 20.500a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.900" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <div className="min-w-0 flex-1">
+            <button
+              type="button"
               onClick={aktifkanNotifikasiPush}
-              className="text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-sm"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-aksi px-4 text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover"
             >
               {TEKS.NTF_IZIN_PUSH}
-            </Tombol>
+            </button>
+            {adalahIos ? <p className="mt-2 text-xs leading-relaxed text-tinta-redup">{TEKS.NTF_IZIN_PUSH_IOS}</p> : null}
           </div>
-        </Kartu>
+        </div>
       ) : null}
 
-      {/* Filter Tabs */}
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={() => setHanyaBelumDibaca(false)}
-          className={`rounded-kontrol px-4 py-2 text-xs font-bold transition-all ${
-            !hanyaBelumDibaca
-              ? "bg-aksi text-aksi-teks shadow-2xs"
-              : "border border-garis-halus bg-kertas text-tinta hover:bg-latar/60"
-          }`}
-        >
-          {TEKS.UMUM_SEMUA}
-        </button>
-        <button
-          type="button"
-          onClick={() => setHanyaBelumDibaca(true)}
-          className={`rounded-kontrol px-4 py-2 text-xs font-bold transition-all ${
-            hanyaBelumDibaca
-              ? "bg-aksi text-aksi-teks shadow-2xs"
-              : "border border-garis-halus bg-kertas text-tinta hover:bg-latar/60"
-          }`}
-        >
-          Belum dibaca
-        </button>
+      {/* Filter */}
+      <div role="group" aria-label={TEKS.NTF_JUDUL} className="flex gap-2">
+        {(
+          [
+            { nilai: false, teks: TEKS.UMUM_SEMUA },
+            { nilai: true, teks: "Belum dibaca" },
+          ] as const
+        ).map((f) => (
+          <button
+            key={String(f.nilai)}
+            type="button"
+            aria-pressed={hanyaBelumDibaca === f.nilai}
+            onClick={() => setHanyaBelumDibaca(f.nilai)}
+            className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-all duration-200 ${
+              hanyaBelumDibaca === f.nilai
+                ? "border-tinta bg-tinta text-white shadow-sm"
+                : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
+            }`}
+          >
+            {f.teks}
+          </button>
+        ))}
       </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {sedangMuat ? (
-        <div className="flex items-center gap-2 py-2 text-sm text-tinta-redup font-medium">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-aksi border-t-transparent" />
-          <p role="status">{TEKS.UMUM_MUAT}</p>
+        <div role="status" className="flex flex-col gap-3">
+          <span className="sr-only">{TEKS.UMUM_MUAT}</span>
+          <Rangka className="h-20 w-full rounded-3xl" />
+          <Rangka className="h-20 w-full rounded-3xl" />
         </div>
       ) : null}
 
       {!sedangMuat && daftar.length === 0 ? (
-        <Kosong teks={TEKS.K_KOSONG_NOTIFIKASI} />
+        <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-garis-halus bg-latar/50 px-6 py-12 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-garis shadow-[0_4px_14px_rgba(15,23,42,0.06)]">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" aria-hidden="true">
+              <path d="M6 16.500V11a6 6 0 1 1 12 0v5.500l1.500 2h-15l1.500-2ZM10 20.500a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.700" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <p className="text-base text-tinta-redup">{TEKS.K_KOSONG_NOTIFIKASI}</p>
+        </div>
       ) : null}
 
-      {/* Daftar Item Notifikasi */}
-      <div className="flex flex-col gap-3">
+      {/* Daftar */}
+      <ul className="flex flex-col gap-3">
         {daftar.map((n) => {
           const tautan = tautanObjek(n);
           const pesan = susunPesanNotifikasi(n);
 
           return (
-            <Kartu
+            <li
               key={n.id}
-              className={`flex flex-col gap-2.5 p-4 transition-all ${
+              className={`muncul flex gap-3 rounded-3xl border p-4 transition-all duration-200 hover:-translate-y-0.5 ${
                 !n.dibaca
-                  ? "border-l-4 border-l-aksi border-garis-halus bg-aksi-latar/30 shadow-xs"
-                  : "border-garis-halus bg-kertas shadow-2xs hover:border-garis"
+                  ? "border-aksi-garis bg-gradient-to-br from-white to-aksi-latar/50 shadow-[0_8px_24px_rgba(36,87,197,0.10)]"
+                  : "border-garis-halus bg-kertas shadow-[0_4px_16px_rgba(15,23,42,0.04)]"
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-tinta leading-relaxed">{pesan}</p>
-                {!n.dibaca ? (
-                  <span className="inline-flex items-center pt-1">
-                    <span className="sr-only">Belum dibaca</span>
-                    <span
-                      aria-hidden="true"
-                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-aksi shadow-2xs"
-                    />
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="flex items-center justify-between gap-4 pt-2 border-t border-garis-halus/60 text-xs text-tinta-redup">
-                <span className="font-mono">{n.dibuatPada.slice(0, 16).replace("T", " ")}</span>
-                <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                  !n.dibaca ? "bg-aksi text-white" : "bg-latar text-tinta-redup"
+                }`}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none">
+                  <path d="M6 16.500V11a6 6 0 1 1 12 0v5.500l1.500 2h-15l1.500-2ZM10 20.500a2 2 0 0 0 4 0" stroke="currentColor" strokeWidth="1.800" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-medium leading-relaxed text-tinta">{pesan}</p>
                   {!n.dibaca ? (
-                    <button
-                      type="button"
-                      onClick={() => void tandaiSatuDibaca(n.id)}
-                      className="font-bold text-tinta hover:text-aksi hover:underline transition-colors"
-                    >
-                      Tandai dibaca
-                    </button>
-                  ) : null}
-                  {tautan ? (
-                    <Link
-                      href={tautan}
-                      onClick={() => {
-                        if (!n.dibaca) void tandaiSatuDibaca(n.id);
-                      }}
-                      className="font-bold text-aksi hover:underline transition-colors"
-                    >
-                      {TEKS.UMUM_LIHAT_DETAIL} →
-                    </Link>
+                    <span className="inline-flex items-center pt-1.5">
+                      <span className="sr-only">Belum dibaca</span>
+                      <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-aksi" />
+                    </span>
                   ) : null}
                 </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-tinta-redup">
+                  <span className="font-mono">{n.dibuatPada.slice(0, 16).replace("T", " ")}</span>
+                  <div className="flex items-center gap-2">
+                    {!n.dibaca ? (
+                      <button
+                        type="button"
+                        onClick={() => void tandaiSatuDibaca(n.id)}
+                        className="rounded-lg px-2.5 py-1.5 font-medium text-tinta transition-colors hover:bg-aksi-latar hover:text-aksi"
+                      >
+                        Tandai dibaca
+                      </button>
+                    ) : null}
+                    {tautan ? (
+                      <Link
+                        href={tautan}
+                        onClick={() => {
+                          if (!n.dibaca) void tandaiSatuDibaca(n.id);
+                        }}
+                        className="rounded-lg bg-aksi-latar px-2.5 py-1.5 font-medium text-aksi transition-colors hover:bg-aksi hover:text-white"
+                      >
+                        {TEKS.UMUM_LIHAT_DETAIL} →
+                      </Link>
+                    ) : null}
+                  </div>
+                </div>
               </div>
-            </Kartu>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 }

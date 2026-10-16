@@ -97,6 +97,7 @@ test.describe("K2", () => {
   test("setujui → DIANGKUT", async ({ page }) => {
     await page.goto(`/kawasan/setujui/${KODE(2)}`);
     await page.getByRole("button", { name: TEKS.K2_SETUJUI }).click();
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
     await expect(page.getByText(isi("K2_DISETUJUI", { kode_serah: KODE(2) }))).toBeVisible();
     await axeBersih(page);
   });

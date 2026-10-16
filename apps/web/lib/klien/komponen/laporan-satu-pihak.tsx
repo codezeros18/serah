@@ -13,7 +13,7 @@ export function LaporanSatuPihak({ pihak, judul }: { pihak: PihakLaporan; judul:
   const [periode, setPeriode] = useState(periodeSekarangWib);
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">{TEKS[judul]}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS[judul]}</h1>
       <PilihPeriode nilai={periode} onUbah={setPeriode} />
       <TabelLaporan pihak={pihak} periode={periode} />
     </div>

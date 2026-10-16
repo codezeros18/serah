@@ -174,6 +174,7 @@ test.describe("S30-4: Peran Pengelola Kawasan (/kawasan, /setujui, /laporan, /di
     await page.goto(`/kawasan/setujui/${KODE(2)}`);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await page.getByRole("button", { name: TEKS.K2_SETUJUI }).click();
+    await page.getByRole("dialog").getByRole("button", { name: TEKS.UMUM_KONFIRMASI }).click();
     await expect(page.getByText(isi("K2_DISETUJUI", { kode_serah: KODE(2) }))).toBeVisible();
     await axeBersih(page, "kawasan-disetujui");
   });

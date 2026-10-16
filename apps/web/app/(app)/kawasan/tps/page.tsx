@@ -7,6 +7,7 @@ import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Kartu, Tombol } from "@serah/ui";
 import { formatE6, parseKoordinat } from "@/lib/klien/angka";
 import { panggil } from "@/lib/klien/api";
+import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
 
 export default function HalamanTps() {
@@ -231,27 +232,18 @@ export default function HalamanTps() {
         </form>
       </Dialog>
 
-      <Dialog
+      <KonfirmasiAksi
         terbuka={Boolean(tpsQrBaru)}
         judul={TEKS.TPS_QR_BARU}
+        tingkat="tahan"
+        bahaya
+        labelKonfirmasi={TEKS.TPS_QR_BARU}
+        sibuk={sedangQrBaru}
+        onKonfirmasi={() => void tanganiQrBaru()}
         onTutup={() => setTpsQrBaru(null)}
       >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-tinta">{TEKS.TPS_QR_BARU_PERINGATAN}</p>
-          <div className="flex justify-end gap-2">
-            <Tombol
-              varian="sekunder"
-              onClick={() => setTpsQrBaru(null)}
-              disabled={sedangQrBaru}
-            >
-              {TEKS.UMUM_BATAL}
-            </Tombol>
-            <Tombol onClick={tanganiQrBaru} disabled={sedangQrBaru}>
-              {TEKS.UMUM_KONFIRMASI}
-            </Tombol>
-          </div>
-        </div>
-      </Dialog>
+        <p className="text-sm text-tinta">{TEKS.TPS_QR_BARU_PERINGATAN}</p>
+      </KonfirmasiAksi>
     </div>
   );
 }

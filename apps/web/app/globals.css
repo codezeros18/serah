@@ -193,6 +193,7 @@ html::-webkit-scrollbar-thumb:hover {
 }
 .gulir-halus::-webkit-scrollbar {
   height: 6px;
+  width: 6px;
 }
 .gulir-halus::-webkit-scrollbar-track {
   background: var(--color-latar);
@@ -297,4 +298,11 @@ dialog.lembar {
   .dropdown-masuk {
     animation: dropdown-masuk 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
+}
+
+/* Varian lebih bulat untuk kotak centang daftar pengaturan */
+.kotak-centang.kotak-bulat {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 0.6rem;
 }

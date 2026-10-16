@@ -189,6 +189,10 @@ function Isi({ children }: { children: ReactNode }) {
             })}
           </nav>
 
+          <div className="mt-3 flex">
+            <IndikatorSinkron />
+          </div>
+
           <button
             type="button"
             onClick={() => void keluar()}
@@ -202,8 +206,8 @@ function Isi({ children }: { children: ReactNode }) {
 
       <div className={adalahPanelDemo ? "" : "lg:pl-[264px]"}>
         {/* Bilah atas kaca: HP dan desktop */}
-        <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/60 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
+        <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 lg:hidden">
+          <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/60 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
             <div className="flex min-w-0 items-center gap-3">
               <Link
                 href={ruteHome}
@@ -250,10 +254,8 @@ function Isi({ children }: { children: ReactNode }) {
 
         <BannerSambungan />
 
-        <main className="mx-auto w-full max-w-6xl px-4 pb-32 pt-5 sm:px-6 lg:pb-12">
-          <div className={peran === "PETUGAS" || peran === "PENGANGKUT" ? "mx-auto w-full max-w-2xl" : ""}>
-            {boleh ? children : <BannerGalat pesan={TEKS.G_PERAN_TIDAK_BOLEH} />}
-          </div>
+        <main className="mx-auto w-full max-w-[1480px] px-4 pb-32 pt-5 sm:px-6 lg:pb-12">
+          {boleh ? children : <BannerGalat pesan={TEKS.G_PERAN_TIDAK_BOLEH} />}
         </main>
       </div>
 

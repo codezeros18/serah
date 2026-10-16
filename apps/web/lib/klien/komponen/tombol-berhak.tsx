@@ -23,11 +23,13 @@ export function TombolBerhak({
   onLanjut,
   children,
   varian = "sekunder",
+  className,
 }: {
   kunci: KunciHak;
   onLanjut: () => void;
   children: ReactNode;
   varian?: "utama" | "sekunder";
+  className?: string;
 }) {
   const boleh = useBolehHak(kunci);
   const [ditolak, setDitolak] = useState(false);
@@ -35,6 +37,7 @@ export function TombolBerhak({
     <div className="flex flex-col gap-1">
       <Tombol
         varian={varian}
+        className={className}
         data-hak={kunci}
         onClick={() => {
           if (boleh) {

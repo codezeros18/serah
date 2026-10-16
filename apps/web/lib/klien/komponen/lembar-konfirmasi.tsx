@@ -74,7 +74,7 @@ export function LembarKonfirmasi({
       ref={ref}
       aria-labelledby={idJudul}
       onClose={onTutup}
-      className="lembar m-0 mt-auto w-full max-w-none rounded-t-[2rem] border-0 bg-kertas p-0 text-tinta shadow-[0_-20px_60px_rgba(15,23,42,0.25)] backdrop:bg-tinta/40 backdrop:backdrop-blur-sm sm:m-auto sm:max-w-md sm:rounded-[2rem]"
+      className="lembar gulir-halus max-h-[92dvh] overflow-y-auto m-0 mt-auto w-full max-w-none rounded-t-[2rem] border-0 bg-kertas p-0 text-tinta shadow-[0_-20px_60px_rgba(15,23,42,0.25)] backdrop:bg-tinta/40 backdrop:backdrop-blur-sm sm:m-auto sm:max-w-md sm:rounded-[2rem]"
     >
       <div className="flex flex-col gap-5 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <span aria-hidden="true" className="mx-auto h-1.5 w-10 rounded-full bg-garis-halus sm:hidden" />

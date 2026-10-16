@@ -115,7 +115,7 @@ export default function LayarA2() {
   const indeksAktif = URUTAN_LANGKAH.indexOf(langkah);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <h1 className="text-2xl font-semibold tracking-tight text-tinta">{isi("A2_JUDUL", { kode_serah: kode })}</h1>
 
       {/* Indikator Langkah Bertahap untuk Driver */}
