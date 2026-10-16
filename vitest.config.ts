@@ -23,6 +23,7 @@ export default defineConfig({
           include: ["apps/web/**/*.test.{ts,tsx}"],
           exclude: ["**/node_modules/**", "apps/web/e2e/**", "apps/web/.next/**"],
           fileParallelism: false,
+          setupFiles: ["apps/web/vitest.setup.ts"],
           sequence: { groupOrder: 1 },
           testTimeout: 20_000,
           hookTimeout: 30_000,

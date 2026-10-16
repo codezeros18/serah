@@ -1,5 +1,5 @@
 import { GalatApi, tanganiRute } from "@/lib/server/galat";
-import { integrasi, tandaFotoSah } from "@/lib/server/integrasi-stub";
+import { integrasi, tandaFotoSah } from "@/lib/server/integrasi";
 
 // GET /api/foto/berkas?k&e&t — penyaji objek foto untuk penyimpanan aktif (lokal atau R2 privat).
 // Hanya lewat URL bertanda tangan (HMAC, 5 menit) yang diterbitkan untuk pihak serah; tanda salah/kedaluwarsa → 404.

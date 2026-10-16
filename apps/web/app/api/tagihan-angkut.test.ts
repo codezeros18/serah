@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
 import { denganAkses } from "@/lib/server/db";
 import { GalatApi } from "@/lib/server/galat";
-import { aturIntegrasi, penyimpananLokal } from "@/lib/server/integrasi-stub";
+import { aturIntegrasi, penyimpananLokal } from "@/lib/server/integrasi";
 import { terbitkanTagihanAngkut } from "@/lib/server/layanan/tagihan-angkut";
 import { bacaSesi, konteksAkses } from "@/lib/server/sesi";
 import { orgBaru, type OrgUji } from "@/lib/server/uji/akun";

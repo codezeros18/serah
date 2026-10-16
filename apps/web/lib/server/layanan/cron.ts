@@ -3,9 +3,10 @@ import { awalHariWib, selisihJam, tanggalWib } from "@serah/core/waktu";
 import type { Prisma } from "@serah/db";
 import { denganSistem, type Tx } from "../db";
 import { konfigurasiAturan } from "../aturan";
+import { provinsiUnik } from "../wilayah";
 import { muatEnv } from "../env";
 import { GalatApi } from "../galat";
-import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi-stub";
+import { integrasi, type NowcastMentah, type PrakiraanMentah } from "../integrasi";
 import { nowcastBerlaku, prioritasTps, simpanNowcast, simpanPrakiraan, type PrakiraanTersimpan } from "./cuaca";
 import { buatNotifikasi } from "../notifikasi";
 import { kerjaLanggananHarian } from "./langganan";
@@ -184,7 +185,11 @@ async function retensiFoto(tx: Tx, sekarang: Date): Promise<number> {
 
 async function ambilData(nama: NamaCron): Promise<Prefetch> {
   // Jaringan di luar transaksi DB. Kegagalan sumber = null (tanpa tebakan).
-  if (nama === "sepuluh-menit") return { nowcast: await integrasi().cuaca.nowcast().catch(() => null), prakiraan: [] };
+  if (nama === "sepuluh-menit") {
+    // Provinsi dari kode wilayah kawasan yang terdaftar (tanpa kawasan → tidak ada yang perlu diambil).
+    const adm4 = await denganSistem((tx) => tx.kawasan.findMany({ select: { adm4: true }, distinct: ["adm4"] }));
+    return { nowcast: await integrasi().cuaca.nowcast(provinsiUnik(adm4.map((k) => k.adm4))).catch(() => null), prakiraan: [] };
+  }
   if (nama !== "tiga-jam") return { nowcast: null, prakiraan: [] };
   const adm4 = await denganSistem((tx) => tx.kawasan.findMany({ select: { adm4: true }, distinct: ["adm4"] }));
   const prakiraan: PrakiraanMentah[] = [];

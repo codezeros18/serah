@@ -2,7 +2,7 @@ import { parseBeratKgKeGram } from "@serah/core/angka";
 import { KEYAKINAN_AI, type KeyakinanAi } from "@serah/kontrak";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
-import { integrasi } from "../integrasi-stub";
+import { integrasi } from "../integrasi";
 import type { Sesi } from "../sesi";
 
 // POST /api/tiket/baca (S08-4). AI hanya membaca tiket/nota timbang dan hasilnya SARAN berlabel; manusia mengonfirmasi

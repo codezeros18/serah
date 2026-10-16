@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { TEKS, isi } from "@serah/kontrak";
 import { beforeAll, describe, expect, it } from "vitest";
-import { bacaObjekLokal } from "@/lib/server/integrasi-stub";
+import { bacaObjekLokal } from "@/lib/server/integrasi";
 import { data, demo, denganPemilik, formFoto, jpegContoh, masuk, panggil, pngContoh, satu, type DemoS08 } from "@/lib/server/uji/klien";
 import { GET as daftarAmbil } from "./ambil/route";
 import { GET as berkasFoto } from "./foto/berkas/route";

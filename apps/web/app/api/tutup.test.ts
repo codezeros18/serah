@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { TEKS, isi } from "@serah/kontrak";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { aturIntegrasi, manualPembaca } from "@/lib/server/integrasi-stub";
+import { aturIntegrasi } from "@/lib/server/integrasi";
+import { manualPembaca } from "@/lib/server/uji/stub-integrasi";
 import { data, demo, formFoto, masuk, panggil, pngContoh, satu, semua, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as unggah } from "./foto/route";
 import { POST as ambil } from "./serah/[kode]/ambil/route";

@@ -62,6 +62,12 @@ describe("log tanpa PII", () => {
     expect(sensor(e)).toEqual({ nama: "Error", kode: "P2028", pesan: `gagal kirim ke ${DISENSOR}` });
   });
 
+  it("kunci API (Anthropic, Resend, Midtrans) di dalam teks disensor walau pendek", () => {
+    const s = sensorTeks("401 kunci sk-ant-rahasia, re_abc123xyz, SB-Mid-server-abc, Mid-client-xyz ditolak");
+    for (const r of ["sk-ant-rahasia", "re_abc123xyz", "Mid-server-abc", "Mid-client-xyz"]) expect(s).not.toContain(r);
+    expect(s).toBe(`401 kunci ${DISENSOR}, ${DISENSOR}, ${DISENSOR}, ${DISENSOR} ditolak`);
+  });
+
   it("sensorTeks tidak merusak kode serah, tanggal, dan angka biasa", () => {
     const s = "Serah SRH-20261016-0001 ditutup 2026-10-16 berat 12500 g";
     expect(sensorTeks(s)).toBe(s);

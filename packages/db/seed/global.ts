@@ -29,27 +29,28 @@ const HAK: Record<string, [unknown, unknown, unknown, unknown, unknown]> = {
 
 /**
  * BLUEPRINT §J (kode, sumber, aksi, ambang). Diisi dari tabel §J karena core/aturan/daftar.ts (S03) belum MERGED —
- * DICEK ULANG DI S28 terhadap daftar.ts. NASIONAL hanya aturan yang tidak bergantung pasal Pergub DKI.
+ * DICEK di S28-5: test apps/web/lib/server/aturan-seed.test.ts membandingkan baris ini dengan core/aturan/daftar.ts. NASIONAL hanya aturan yang tidak bergantung pasal Pergub DKI.
  */
 const ATURAN = [
-  { kode: "R01", sumber: "Pergub 102 Ps. 20(2)(d)", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R01", nasional: false },
-  { kode: "R02", sumber: "Pergub 102 Ps. 20(2)(b)", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R02", nasional: false },
-  { kode: "R03", sumber: "Pergub 102 Ps. 19(2)(c)", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R03", nasional: false },
+  { kode: "R01", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 20 ayat (2) huruf d", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R01", nasional: false },
+  { kode: "R02", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 20 ayat (2) huruf b", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R02", nasional: false },
+  { kode: "R03", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 19 ayat (2) huruf c", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R03", nasional: false },
   { kode: "R04", sumber: "Integritas bukti", aksi: "TOLAK", ambang: { R04_AMBANG_BIT: 6, R04_JENDELA_HARI: 30 }, teks: "ATURAN_R04", nasional: true },
-  { kode: "R05", sumber: "Pergub 102 Ps. 8(1)(g)", aksi: "PERINGATAN", ambang: { R05_JAM: 72 }, teks: "ATURAN_R05", nasional: false },
-  { kode: "R06", sumber: "Pergub 102 Ps. 8(1)(h)", aksi: "PERINGATAN", ambang: { R06_JAM: 24 }, teks: "ATURAN_R06", nasional: false },
+  { kode: "R05", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 8 ayat (1) huruf g", aksi: "PERINGATAN", ambang: { R05_JAM: 72 }, teks: "ATURAN_R05", nasional: false },
+  { kode: "R06", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 8 ayat (1) huruf h", aksi: "PERINGATAN", ambang: { R06_JAM: 24 }, teks: "ATURAN_R06", nasional: false },
   { kode: "R07", sumber: "Integritas serah", aksi: "STATUS", ambang: { R07_JAM: 12 }, teks: "ATURAN_R07", nasional: true },
   { kode: "R08", sumber: "Integritas berat", aksi: "PERINGATAN", ambang: { R08_BP: 2000 }, teks: "ATURAN_R08", nasional: true },
-  { kode: "R09", sumber: "Pergub 102 Ps. 13(4)(a)", aksi: "PERINGATAN", ambang: { R09_JAM_WIB: 20 }, teks: "ATURAN_R09", nasional: false },
+  { kode: "R09", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 13 ayat (4) huruf a", aksi: "PERINGATAN", ambang: { R09_JAM_WIB: 20 }, teks: "ATURAN_R09", nasional: false },
   {
     kode: "R10",
-    sumber: "Data BMKG + Pergub 102 Ps. 8",
+    sumber: "Data BMKG; Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 8",
+    sumberNasional: "Data BMKG",
     aksi: "PRIORITAS",
     ambang: { R10_HORIZON_JAM: 6, R10_UMUR_JAM: 24, R10_BASI_JAM: 12, R10_KATA_HUJAN: ["Hujan Lebat", "Hujan Petir"] },
     teks: "ATURAN_R10_PRAKIRAAN",
     nasional: true,
   },
-  { kode: "R11", sumber: "Pergub 102 Ps. 1 angka 21", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R11", nasional: false },
+  { kode: "R11", sumber: "Pergub DKI Jakarta Nomor 102 Tahun 2021 Pasal 1 angka 21", aksi: "TOLAK", ambang: {}, teks: "ATURAN_R11", nasional: false },
 ] as const;
 
 /** RISET §5 — satu-satunya sumber harga material. Tanggal ditulis apa adanya (sebagian [GAP-HM-01]). */
@@ -91,7 +92,7 @@ export async function seedGlobal(k: Klien): Promise<void> {
           kode: a.kode,
           yurisdiksi,
           versi: 1,
-          sumber: a.sumber,
+          sumber: yurisdiksi === "NASIONAL" && "sumberNasional" in a ? a.sumberNasional : a.sumber,
           aksi: a.aksi,
           ambang: a.ambang,
           kunci_teks: a.teks,

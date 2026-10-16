@@ -54,6 +54,8 @@ const SkemaEnv = z
       for (const k of ["R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_BUCKET"] as const) wajib(k, "bila PENYIMPANAN_MODE=r2");
     }
     if (e.NODE_ENV === "production") {
+      // Mock klien hanya untuk pengembangan layar (S28-1): produksi menolak start bila menyala.
+      if (e.NEXT_PUBLIC_API_MOCK) ctx.addIssue({ code: "custom", path: ["NEXT_PUBLIC_API_MOCK"], message: "tidak boleh true di produksi" });
       wajib("PENYIMPANAN_MODE", "di produksi");
       wajib("RESEND_API_KEY", "di produksi");
       wajib("EMAIL_FROM", "di produksi");

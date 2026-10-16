@@ -36,6 +36,9 @@ const KUNCI_SENSITIF = new Set([
 
 const POLA_TEKS: readonly RegExp[] = [
   /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, // email
+  /sk-ant-[A-Za-z0-9_-]+/g, // kunci Anthropic
+  /re_[A-Za-z0-9_]{6,}/g, // kunci Resend
+  /(?:SB-)?Mid-(?:server|client)-[A-Za-z0-9_-]+/g, // kunci Midtrans
   /__Host-serah=[^;\s]*/g, // cookie sesi
   /\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, // header otorisasi
   /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, // IPv4

@@ -14,6 +14,7 @@ import { guardConsoleLog } from "../k-console-log.ts";
 import { guardAmbangAturan } from "../l-ambang-aturan.ts";
 import { guardEnvTertrack } from "../m-env-tertrack.ts";
 import { IZIN_TANPA_PERAN, guardRuteMutasi, jalurRute } from "../n-rute-mutasi.ts";
+import { guardTanpaStubProduksi } from "../o-tanpa-stub-produksi.ts";
 import { DAFTAR_GUARD } from "../daftar.ts";
 import { IZIN_KATA } from "../izin-kata.ts";
 import type { Guard, Temuan } from "../jenis.ts";
@@ -28,8 +29,8 @@ function jalankan(g: Guard, berkas: Record<string, string>, tertrack: string[] =
 }
 
 describe("daftar guard", () => {
-  it("berisi 14 guard (a)–(n) berurutan", () => {
-    expect(DAFTAR_GUARD.map((g) => g.kode).join("")).toBe("abcdefghijklmn");
+  it("berisi 15 guard (a)–(o) berurutan", () => {
+    expect(DAFTAR_GUARD.map((g) => g.kode).join("")).toBe("abcdefghijklmno");
   });
 });
 
@@ -467,3 +468,33 @@ export const GET = tanganiRute(async (r) => { const sesi = await wajibSesi(r); }
     expect(t.map((x) => x.pesan)).toContain("IZIN_TANPA_PERAN memuat POST /api/auth/masuk yang tidak ada sebagai handler");
   });
 });
+
+describe("(o) tanpa-stub-produksi", () => {
+  it("menggigit: impor lib/server/uji, impor integrasi-stub, menyebut stub, membaca API_MOCK sembarangan", () => {
+    const t = jalankan(guardTanpaStubProduksi, {
+      "apps/web/lib/server/layanan/x.ts": `import { manualPembaca } from "../uji/stub-integrasi";
+export const a = manualPembaca;`,
+      "apps/web/app/api/y/route.ts": `import { integrasi } from "@/lib/server/integrasi-stub";`,
+      "apps/web/lib/klien/komponen/z.tsx": `export const m = process.env.NEXT_PUBLIC_API_MOCK === "true";`,
+    }).map((x) => `${x.berkas}: ${x.pesan}`);
+    expect(t).toContain('apps/web/lib/server/layanan/x.ts: kode produksi mengimpor "../uji/stub-integrasi" (stub/pembantu test)');
+    expect(t).toContain('apps/web/lib/server/layanan/x.ts: kode produksi menyebut stub "manualPembaca"');
+    expect(t).toContain('apps/web/app/api/y/route.ts: kode produksi mengimpor "@/lib/server/integrasi-stub" (stub/pembantu test)');
+    expect(t).toContain("apps/web/lib/klien/komponen/z.tsx: NEXT_PUBLIC_API_MOCK dibaca di luar api.ts/mock/env.ts");
+  });
+  it("tidak salah tuduh: test, folder uji, mock klien, api.ts, env.ts, impor integrasi biasa", () => {
+    expect(
+      jalankan(guardTanpaStubProduksi, {
+        "apps/web/lib/server/layanan/x.ts": `import { integrasi } from "../integrasi";`,
+        "apps/web/lib/server/uji/stub-integrasi.ts": `export const manualPembaca = 1;`,
+        "apps/web/app/api/a.test.ts": `import { manualPembaca } from "@/lib/server/uji/stub-integrasi";`,
+        "apps/web/lib/klien/api.ts": `export const MOCK = process.env.NEXT_PUBLIC_API_MOCK === "true";`,
+        "apps/web/lib/klien/mock.ts": `// NEXT_PUBLIC_API_MOCK
+export const x = 1;`,
+        "apps/web/lib/server/env.ts": `const k = "NEXT_PUBLIC_API_MOCK";`,
+        "packages/core/x.ts": `export const manualPembaca = 1;`,
+      }),
+    ).toEqual([]);
+  });
+});
+

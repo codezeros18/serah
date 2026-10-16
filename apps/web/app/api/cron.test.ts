@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { beforeAll, describe, expect, it } from "vitest";
 import { muatEnv } from "@/lib/server/env";
-import { bacaObjekLokal, penyimpananLokal } from "@/lib/server/integrasi-stub";
+import { bacaObjekLokal, penyimpananLokal } from "@/lib/server/integrasi";
 import { jalankanCron } from "@/lib/server/layanan/cron";
 import { asal, data, demo, denganPemilik, formFoto, masuk, panggil, pngContoh, satu, type DemoS08 } from "@/lib/server/uji/klien";
 import { POST as cronHarian } from "./cron/harian/route";

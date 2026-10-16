@@ -12,6 +12,7 @@ import { guardConsoleLog } from "./k-console-log.ts";
 import { guardAmbangAturan } from "./l-ambang-aturan.ts";
 import { guardEnvTertrack } from "./m-env-tertrack.ts";
 import { guardRuteMutasi } from "./n-rute-mutasi.ts";
+import { guardTanpaStubProduksi } from "./o-tanpa-stub-produksi.ts";
 import type { Guard } from "./jenis.ts";
 
 export const DAFTAR_GUARD: readonly Guard[] = [
@@ -29,4 +30,5 @@ export const DAFTAR_GUARD: readonly Guard[] = [
   guardAmbangAturan,
   guardEnvTertrack,
   guardRuteMutasi,
+  guardTanpaStubProduksi,
 ];

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { penyimpananDariAdaptor, tandaFotoSah, type AdaptorObjek } from "./integrasi-stub";
+import { penyimpananDariAdaptor, tandaFotoSah, type AdaptorObjek } from "./integrasi";
 
 // Penyimpanan R2 di server: pembungkus atas adaptor objek. Bucket privat; klien hanya menerima URL aplikasi
 // bertanda tangan. Diuji dengan adaptor objek di memori (R2 sungguhan diuji manual, lihat PROGRESS-A S28).

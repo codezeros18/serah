@@ -5,7 +5,7 @@ import type { ModeData } from "@serah/kontrak";
 import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
-import type { NowcastMentah, PrakiraanMentah } from "../integrasi-stub";
+import type { NowcastMentah, PrakiraanMentah } from "../integrasi";
 import { muatTps, wadahBelumDiserahkan, yurisdiksiKawasan, type TpsAkses } from "./wadah";
 
 // Cuaca BMKG & prioritas angkut R-10 (S08-6, cron S08-7). Prioritas bukan peringatan dini resmi:

@@ -9,7 +9,7 @@ import { SandboxTiruan } from "@/lib/adaptor/bayar/uji";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
 import { denganSistem } from "@/lib/server/db";
 import { muatEnv } from "@/lib/server/env";
-import { aturIntegrasi, penyimpananLokal } from "@/lib/server/integrasi-stub";
+import { aturIntegrasi, penyimpananLokal } from "@/lib/server/integrasi";
 import { PAKET_BERBAYAR } from "@/lib/server/hak";
 import { kerjaLanggananHarian } from "@/lib/server/layanan/langganan";
 import { JENIS_PERLU_TINJAUAN } from "@/lib/server/layanan/tagihan";

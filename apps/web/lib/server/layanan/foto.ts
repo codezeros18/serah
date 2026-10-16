@@ -4,7 +4,7 @@ import type { JenisFoto } from "@serah/kontrak";
 import { konfigurasiAturan } from "../aturan";
 import type { Tx } from "../db";
 import { GalatApi } from "../galat";
-import { integrasi } from "../integrasi-stub";
+import { integrasi } from "../integrasi";
 import type { Sesi } from "../sesi";
 import { rujukan, yurisdiksiKawasan } from "./wadah";
 

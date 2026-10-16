@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { TEKS } from "@serah/kontrak";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { aturIntegrasi, cuacaTanpaJaringan, integrasi, manualPembaca, type PrakiraanMentah } from "@/lib/server/integrasi-stub";
+import { aturIntegrasi, integrasi, type PrakiraanMentah } from "@/lib/server/integrasi";
+import { cuacaTanpaJaringan, manualPembaca } from "@/lib/server/uji/stub-integrasi";
 import { jalankanCron } from "@/lib/server/layanan/cron";
 import { data, demo, formFoto, masuk, panggil, pngContoh, satu, type DemoS08 } from "@/lib/server/uji/klien";
 import { GET as cuaca } from "./cuaca/[adm4]/route";

@@ -16,7 +16,8 @@ export default defineConfig({
     { name: "laptop", use: { ...devices["Desktop Chrome"], viewport: { width: 1366, height: 768 } } },
   ],
   webServer: {
-    command: "node ../../scripts/next.mjs dev",
+    // E2E_PRODUKSI=1 → uji terhadap build produksi (`pnpm build` dulu): cepat, dan memakai CSP/nonce/proxy sungguhan.
+    command: process.env.E2E_PRODUKSI === "1" ? "node ../../scripts/next.mjs start" : "node ../../scripts/next.mjs dev",
     url: `${baseURL}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
