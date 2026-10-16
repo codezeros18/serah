@@ -133,6 +133,9 @@ export const TEKS = {
   // M.6 Petugas (T1, T2)
   T1_JUDUL: "Catat wadah",
   T1_PINDAI: "Pindai QR TPS",
+  T1_KETIK_QR: "Atau ketik kode QR",
+  T1_KETIK_QR_PLACEHOLDER: "Tempel atau ketik kode QR",
+  T1_KETIK_QR_LANJUT: "Pakai kode ini",
   T1_PINDAI_PETUNJUK: "Arahkan kamera ke kode QR yang tertempel di TPS.",
   T1_TPS_TERPILIH: "{kode_tps} · {nama_kawasan}",
   T1_PILIH_ALIRAN: "Pilih warna wadah",

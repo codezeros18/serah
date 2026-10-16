@@ -174,6 +174,23 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
   });
   await sisip(k, "peristiwa_langganan", { id: idBaru(), langganan_id: langganan, dari: null, ke: "UJI_COBA", sebab: "seed demo", dibuat_pada: sekarang });
 
+  // Tagihan contoh berstatus TERBIT agar alur bayar (Midtrans sandbox / transfer) bisa dicoba di /kawasan/langganan.
+  const hariIni = tanggalWib(sekarang);
+  const periodeIni = `${hariIni.slice(0, 4)}-${hariIni.slice(4, 6)}`;
+  const jt = tanggalWib(new Date(sekarang.getTime() + 14 * HARI_MS));
+  await sisip(k, "tagihan", {
+    id: idBaru(),
+    nomor: `TGH-${periodeIni.replace("-", "")}-0001`,
+    organisasi_id: org.kawasan,
+    periode: periodeIni,
+    jumlah_tps: 2,
+    harga_per_tps_idr: 350000,
+    total_idr: 700000,
+    status: "TERBIT",
+    jatuh_tempo: `${jt.slice(0, 4)}-${jt.slice(4, 6)}-${jt.slice(6, 8)}`,
+    dibuat_pada: sekarang,
+  });
+
   // ── Riwayat 30 hari sintetis ─────────────────────────────────────────────
   const event: Event[] = [];
   const dasarEvent = { kawasanId: kawasan, orgKawasan: org.kawasan, orgPengangkut: null, orgPenerima: null, serahId: null, serahKode: null };

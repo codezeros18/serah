@@ -16,6 +16,7 @@ export function PilihTps({ onTerpilih }: { onTerpilih: (t: TpsTerpilih) => void 
   const [memindai, setMemindai] = useState(false);
   const [sibuk, setSibuk] = useState(false);
   const [galat, setGalat] = useState<string | null>(null);
+  const [kodeKetik, setKodeKetik] = useState("");
 
   async function tangani(teks: string) {
     if (sibuk) return;
@@ -80,6 +81,29 @@ export function PilihTps({ onTerpilih }: { onTerpilih: (t: TpsTerpilih) => void 
           >
             {TEKS.T1_PINDAI}
           </Tombol>
+          <form
+            className="flex w-full flex-col gap-2 border-t border-garis-halus pt-4 text-left"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void tangani(kodeKetik);
+            }}
+          >
+            <label htmlFor="ketik-qr" className="text-sm font-semibold text-tinta">
+              {TEKS.T1_KETIK_QR}
+            </label>
+            <input
+              id="ketik-qr"
+              type="text"
+              autoComplete="off"
+              value={kodeKetik}
+              onChange={(e) => setKodeKetik(e.target.value)}
+              placeholder={TEKS.T1_KETIK_QR_PLACEHOLDER}
+              className="h-12 w-full rounded-kontrol border-2 border-garis bg-white px-3 font-mono text-base"
+            />
+            <Tombol type="submit" varian="sekunder" className="min-h-12 w-full font-bold" disabled={sibuk || kodeKetik.trim() === ""}>
+              {TEKS.T1_KETIK_QR_LANJUT}
+            </Tombol>
+          </form>
         </div>
       )}
     </div>
