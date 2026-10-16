@@ -18,7 +18,8 @@ export const SKEMA_TIKET = {
   properties: {
     nomor_tiket: { type: ["string", "null"] },
     berat_teks: { type: ["string", "null"] },
-    satuan: { type: ["string", "null"], enum: ["kg", "ton", null] },
+    // anyOf (bukan type-array + enum): API Anthropic menolak enum pada tipe gabungan ["string","null"] (400).
+    satuan: { anyOf: [{ type: "string", enum: ["kg", "ton"] }, { type: "null" }] },
     tanggal_teks: { type: ["string", "null"] },
     keyakinan: { type: "string", enum: ["TINGGI", "SEDANG", "RENDAH"] },
   },

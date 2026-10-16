@@ -92,6 +92,17 @@ describe("ClaudePembaca", () => {
     expect(panggilan).toHaveLength(1);
   });
 
+  it("skema keluaran sah untuk API Anthropic: tidak ada enum pada tipe gabungan (regresi 400 di produksi)", () => {
+    // API menolak { type: ["string","null"], enum: [...] } dengan 400 "Enum value does not match declared type".
+    const periksa = (n: unknown, jalur: string): string[] => {
+      if (!n || typeof n !== "object") return [];
+      const o = n as Record<string, unknown>;
+      const bad = Array.isArray(o.type) && "enum" in o ? [jalur] : [];
+      return bad.concat(...Object.entries(o).map(([k, v]) => periksa(v, `${jalur}.${k}`)));
+    };
+    expect(periksa(SKEMA_TIKET, "skema")).toEqual([]);
+  });
+
   it("JSON rusak atau enum keyakinan tak dikenal → AiTidakTersedia", async () => {
     await expect(buat([{ teks: "bukan json" }]).pembaca.baca(FOTO, "image/webp")).rejects.toBeInstanceOf(AiTidakTersedia);
     await expect(buat([{ json: { ...TINGGI, keyakinan: "YAKIN" } }]).pembaca.baca(FOTO, "image/webp")).rejects.toBeInstanceOf(AiTidakTersedia);
