@@ -175,7 +175,7 @@ export default function HalamanMasuk() {
               </div>
               <p className="text-center text-xs text-tinta-redup">{TEKS.MASUK_DEMO_SUB}</p>
               <div className="grid grid-cols-2 gap-2.5">
-                {AKUN_DEMO.map((a) => (
+                {AKUN_DEMO.map((a, i) => (
                   <button
                     key={a.peran}
                     type="button"
@@ -191,7 +191,10 @@ export default function HalamanMasuk() {
                       />
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-tinta">{a.label}</span>
+                      <span className="block truncate text-sm font-medium text-tinta">
+                        <span aria-hidden="true" className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-aksi-latar text-[11px] font-semibold text-aksi">{i + 1}</span>
+                        {a.label}
+                      </span>
                       <span className="block truncate text-[11px] text-tinta-redup">{a.hint}</span>
                     </span>
                   </button>

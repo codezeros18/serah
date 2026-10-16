@@ -68,7 +68,7 @@ export function NavbarGlass() {
                 href="/demo"
                 className="inline-flex min-h-10 items-center rounded-lg bg-latar px-3.5 text-sm font-medium text-tinta transition-colors duration-200 hover:bg-aksi-latar hover:text-aksi"
               >
-                {TEKS.LANDING_NAV_DEMO}
+                {TEKS.LANDING_NAV_PANEL}
               </Link>
               <Link
                 href="/masuk"
@@ -142,7 +142,7 @@ export function NavbarGlass() {
                   onClick={tutup}
                   className="inline-flex min-h-11 items-center justify-center rounded-xl bg-latar px-4 text-sm font-medium text-tinta transition-colors hover:bg-aksi-latar hover:text-aksi"
                 >
-                  {TEKS.LANDING_NAV_DEMO}
+                  {TEKS.LANDING_NAV_PANEL}
                 </Link>
                 <Link
                   href="/masuk"

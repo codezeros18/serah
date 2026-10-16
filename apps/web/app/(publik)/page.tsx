@@ -228,7 +228,7 @@ export default function HalamanLanding() {
               <Link href="/mulai" className={TOMBOL_HITAM}>
                 {TEKS.LANDING_CTA}
               </Link>
-              <Link href="/demo" className={TOMBOL_TEPI}>
+              <Link href="/masuk" className={TOMBOL_TEPI}>
                 {TEKS.LANDING_CTA_DEMO}
               </Link>
             </div>
@@ -350,7 +350,7 @@ export default function HalamanLanding() {
                       href="/demo"
                       className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-tinta transition hover:bg-latar"
                     >
-                      {TEKS.LANDING_NAV_DEMO}
+                      {TEKS.LANDING_NAV_PANEL}
                     </Link>
                     <a
                       href="#tentang"
