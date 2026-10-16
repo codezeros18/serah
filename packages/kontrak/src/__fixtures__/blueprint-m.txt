@@ -132,6 +132,7 @@ T1_PINDAI          = Pindai QR TPS
 T1_KETIK_QR        = Atau ketik kode QR
 T1_KETIK_QR_PLACEHOLDER = Tempel atau ketik kode QR
 T1_KETIK_QR_LANJUT = Pakai kode ini
+NAV_LANGGANAN      = Langganan
 TPS_UBAH_LOKASI    = Ubah lokasi
 TPS_UBAH_JUDUL     = Ubah lokasi TPS
 PETA_CARI_LABEL    = Cari alamat atau nama tempat
