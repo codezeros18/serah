@@ -1,7 +1,8 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Tps } from "@serah/kontrak";
 import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Kartu, Tombol } from "@serah/ui";
@@ -10,6 +11,9 @@ import { panggil } from "@/lib/klien/api";
 import { GambarAman } from "@/lib/klien/komponen/gambar-aman";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
+
+const PetaPilihTitik = dynamic(() => import("@/lib/klien/komponen/peta-tps").then((m) => m.PetaPilihTitik), { ssr: false });
+const PetaDaftarTps = dynamic(() => import("@/lib/klien/komponen/peta-tps").then((m) => m.PetaDaftarTps), { ssr: false });
 
 export default function HalamanTps() {
   const { kawasan, galat: galatKawasan } = useKawasanSaya();
@@ -22,6 +26,13 @@ export default function HalamanTps() {
   const [latTeks, setLatTeks] = useState("");
   const [lonTeks, setLonTeks] = useState("");
   const [sedangSimpan, setSedangSimpan] = useState(false);
+
+  const titikPeta = useMemo(
+    () => daftarTps.map((t) => ({ id: t.id, nama: t.nama, kode: t.kode, lat: t.latE6 / 1e6, lon: t.lonE6 / 1e6, aktif: t.aktif })),
+    [daftarTps],
+  );
+  const latE6Peta = parseKoordinat(latTeks, "lat");
+  const lonE6Peta = parseKoordinat(lonTeks, "lon");
 
   const [tpsQrBaru, setTpsQrBaru] = useState<Tps | null>(null);
   const [sedangQrBaru, setSedangQrBaru] = useState(false);
@@ -123,6 +134,12 @@ export default function HalamanTps() {
         </Kartu>
       ) : null}
 
+      {titikPeta.length > 0 ? (
+        <section aria-label={TEKS.PETA_JUDUL} className="h-64 sm:h-80">
+          <PetaDaftarTps titik={titikPeta} />
+        </section>
+      ) : null}
+
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {daftarTps.map((tps) => (
           <Kartu key={tps.id} className="flex flex-col gap-4 border border-garis-halus shadow-xs transition-shadow duration-150 hover:shadow-md">
@@ -219,6 +236,17 @@ export default function HalamanTps() {
                 value={lonTeks}
                 onChange={(e) => setLonTeks(e.target.value)}
                 className="min-h-12 rounded-kontrol border border-garis-halus bg-kertas px-3 text-base font-mono text-tinta transition-colors focus:border-aksi focus:outline-none"
+              />
+            </div>
+            <p className="text-xs text-tinta-redup">{TEKS.PETA_PILIH_PETUNJUK}</p>
+            <div className="h-60 sm:h-72">
+              <PetaPilihTitik
+                lat={latE6Peta === null ? null : latE6Peta / 1e6}
+                lon={lonE6Peta === null ? null : lonE6Peta / 1e6}
+                onPilih={(la, lo) => {
+                  setLatTeks(la.toFixed(6));
+                  setLonTeks(lo.toFixed(6));
+                }}
               />
             </div>
           </div>
