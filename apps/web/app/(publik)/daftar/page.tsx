@@ -10,6 +10,7 @@ import { TumpukanToast, useToast } from "@/lib/klien/komponen/toast";
 const VERSI_PDP = "PRIV-2026-10-1";
 
 export default function HalamanDaftar() {
+  const [langsung, setLangsung] = useState(false);
   const [email, setEmail] = useState("");
   const [sandi, setSandi] = useState("");
   const [lihatSandi, setLihatSandi] = useState(false);
@@ -40,7 +41,8 @@ export default function HalamanDaftar() {
       return;
     }
 
-    kirimToast("sukses", TEKS.DAFTAR_CEK_EMAIL);
+    setLangsung(res.data.langsungAktif === true);
+    kirimToast("sukses", res.data.langsungAktif ? TEKS.DAFTAR_DEMO_AKTIF : TEKS.DAFTAR_CEK_EMAIL);
     setTerkirim(true);
   }
 
@@ -62,7 +64,7 @@ export default function HalamanDaftar() {
             ✉
           </span>
           <p className="text-base font-medium leading-relaxed text-tinta [text-wrap:balance]">
-            {TEKS.DAFTAR_CEK_EMAIL}
+            {langsung ? TEKS.DAFTAR_DEMO_AKTIF : TEKS.DAFTAR_CEK_EMAIL}
           </p>
           <Link
             href="/masuk"

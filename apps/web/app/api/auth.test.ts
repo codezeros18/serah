@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PengirimRekam, setelPengirimUji } from "@/lib/adaptor/email";
 import { buatPenggunaDenganPersetujuan } from "@/lib/server/auth";
+import { muatEnv } from "@/lib/server/env";
 import type { Tx } from "@/lib/server/db";
 import { kueriPemilik } from "@/lib/server/uji/db";
 import { cookieDari, emailBaru, ipBaru, permintaan, tokenTerakhir as tokenDari } from "@/lib/server/uji/http";
@@ -95,6 +96,32 @@ describe("S07-1 daftar, verifikasi, masuk", () => {
 
     const v = await daftar(permintaan("/api/auth/daftar", { body: { email: emailBaru(), sandi: SANDI, persetujuanVersi: "PRIV-TIDAK-ADA" } }));
     expect(v.status).toBe(400);
+  });
+
+  it("DAFTAR_LANGSUNG_AKTIF + DEMO_MODE: akun langsung terverifikasi, tanpa email, bisa masuk; tanpa bendera tetap perlu verifikasi", async () => {
+    const env = muatEnv() as { DEMO_MODE: boolean; DAFTAR_LANGSUNG_AKTIF: boolean };
+    const lama = { demo: env.DEMO_MODE, langsung: env.DAFTAR_LANGSUNG_AKTIF };
+    try {
+      env.DEMO_MODE = true;
+      env.DAFTAR_LANGSUNG_AKTIF = true;
+      const email = emailBaru();
+      const jumlahEmail = rekam.terkirim.length;
+      const d = await daftar(permintaan("/api/auth/daftar", { body: { email, sandi: SANDI, persetujuanVersi: VERSI } }));
+      expect(d.status).toBe(200);
+      expect((await d.json()).data).toEqual({ perluVerifikasi: true, langsungAktif: true });
+      expect(rekam.terkirim.length).toBe(jumlahEmail);
+      expect((await masuk(permintaan("/api/auth/masuk", { body: { email, sandi: SANDI } }))).status).toBe(200);
+
+      // DEMO_MODE mati → bendera diabaikan: perlu verifikasi seperti biasa.
+      env.DEMO_MODE = false;
+      const email2 = emailBaru();
+      const d2 = await daftar(permintaan("/api/auth/daftar", { body: { email: email2, sandi: SANDI, persetujuanVersi: VERSI } }));
+      expect((await d2.json()).data).toEqual({ perluVerifikasi: true });
+      expect((await masuk(permintaan("/api/auth/masuk", { body: { email: email2, sandi: SANDI } }))).status).not.toBe(200);
+    } finally {
+      env.DEMO_MODE = lama.demo;
+      env.DAFTAR_LANGSUNG_AKTIF = lama.langsung;
+    }
   });
 
   it("sandi salah & email tak dikenal → pesan sama (MASUK_SALAH)", async () => {

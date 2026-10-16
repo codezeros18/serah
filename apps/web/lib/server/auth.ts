@@ -7,6 +7,7 @@ import { hitungBatasLaju, wajibDalamBatas } from "./batas-laju";
 import { denganAkses, denganAuth, type Tx } from "./db";
 import { muatEnv } from "./env";
 import { GalatApi } from "./galat";
+import { log } from "./log";
 import { idBaru } from "./id";
 import { cocokSandi, hashSandi } from "./sandi";
 import { buatSesi, cabutSemuaSesi, konteksAkses, organisasiPengguna, type Sesi } from "./sesi";
@@ -58,12 +59,15 @@ export async function daftar(m: { email: string; sandi: string; persetujuanVersi
   const email = normalisasiEmail(m.email);
   const sandiHash = await hashSandi(m.sandi);
   const token = buatToken();
+  const demo = muatEnv().DEMO_MODE && muatEnv().DAFTAR_LANGSUNG_AKTIF;
   const baru = await denganAuth(async (tx) => {
     await wajibTeksPersetujuan(tx, m.persetujuanVersi);
     // Email sudah terdaftar → respons tetap sama (tidak membocorkan keberadaan akun), tanpa membuat apa pun.
     if (await tx.pengguna.findUnique({ where: { email }, select: { id: true } })) return false;
     const id = idBaru();
-    await buatPenggunaDenganPersetujuan(tx, { id, email, sandiHash, versi: m.persetujuanVersi, terverifikasiPada: null, sekarang });
+    // Mode demo: email verifikasi tidak bisa dikirim ke alamat sembarang (domain pengirim belum terverifikasi) → langsung terverifikasi.
+    await buatPenggunaDenganPersetujuan(tx, { id, email, sandiHash, versi: m.persetujuanVersi, terverifikasiPada: demo ? sekarang : null, sekarang });
+    if (demo) return false;
     await tx.tokenSekali.create({
       data: {
         jenis: "VERIFIKASI_EMAIL",
@@ -139,7 +143,14 @@ export async function lupaSandi(emailMasukan: string, sekarang: Date = new Date(
     });
     return true;
   });
-  if (ada) await pengirim().kirim(susunEmail(email, templatReset(tautan("/reset", token))));
+  if (ada) {
+    // Respons lupa-sandi selalu sama (tidak membocorkan akun); kegagalan kirim email dicatat, bukan 500.
+    try {
+      await pengirim().kirim(susunEmail(email, templatReset(tautan("/reset", token))));
+    } catch (e) {
+      log().warn("email reset sandi gagal terkirim", { galat: e });
+    }
+  }
 }
 
 /** Reset sandi: token 1 jam, sekali pakai; semua sesi pengguna dicabut. */

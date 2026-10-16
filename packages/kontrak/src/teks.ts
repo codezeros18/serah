@@ -375,6 +375,7 @@ export const TEKS = {
   DAFTAR_SANDI_ATURAN: "Minimal 10 karakter.",
   DAFTAR_SETUJU: "Saya telah membaca dan menyetujui Kebijakan Privasi dan Syarat Layanan SERAH.",
   DAFTAR_TOMBOL: "Daftar",
+  DAFTAR_DEMO_AKTIF: "Akun dibuat. Pada mode demo email tidak perlu diverifikasi, silakan masuk dengan email dan kata sandi tadi.",
   DAFTAR_CEK_EMAIL: "Kami mengirim tautan verifikasi ke email Anda. Tautan berlaku 24 jam.",
   VERIF_BERHASIL: "Email terverifikasi. Silakan masuk.",
   VERIF_GAGAL: "Tautan verifikasi tidak berlaku atau sudah dipakai.",

@@ -19,6 +19,8 @@ const SkemaEnv = z
     /** true → penjadwal dalam proses menjalankan tiga cron (lib/server/penjadwal.ts). */
     CRON_INTERNAL: Bendera,
     DEMO_MODE: Bendera,
+    // Hanya berlaku bersama DEMO_MODE: akun baru langsung terverifikasi (email verifikasi tidak dikirim).
+    DAFTAR_LANGSUNG_AKTIF: Bendera,
     NEXT_PUBLIC_API_MOCK: Bendera,
     PENYIMPANAN_MODE: z.enum(["lokal", "r2"]).optional(),
     R2_ACCOUNT_ID: z.string().optional(),

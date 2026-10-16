@@ -21,7 +21,8 @@ export const SesiRingkas = z.object({
 export const AuthDaftarMasukan = z
   .object({ email: Email, sandi: Sandi, persetujuanVersi: z.string().min(1).max(40) })
   .strict();
-export const AuthDaftarKeluaran = z.object({ perluVerifikasi: z.literal(true) });
+// `langsungAktif`: hanya mode demo (email verifikasi tidak dikirim; akun langsung terverifikasi).
+export const AuthDaftarKeluaran = z.object({ perluVerifikasi: z.literal(true), langsungAktif: z.literal(true).optional() });
 
 export const AuthVerifikasiMasukan = z.object({ token: TokenSekali }).strict();
 export const AuthVerifikasiKeluaran = Oke;
