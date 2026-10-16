@@ -23,21 +23,35 @@ const URUTAN_ALIRAN: readonly { aliran: Aliran; kunci: KunciTeks }[] = [
 ];
 
 /** Tombol "i" yang membuka kamus ikon: arti ikon status serah dan jenis sampah (aliran). */
-export function LegendaIkon({ bagian = "semua" }: { bagian?: "status" | "aliran" | "semua" }) {
+export function LegendaIkon({ bagian = "semua", varian = "pil" }: { bagian?: "status" | "aliran" | "semua"; varian?: "pil" | "baris" }) {
   const [buka, setBuka] = useState(false);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setBuka(true)}
-        aria-label={`${TEKS.UMUM_INFO}: ${TEKS.LEGENDA_JUDUL}`}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-garis-halus bg-latar pl-1.5 pr-3 text-xs font-medium text-tinta-redup transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
-      >
-        <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-full bg-white font-serif text-sm italic text-aksi shadow-[0_1px_2px_rgba(15,23,42,0.1)]">
-          i
-        </span>
-        {TEKS.LEGENDA_JUDUL}
-      </button>
+      {varian === "baris" ? (
+        <button
+          type="button"
+          onClick={() => setBuka(true)}
+          className="group flex min-h-14 w-full items-center gap-3 px-4 text-left transition-colors duration-200 hover:bg-aksi-latar/40"
+        >
+          <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-latar font-serif text-lg italic text-aksi transition-colors group-hover:bg-white">
+            i
+          </span>
+          <span className="flex-1 text-sm font-medium text-tinta">{TEKS.LEGENDA_JUDUL}</span>
+          <span aria-hidden="true" className="text-tinta-redup transition-transform duration-200 group-hover:translate-x-0.5">›</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setBuka(true)}
+          aria-label={`${TEKS.UMUM_INFO}: ${TEKS.LEGENDA_JUDUL}`}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-garis-halus bg-latar pl-1.5 pr-3 text-xs font-medium text-tinta-redup transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
+        >
+          <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-full bg-white font-serif text-sm italic text-aksi shadow-[0_1px_2px_rgba(15,23,42,0.1)]">
+            i
+          </span>
+          {TEKS.LEGENDA_JUDUL}
+        </button>
+      )}
 
       <Dialog terbuka={buka} judul={TEKS.LEGENDA_JUDUL} onTutup={() => setBuka(false)}>
         <div className="flex flex-col gap-6">

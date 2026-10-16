@@ -1,20 +1,107 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import type { z } from "zod";
 import type { AkunDataSayaKeluaran, AnggotaDaftarKeluaran, Peran } from "@serah/kontrak";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, Dialog, Kartu, Tombol } from "@serah/ui";
+import { BannerGalat, Dialog, Tombol } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { rutePeran } from "@/lib/klien/rute-peran";
 import { useSesi } from "@/lib/klien/sesi";
 import { unduhBerkas } from "@/lib/klien/unduh";
 import { Pilih } from "@/lib/klien/komponen/pilih";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
+import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
+import { IkonNav, type NamaIkonNav } from "@/lib/klien/komponen/ikon-nav";
+import { LegendaIkon } from "@/lib/klien/komponen/legenda-ikon";
+import { Rangka } from "@/lib/klien/komponen/rangka";
 
 type DataSaya = z.infer<typeof AkunDataSayaKeluaran>;
 type ItemAnggota = z.infer<typeof AnggotaDaftarKeluaran>["anggota"][number];
+
+const IKON_PERAN: Record<string, NamaIkon> = {
+  PETUGAS: "tps",
+  PENGANGKUT: "truk",
+  PENGELOLA: "laporan",
+  PENERIMA: "timbang",
+  ADMIN: "aturan",
+};
+
+function Kelompok({ judul, aksi, children }: { judul: string; aksi?: ReactNode; children: ReactNode }) {
+  return (
+    <section className="muncul flex flex-col gap-2" aria-label={judul}>
+      <div className="flex items-center justify-between px-1">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-tinta-redup">{judul}</h2>
+        {aksi}
+      </div>
+      <div className="divide-y divide-garis-halus/70 overflow-hidden rounded-3xl border border-garis-halus bg-kertas shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function BarisMenu({
+  ikon,
+  judul,
+  deskripsi,
+  kanan,
+  onClick,
+  href,
+  bahaya = false,
+  aktif = false,
+}: {
+  ikon: NamaIkonNav;
+  judul: string;
+  deskripsi?: string;
+  kanan?: ReactNode;
+  onClick?: () => void;
+  href?: string;
+  bahaya?: boolean;
+  aktif?: boolean;
+}) {
+  const isi = (
+    <>
+      <span
+        aria-hidden="true"
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-200 ${
+          bahaya ? "bg-rose-50 text-rose-600" : aktif ? "bg-aksi text-white" : "bg-latar text-tinta-redup group-hover:bg-white group-hover:text-aksi"
+        }`}
+      >
+        <IkonNav nama={ikon} className="h-5 w-5" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className={`block truncate text-sm font-medium ${bahaya ? "text-rose-700" : "text-tinta"}`}>{judul}</span>
+        {deskripsi ? <span className="block truncate text-xs text-tinta-redup">{deskripsi}</span> : null}
+      </span>
+      {kanan ?? (
+        <IkonNav nama="chevron" className="h-4 w-4 shrink-0 text-tinta-redup transition-transform duration-200 group-hover:translate-x-0.5" />
+      )}
+    </>
+  );
+  const kelas = "group flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left transition-colors duration-200 hover:bg-aksi-latar/40";
+  if (href) return <Link href={href} className={kelas}>{isi}</Link>;
+  return (
+    <button type="button" onClick={onClick} className={kelas}>
+      {isi}
+    </button>
+  );
+}
+
+/** Saklar geser: <input type="checkbox"> asli bergaya sakelar. */
+function Saklar({ id, label, ikon, nilai, onUbah }: { id: string; label: string; ikon: NamaIkonNav; nilai: boolean; onUbah: (v: boolean) => void }) {
+  return (
+    <label htmlFor={id} className="group flex min-h-14 cursor-pointer items-center gap-3 px-4 py-2 transition-colors duration-200 hover:bg-aksi-latar/40">
+      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-latar text-tinta-redup transition-colors group-hover:bg-white group-hover:text-aksi">
+        <IkonNav nama={ikon} className="h-5 w-5" />
+      </span>
+      <span className="flex-1 text-sm font-medium text-tinta">{label}</span>
+      <input id={id} type="checkbox" role="switch" checked={nilai} onChange={(e) => onUbah(e.target.checked)} className="saklar" />
+    </label>
+  );
+}
 
 export default function HalamanAkun() {
   const router = useRouter();
@@ -33,6 +120,10 @@ export default function HalamanAkun() {
   const [emailUndang, setEmailUndang] = useState("");
   const [peranUndang, setPeranUndang] = useState<"PETUGAS" | "PENGELOLA" | "PENGANGKUT" | "PENERIMA">("PETUGAS");
   const [sedangUndang, setSedangUndang] = useState(false);
+
+  // Konfirmasi nonaktifkan anggota
+  const [anggotaNonaktif, setAnggotaNonaktif] = useState<ItemAnggota | null>(null);
+  const [sedangNonaktifAnggota, setSedangNonaktifAnggota] = useState(false);
 
   // Dialog tarik persetujuan
   const [tarikTerbuka, setTarikTerbuka] = useState(false);
@@ -181,184 +272,165 @@ export default function HalamanAkun() {
 
   const sesi = keadaan.status === "siap" ? keadaan.sesi : null;
 
+  const peranAktif = sesi?.peran ?? null;
+  const ikonPeran: NamaIkon = (peranAktif && IKON_PERAN[peranAktif]) || "aturan";
+  const anggotaAktif = daftarAnggota.filter((a) => a.aktif).length;
+
   return (
-    <div className="flex flex-col gap-6 text-tinta">
-      <div className="border-b border-garis-halus pb-4">
-        <h1 className="text-2xl font-semibold text-tinta sm:text-3xl">{TEKS.AKUN_JUDUL}</h1>
-      </div>
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 text-tinta">
+      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.AKUN_JUDUL}</h1>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {pesanSukses ? (
-        <div className="rounded-kartu border border-emerald-300 bg-emerald-50 p-4 text-sm font-semibold text-emerald-900 shadow-xs flex items-center gap-2">
-          <span className="text-emerald-700 font-bold" aria-hidden="true">✓</span>
+        <div role="status" className="flex items-center gap-2 rounded-2xl border border-status-selesai/20 bg-status-selesai-latar p-4 text-sm font-medium text-status-selesai">
+          <span aria-hidden="true">✓</span>
           <span>{pesanSukses}</span>
         </div>
       ) : null}
       {sedangMuat ? (
-        <div className="flex items-center gap-2 py-2 text-sm text-tinta-redup font-medium">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-aksi border-t-transparent" />
-          <p role="status">{TEKS.UMUM_MUAT}</p>
+        <div role="status" className="flex flex-col gap-3">
+          <span className="sr-only">{TEKS.UMUM_MUAT}</span>
+          <Rangka className="h-28 w-full rounded-3xl" />
+          <Rangka className="h-40 w-full rounded-3xl" />
         </div>
       ) : null}
 
-      {/* 1. Organisasi dan peran */}
-      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
-        <div className="border-b border-garis-halus pb-2">
-          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_ORGANISASI}</h2>
-        </div>
-
-        {sesi ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-kontrol border border-garis-halus bg-latar/50 p-4">
-            <div>
-              <span className="text-xs text-tinta-redup">Organisasi aktif</span>
-              <p className="font-bold text-tinta text-base mt-0.5">{sesi.organisasiAktif?.nama ?? "-"}</p>
-            </div>
-            <div>
-              <span className="text-xs text-tinta-redup">Peran aktif</span>
-              <div className="mt-0.5">
-                <span className="inline-block rounded-full border border-aksi/25 bg-aksi-latar px-2.5 py-0.5 text-xs font-bold text-aksi">
-                  {sesi.peran ?? "-"}
-                </span>
-              </div>
+      {/* Kartu profil */}
+      {sesi ? (
+        <section className="muncul flex items-center gap-4 rounded-3xl border border-white/70 bg-gradient-to-br from-white via-white to-aksi-latar/60 p-5 shadow-[0_12px_40px_rgba(36,87,197,0.10)] ring-1 ring-garis-halus/70">
+          <span className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white shadow-[0_6px_20px_rgba(15,23,42,0.10)]">
+            <IkonLanding nama={ikonPeran} className="h-9 w-9" />
+            <span aria-hidden="true" className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-lg font-semibold tracking-tight text-tinta">{sesi.organisasiAktif?.nama ?? "-"}</p>
+            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-aksi-latar px-2.5 py-0.5 text-xs font-semibold text-aksi ring-1 ring-inset ring-aksi/20">
+                {sesi.peran ?? "-"}
+              </span>
+              <span className="text-xs text-tinta-redup">{TEKS.AKUN_PERAN_AKTIF}</span>
             </div>
           </div>
-        ) : null}
+        </section>
+      ) : null}
 
-        {dataSaya && dataSaya.keanggotaan.length > 0 ? (
-          <div className="flex flex-col gap-2.5 pt-2">
-            <span className="text-sm font-bold text-tinta">{TEKS.AKUN_GANTI_PERAN}</span>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {dataSaya.keanggotaan
-                .filter((k) => k.aktif)
-                .map((k) => {
-                  const adalahAktif =
-                    sesi?.organisasiAktif?.id === k.organisasiId && sesi?.peran === k.peran;
-                  return (
-                    <button
-                      key={`${k.organisasiId}-${k.peran}`}
-                      type="button"
-                      disabled={adalahAktif}
-                      onClick={() => void gantiOrganisasiPeran(k.organisasiId, k.peran)}
-                      className={`flex min-h-12 items-center justify-between rounded-kontrol border p-3.5 text-left text-sm transition-all ${
-                        adalahAktif
-                          ? "border-2 border-aksi bg-aksi-latar/50 font-bold shadow-xs cursor-default"
-                          : "border-garis-halus bg-kertas hover:border-aksi hover:bg-latar/40 active:scale-[0.98]"
-                      }`}
-                    >
-                      <div>
-                        <div className="font-bold text-tinta">{k.organisasiNama}</div>
-                        <div className="text-xs text-tinta-redup font-medium">{k.peran}</div>
-                      </div>
-                      {adalahAktif ? (
-                        <span className="rounded-full bg-aksi px-2 py-0.5 text-[11px] font-bold text-aksi-teks shadow-2xs">
-                          Aktif
-                        </span>
-                      ) : null}
-                    </button>
-                  );
-                })}
-            </div>
-          </div>
-        ) : null}
-      </Kartu>
+      {/* Ganti organisasi / peran */}
+      {dataSaya && dataSaya.keanggotaan.filter((k) => k.aktif).length > 0 ? (
+        <Kelompok judul={TEKS.AKUN_GANTI_PERAN}>
+          {dataSaya.keanggotaan
+            .filter((k) => k.aktif)
+            .map((k) => {
+              const adalahAktif = sesi?.organisasiAktif?.id === k.organisasiId && sesi?.peran === k.peran;
+              return (
+                <button
+                  key={`${k.organisasiId}-${k.peran}`}
+                  type="button"
+                  disabled={adalahAktif}
+                  onClick={() => void gantiOrganisasiPeran(k.organisasiId, k.peran)}
+                  className={`group flex min-h-14 w-full items-center gap-3 px-4 py-2 text-left transition-colors duration-200 ${
+                    adalahAktif ? "bg-aksi-latar/40" : "hover:bg-aksi-latar/40"
+                  }`}
+                >
+                  <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${adalahAktif ? "bg-white" : "bg-latar group-hover:bg-white"}`}>
+                    <IkonLanding nama={IKON_PERAN[k.peran] ?? "aturan"} className="h-6 w-6" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-tinta">{k.organisasiNama}</span>
+                    <span className="block text-xs text-tinta-redup">{k.peran}</span>
+                  </span>
+                  {adalahAktif ? (
+                    <span className="rounded-full bg-aksi px-2.5 py-0.5 text-[11px] font-semibold text-white">Aktif</span>
+                  ) : (
+                    <IkonNav nama="chevron" className="h-4 w-4 text-tinta-redup transition-transform duration-200 group-hover:translate-x-0.5" />
+                  )}
+                </button>
+              );
+            })}
+        </Kelompok>
+      ) : null}
 
-      {/* 2. Preferensi Notifikasi */}
-      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
-        <div className="border-b border-garis-halus pb-2">
-          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_NOTIFIKASI}</h2>
-        </div>
-        <div className="flex flex-col gap-3.5">
-          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-garis-halus bg-kertas p-3.5 text-base transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar/40 has-[:checked]:border-aksi-garis has-[:checked]:bg-aksi-latar/50">
-            <input
-              type="checkbox"
-              checked={ntfEmail}
-              onChange={(e) => void ubahNotifikasi(e.target.checked, ntfPush)}
-              className="kotak-centang kotak-bulat"
-            />
-            <span className="font-medium text-tinta">{TEKS.AKUN_NTF_EMAIL}</span>
-          </label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-garis-halus bg-kertas p-3.5 text-base transition-all duration-200 hover:border-aksi-garis hover:bg-aksi-latar/40 has-[:checked]:border-aksi-garis has-[:checked]:bg-aksi-latar/50">
-            <input
-              type="checkbox"
-              checked={ntfPush}
-              onChange={(e) => void ubahNotifikasi(ntfEmail, e.target.checked)}
-              className="kotak-centang kotak-bulat"
-            />
-            <span className="font-medium text-tinta">{TEKS.AKUN_NTF_PUSH}</span>
-          </label>
-        </div>
-      </Kartu>
+      {/* Notifikasi */}
+      <Kelompok judul={TEKS.AKUN_NOTIFIKASI}>
+        <Saklar id="ntf-email" label={TEKS.AKUN_NTF_EMAIL} ikon="laporan" nilai={ntfEmail} onUbah={(v) => void ubahNotifikasi(v, ntfPush)} />
+        <Saklar id="ntf-push" label={TEKS.AKUN_NTF_PUSH} ikon="lonceng" nilai={ntfPush} onUbah={(v) => void ubahNotifikasi(ntfEmail, v)} />
+      </Kelompok>
 
-      {/* 3. Anggota Organisasi */}
+      {/* Anggota organisasi */}
       {sesi?.organisasiAktif ? (
-        <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-garis-halus pb-3">
-            <h2 className="text-lg font-bold text-tinta">{TEKS.AGT_JUDUL}</h2>
-            <Tombol
+        <Kelompok
+          judul={`${TEKS.AGT_JUDUL} · ${anggotaAktif}`}
+          aksi={
+            <button
+              type="button"
               onClick={() => setUndangTerbuka(true)}
-              className="min-h-10 px-4 text-xs font-bold bg-aksi hover:bg-aksi-hover text-white shadow-2xs"
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-aksi px-3 text-xs font-medium text-white shadow-[0_6px_16px_rgba(36,87,197,0.28)] transition-all hover:-translate-y-0.5 hover:bg-aksi-hover"
             >
+              <IkonNav nama="tambah" className="h-4 w-4" />
               {TEKS.AGT_UNDANG}
-            </Tombol>
-          </div>
-
-          <div className="flex flex-col divide-y divide-garis-halus">
-            {daftarAnggota.map((a) => (
-              <div key={a.id} className="flex items-center justify-between py-3">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-base font-bold text-tinta">{a.peran}</span>
-                  <span className="text-xs text-tinta-redup">
-                    {isi("AGT_SEJAK", { tanggal: a.sejak.slice(0, 10) })}
-                  </span>
-                </div>
-                {a.aktif ? (
-                  <Tombol
-                    varian="sekunder"
-                    className="min-h-9 px-3 py-1 text-xs font-bold"
-                    onClick={() => void tanganiNonaktifAnggota(a.id)}
-                  >
-                    {TEKS.AGT_NONAKTIF}
-                  </Tombol>
-                ) : (
-                  <span className="rounded-kontrol bg-latar px-2.5 py-1 text-xs text-tinta-redup font-semibold">
-                    {TEKS.KND_NONAKTIF}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </Kartu>
+            </button>
+          }
+        >
+          {daftarAnggota.map((a) => (
+            <div key={a.id} className="flex min-h-14 items-center gap-3 px-4 py-2">
+              <span aria-hidden="true" className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${a.aktif ? "bg-latar" : "bg-latar opacity-50"}`}>
+                <IkonLanding nama={IKON_PERAN[a.peran] ?? "aturan"} className="h-6 w-6" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-tinta">{a.peran}</span>
+                <span className="block text-xs text-tinta-redup">{isi("AGT_SEJAK", { tanggal: a.sejak.slice(0, 10) })}</span>
+              </span>
+              {a.aktif ? (
+                <button
+                  type="button"
+                  onClick={() => setAnggotaNonaktif(a)}
+                  aria-label={TEKS.AGT_NONAKTIF}
+                  title={TEKS.AGT_NONAKTIF}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-latar text-tinta-redup transition-all duration-200 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                >
+                  <IkonNav nama="daya" className="h-5 w-5" />
+                </button>
+              ) : (
+                <span className="rounded-full bg-latar px-2.5 py-1 text-xs font-medium text-tinta-redup">{TEKS.KND_NONAKTIF}</span>
+              )}
+            </div>
+          ))}
+        </Kelompok>
       ) : null}
 
-      {/* 4. Privasi PDP */}
-      <Kartu className="flex flex-col gap-4 border border-garis-halus bg-kertas p-6 shadow-xs">
-        <div className="border-b border-garis-halus pb-2">
-          <h2 className="text-lg font-bold text-tinta">{TEKS.AKUN_PRIVASI}</h2>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <Tombol
-            varian="sekunder"
-            className="text-xs font-bold shadow-2xs"
-            onClick={() => void tanganiUnduhData()}
-          >
-            {TEKS.AKUN_UNDUH_DATA}
-          </Tombol>
-          <Tombol
-            varian="sekunder"
-            className="text-xs font-bold shadow-2xs"
-            onClick={() => setTarikTerbuka(true)}
-          >
-            {TEKS.AKUN_TARIK}
-          </Tombol>
-          <Tombol
-            varian="sekunder"
-            className="text-xs font-bold text-peringatan border-peringatan-garis hover:bg-peringatan-latar shadow-2xs"
-            onClick={() => setHapusTerbuka(true)}
-          >
-            {TEKS.AKUN_HAPUS}
-          </Tombol>
-        </div>
-      </Kartu>
+      {/* Privasi */}
+      <Kelompok judul={TEKS.AKUN_PRIVASI}>
+        <BarisMenu ikon="unduh" judul={TEKS.AKUN_UNDUH_DATA} onClick={() => void tanganiUnduhData()} />
+        <BarisMenu ikon="perisai" judul={TEKS.AKUN_TARIK} onClick={() => setTarikTerbuka(true)} />
+        <BarisMenu ikon="sampah" judul={TEKS.AKUN_HAPUS} bahaya onClick={() => setHapusTerbuka(true)} />
+      </Kelompok>
+
+      {/* Bantuan & dokumentasi */}
+      <Kelompok judul={TEKS.AKUN_BANTUAN}>
+        <LegendaIkon varian="baris" />
+        <BarisMenu ikon="buku" judul={TEKS.TENTANG_JUDUL} href="/#tentang" />
+        <BarisMenu ikon="perisai" judul={TEKS.PRIV_JUDUL} href="/privasi" />
+        <BarisMenu ikon="laporan" judul={TEKS.SYR_JUDUL} href="/syarat" />
+      </Kelompok>
+
+      {/* Konfirmasi nonaktifkan anggota (tahan) */}
+      <KonfirmasiAksi
+        terbuka={anggotaNonaktif !== null}
+        judul={TEKS.AGT_NONAKTIF}
+        tingkat="tahan"
+        bahaya
+        labelKonfirmasi={TEKS.AGT_NONAKTIF}
+        sibuk={sedangNonaktifAnggota}
+        onKonfirmasi={async () => {
+          if (!anggotaNonaktif) return;
+          setSedangNonaktifAnggota(true);
+          await tanganiNonaktifAnggota(anggotaNonaktif.id);
+          setSedangNonaktifAnggota(false);
+          setAnggotaNonaktif(null);
+        }}
+        onTutup={() => setAnggotaNonaktif(null)}
+      >
+        <p className="text-sm font-medium text-tinta">{anggotaNonaktif?.peran}</p>
+      </KonfirmasiAksi>
 
       {/* Dialog Undang Anggota */}
       <Dialog

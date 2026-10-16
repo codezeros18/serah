@@ -12,7 +12,14 @@ export type NamaIkonNav =
   | "ditolak"
   | "kontrak"
   | "keluar"
-  | "admin";
+  | "admin"
+  | "unduh"
+  | "perisai"
+  | "sampah"
+  | "buku"
+  | "daya"
+  | "tambah"
+  | "chevron";
 
 const J = { strokeWidth: 1.9, strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
@@ -77,6 +84,41 @@ const GAMBAR: Record<NamaIkonNav, ReactNode> = {
     <>
       <path {...J} d="M10 4.500H6.500A1.500 1.500 0 0 0 5 6v12a1.500 1.500 0 0 0 1.500 1.500H10" />
       <path {...J} d="M15 8l4 4-4 4M19 12H9.500" />
+    </>
+  ),
+  unduh: (
+    <>
+      <path {...J} d="M12 4v10m0 0-4-4m4 4 4-4M5 19h14" />
+    </>
+  ),
+  perisai: (
+    <>
+      <path {...J} d="M12 3.500 19 6.500v5.200c0 4.300-2.900 7.200-7 8.800-4.100-1.600-7-4.500-7-8.800V6.500l7-3Z" />
+    </>
+  ),
+  sampah: (
+    <>
+      <path {...J} d="M5 7h14M10 4h4M8 7l.8 12h6.400L16 7M10.500 11v5m3-5v5" />
+    </>
+  ),
+  buku: (
+    <>
+      <path {...J} d="M5 5.500A1.500 1.500 0 0 1 6.500 4H19v14H6.500A1.500 1.500 0 0 0 5 19.500V5.500ZM5 19.500A1.500 1.500 0 0 0 6.500 21H19" />
+    </>
+  ),
+  daya: (
+    <>
+      <path {...J} d="M12 3.500v8M7.200 6.800a7.500 7.500 0 1 0 9.600 0" />
+    </>
+  ),
+  tambah: (
+    <>
+      <path {...J} d="M12 5v14M5 12h14" />
+    </>
+  ),
+  chevron: (
+    <>
+      <path {...J} d="m9.500 6 6 6-6 6" />
     </>
   ),
   admin: (

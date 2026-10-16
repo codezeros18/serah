@@ -13,6 +13,8 @@ import { BannerSambungan } from "./banner-sambungan";
 import { IkonLanding, type NamaIkon } from "./ikon-landing";
 import { IkonNav, type NamaIkonNav } from "./ikon-nav";
 import { IndikatorSinkron } from "./indikator-sinkron";
+import { LegendaIkon } from "./legenda-ikon";
+import { PencarianSerah } from "./pencarian-serah";
 import { LogoSerah } from "./logo-serah";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
@@ -149,26 +151,14 @@ function Isi({ children }: { children: ReactNode }) {
     <div className={`${poppins.className} min-h-dvh bg-latar text-tinta`}>
       {MOCK_AKTIF && !adalahPanelDemo ? <LabelDemo /> : null}
 
-      {/* Sidebar desktop (dashboard) */}
+      {/* Sidebar desktop: rata, menyatu dengan navbar (gaya dasbor) */}
       {!adalahPanelDemo ? (
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[264px] flex-col border-r border-garis-halus bg-kertas p-4 lg:flex">
-          <Link href={ruteHome} aria-label={TEKS.APP_NAMA} className="group px-2 py-2">
+        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[248px] flex-col border-r border-garis-halus bg-kertas lg:flex">
+          <Link href={ruteHome} aria-label={TEKS.APP_NAMA} className="group flex h-16 shrink-0 items-center border-b border-garis-halus px-5">
             <LogoSerah ukuran="md" />
           </Link>
 
-          <div className="mt-5 flex items-center gap-3 rounded-2xl bg-latar p-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
-              <IkonLanding nama={ikonPeran} className="h-6 w-6" />
-            </span>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-tinta">{namaPeran}</p>
-              {sesi.organisasiAktif ? (
-                <p className="truncate text-xs text-tinta-redup">{sesi.organisasiAktif.nama}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <nav aria-label="Navigasi desktop" className="mt-5 flex flex-1 flex-col gap-1 overflow-y-auto">
+          <nav aria-label="Navigasi desktop" className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-4">
             {nav.map((n) => {
               const aktif = adalahAktif(n.href);
               return (
@@ -176,36 +166,55 @@ function Isi({ children }: { children: ReactNode }) {
                   key={n.href}
                   href={n.href}
                   aria-current={aktif ? "page" : undefined}
-                  className={`group flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-all duration-200 ${
-                    aktif
-                      ? "bg-tinta text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)]"
-                      : "text-tinta-redup hover:bg-aksi-latar hover:text-aksi"
+                  className={`group relative flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-150 ${
+                    aktif ? "bg-aksi-latar text-aksi" : "text-tinta-redup hover:bg-latar hover:text-tinta"
                   }`}
                 >
-                  <IkonNav nama={n.ikon} className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                  {aktif ? <span aria-hidden="true" className="absolute inset-y-2 -left-3 w-[3px] rounded-r-full bg-aksi" /> : null}
+                  <IkonNav nama={n.ikon} className="h-[18px] w-[18px]" />
                   <span className="truncate">{TEKS[n.pendek]}</span>
                 </Link>
               );
             })}
           </nav>
 
-          <div className="mt-3 flex">
-            <IndikatorSinkron />
+          <div className="border-t border-garis-halus p-3">
+            <button
+              type="button"
+              onClick={() => void keluar()}
+              className="flex min-h-10 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-tinta-redup transition-colors duration-150 hover:bg-latar hover:text-tinta"
+            >
+              <IkonNav nama="keluar" className="h-[18px] w-[18px]" />
+              <span>{TEKS.UMUM_KELUAR}</span>
+            </button>
           </div>
-
-          <button
-            type="button"
-            onClick={() => void keluar()}
-            className="mt-3 flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-tinta-redup transition-colors duration-200 hover:bg-latar hover:text-tinta"
-          >
-            <IkonNav nama="keluar" className="h-5 w-5" />
-            <span>{TEKS.UMUM_KELUAR}</span>
-          </button>
         </aside>
       ) : null}
 
-      <div className={`overflow-x-clip ${adalahPanelDemo ? "" : "lg:pl-[264px]"}`}>
-        {/* Bilah atas kaca: HP dan desktop */}
+      <div className={`overflow-x-clip ${adalahPanelDemo ? "" : "lg:pl-[248px]"}`}>
+        {/* Navbar desktop: menyatu dengan sidebar, tanpa margin */}
+        {!adalahPanelDemo ? (
+          <header className="sticky top-0 z-30 hidden h-16 items-center justify-between gap-4 border-b border-garis-halus bg-white/85 px-6 backdrop-blur-xl backdrop-saturate-150 lg:flex">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-latar">
+                <IkonLanding nama={ikonPeran} className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 leading-tight">
+                <p className="truncate text-sm font-semibold text-tinta">{namaPeran}</p>
+                {sesi.organisasiAktif ? <p className="truncate text-xs text-tinta-redup">{sesi.organisasiAktif.nama}</p> : null}
+              </div>
+            </div>
+            <div className="flex flex-1 justify-center">
+              <PencarianSerah />
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <IndikatorSinkron />
+              <LegendaIkon />
+            </div>
+          </header>
+        ) : null}
+
+        {/* Bilah atas kaca: HP */}
         <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 lg:hidden">
           <div className="mx-auto flex max-w-[1480px] items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/60 px-3 py-2 shadow-[0_8px_30px_rgba(15,23,42,0.07),inset_0_1px_0_rgba(255,255,255,0.9)] ring-1 ring-garis-halus/70 backdrop-blur-xl backdrop-saturate-150">
             <div className="flex min-w-0 items-center gap-3">
@@ -254,7 +263,7 @@ function Isi({ children }: { children: ReactNode }) {
 
         <BannerSambungan />
 
-        <main className="mx-auto w-full max-w-[1480px] px-4 pb-32 pt-5 sm:px-6 lg:pb-12">
+        <main className="mx-auto w-full max-w-[1600px] px-4 pb-32 pt-5 sm:px-6 lg:px-8 lg:pb-12 lg:pt-6">
           {boleh ? children : <BannerGalat pesan={TEKS.G_PERAN_TIDAK_BOLEH} />}
         </main>
       </div>

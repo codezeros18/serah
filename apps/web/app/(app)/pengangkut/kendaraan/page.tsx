@@ -3,9 +3,33 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import type { Kendaraan } from "@serah/kontrak";
 import { TEKS } from "@serah/kontrak/teks";
-import { BannerGalat, Dialog, Tombol } from "@serah/ui";
+import { BannerGalat, Dialog } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
+import { IkonLanding } from "@/lib/klien/komponen/ikon-landing";
+import { IkonNav } from "@/lib/klien/komponen/ikon-nav";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
+import { RangkaHalaman } from "@/lib/klien/komponen/rangka";
+import { StripKpi } from "@/lib/klien/komponen/viz";
+
+/** Pelat nomor bergaya: bingkai tebal, huruf mono, strip biru di kiri. */
+function Pelat({ teks, redup = false, besar = false }: { teks: string; redup?: boolean; besar?: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-stretch overflow-hidden rounded-xl border-2 bg-white shadow-[0_2px_8px_rgba(15,23,42,0.08)] ${
+        redup ? "border-garis-halus opacity-60" : "border-tinta"
+      }`}
+    >
+      <span aria-hidden="true" className={`flex w-2.5 items-end justify-center bg-aksi ${besar ? "w-3" : ""}`} />
+      <span
+        className={`px-3.5 py-1.5 text-center font-mono font-semibold uppercase tracking-[0.16em] text-tinta ${
+          besar ? "min-w-[11rem] text-2xl" : "text-lg"
+        }`}
+      >
+        {teks || "—"}
+      </span>
+    </span>
+  );
+}
 
 export default function HalamanKendaraan() {
   const [daftarKendaraan, setDaftarKendaraan] = useState<Kendaraan[]>([]);
@@ -78,85 +102,135 @@ export default function HalamanKendaraan() {
     }
   }
 
+  const aktif = daftarKendaraan.filter((k) => k.aktif);
+  const nonaktif = daftarKendaraan.filter((k) => !k.aktif);
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.KND_JUDUL}</h1>
-        <Tombol
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.KND_JUDUL}</h1>
+          {daftarKendaraan.length > 0 ? (
+            <span className="rounded-full bg-latar px-2.5 py-0.5 text-xs font-semibold tabular-nums text-tinta-redup">{daftarKendaraan.length}</span>
+          ) : null}
+        </div>
+        <button
+          type="button"
           onClick={() => setTambahTerbuka(true)}
-          className="min-h-12 bg-aksi text-aksi-teks hover:bg-aksi-hover font-bold px-5 active:scale-[0.98] transition-all shadow-sm"
+          className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-aksi px-5 text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover active:translate-y-0 active:scale-[0.98]"
         >
+          <IkonNav nama="tambah" className="h-5 w-5" />
           {TEKS.KND_TAMBAH}
-        </Tombol>
+        </button>
       </div>
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
-      {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
+      {sedangMuat ? <RangkaHalaman jumlah={2} /> : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {daftarKendaraan.map((k) => (
-          <div
-            key={k.id}
-            className="flex items-center justify-between gap-4 rounded-kartu border-2 border-garis-halus bg-kertas p-4 sm:p-5 shadow-xs transition-colors hover:border-garis"
-          >
-            <div className="flex flex-col gap-2">
-              <div className="inline-flex w-fit items-center rounded-kontrol border-2 border-garis bg-latar px-3.5 py-1.5 shadow-inner">
-                <span className="font-mono text-xl sm:text-2xl font-semibold tracking-widest text-tinta">{k.plat}</span>
-              </div>
-              <div>
-                {k.aktif ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-status-selesai bg-status-selesai-latar px-3 py-0.5 text-xs font-bold text-status-selesai">
-                    <span className="h-2 w-2 rounded-full bg-status-selesai" />
-                    {TEKS.LGN_STATUS_AKTIF}
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-garis bg-latar px-3 py-0.5 text-xs font-bold text-tinta-redup">
-                    <span className="h-2 w-2 rounded-full bg-garis" />
-                    {TEKS.KND_NONAKTIF}
-                  </span>
-                )}
-              </div>
-            </div>
-            {k.aktif ? (
-              <Tombol
-                varian="sekunder"
-                className="min-h-12 border-2 border-garis font-bold hover:bg-latar active:scale-[0.98] transition-all text-sm shrink-0"
-                onClick={() => setNonaktifTarget(k)}
-              >
-                {TEKS.KND_NONAKTIF}
-              </Tombol>
-            ) : null}
+      {!sedangMuat && daftarKendaraan.length > 0 ? (
+        <section className="muncul rounded-3xl border border-garis-halus bg-kertas p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+          <StripKpi
+            item={[
+              { kunci: "aktif", label: TEKS.LGN_STATUS_AKTIF, nilai: aktif.length, nada: "baik" },
+              { kunci: "nonaktif", label: TEKS.KND_NONAKTIF, nilai: nonaktif.length, nada: "netral" },
+            ]}
+          />
+        </section>
+      ) : null}
+
+      {!sedangMuat && daftarKendaraan.length === 0 && !galat ? (
+        <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-garis-halus bg-latar/50 px-6 py-14 text-center">
+          <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-white shadow-[0_4px_14px_rgba(15,23,42,0.06)]">
+            <IkonLanding nama="truk" className="h-9 w-9" />
+          </span>
+          <div>
+            <p className="text-base font-semibold text-tinta">{TEKS.KND_KOSONG_JUDUL}</p>
+            <p className="mt-1 text-sm text-tinta-redup">{TEKS.KND_KOSONG_ISI}</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setTambahTerbuka(true)}
+            className="inline-flex min-h-11 items-center gap-2 rounded-2xl bg-aksi px-5 text-sm font-medium text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all hover:-translate-y-0.5 hover:bg-aksi-hover"
+          >
+            <IkonNav nama="tambah" className="h-5 w-5" />
+            {TEKS.KND_TAMBAH}
+          </button>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {[...aktif, ...nonaktif].map((k) => (
+          <article
+            key={k.id}
+            className={`muncul group flex flex-col gap-4 rounded-3xl border p-5 transition-all duration-300 ${
+              k.aktif
+                ? "border-garis-halus bg-kertas shadow-[0_8px_30px_rgba(15,23,42,0.05)] hover:-translate-y-0.5 hover:border-aksi-garis hover:shadow-[0_16px_40px_rgba(36,87,197,0.12)]"
+                : "border-garis-halus/70 bg-latar/50"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <span
+                aria-hidden="true"
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl ${k.aktif ? "bg-aksi-latar" : "bg-white opacity-60"}`}
+              >
+                <IkonLanding nama="truk" className="h-7 w-7" />
+              </span>
+              {k.aktif ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                  {TEKS.LGN_STATUS_AKTIF}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-tinta-redup ring-1 ring-inset ring-garis-halus">
+                  <span className="h-1.5 w-1.5 rounded-full bg-garis" aria-hidden="true" />
+                  {TEKS.KND_NONAKTIF}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <Pelat teks={k.plat} redup={!k.aktif} />
+              {k.aktif ? (
+                <button
+                  type="button"
+                  onClick={() => setNonaktifTarget(k)}
+                  aria-label={`${TEKS.KND_NONAKTIF} ${k.plat}`}
+                  title={TEKS.KND_NONAKTIF}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-latar text-tinta-redup transition-all duration-200 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
+                >
+                  <IkonNav nama="daya" className="h-5 w-5" />
+                </button>
+              ) : null}
+            </div>
+          </article>
         ))}
       </div>
 
-      <Dialog
-        terbuka={tambahTerbuka}
-        judul={TEKS.KND_TAMBAH}
-        onTutup={() => setTambahTerbuka(false)}
-      >
-        <form onSubmit={mintaKonfirmasiTambah} className="flex flex-col gap-4">
-          <label className="flex flex-col gap-2 text-base font-bold text-tinta">
+      <Dialog terbuka={tambahTerbuka} judul={TEKS.KND_TAMBAH} onTutup={() => setTambahTerbuka(false)}>
+        <form onSubmit={mintaKonfirmasiTambah} className="flex flex-col gap-5">
+          <div className="flex justify-center rounded-2xl bg-latar p-5">
+            <Pelat teks={plat.trim() || "B 1234 ABC"} besar redup={plat.trim() === ""} />
+          </div>
+          <label className="flex flex-col gap-2 text-sm font-medium text-tinta">
             {TEKS.KND_PLAT}
             <input
               type="text"
               required
+              autoFocus
+              autoComplete="off"
               placeholder="B 1234 ABC"
               value={plat}
               onChange={(e) => setPlat(e.target.value)}
-              className="min-h-14 rounded-kontrol border-2 border-garis bg-kertas px-4 font-mono text-xl sm:text-2xl font-bold uppercase tracking-wider text-tinta focus:border-aksi focus:ring-2 focus:ring-aksi/20"
+              className="min-h-14 rounded-2xl border border-garis-halus bg-kertas px-4 text-center font-mono text-xl font-semibold uppercase tracking-[0.15em] text-tinta transition-all placeholder:text-garis hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
             />
           </label>
-
-          <div className="mt-3 flex justify-end gap-3">
-            <Tombol
-              type="submit"
-              className="min-h-12 bg-aksi text-aksi-teks hover:bg-aksi-hover font-bold active:scale-[0.98] transition-all shadow-sm"
-              disabled={sedangSimpan}
-            >
-              {TEKS.UMUM_SIMPAN}
-            </Tombol>
-          </div>
+          <button
+            type="submit"
+            disabled={sedangSimpan || plat.trim() === ""}
+            className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-aksi text-base font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover disabled:opacity-50 disabled:hover:translate-y-0"
+          >
+            {TEKS.UMUM_SIMPAN}
+          </button>
         </form>
       </Dialog>
 
@@ -168,8 +242,10 @@ export default function HalamanKendaraan() {
         onKonfirmasi={() => void tanganiTambah()}
         onTutup={() => setKonfirmasiTambah(false)}
       >
-        <p className="text-center font-mono text-2xl font-semibold tracking-widest text-tinta">{plat.trim().toUpperCase()}</p>
-        <p className="mt-2 text-center text-xs text-tinta-redup">{TEKS.KONF_TAMBAH_KND}</p>
+        <div className="flex justify-center">
+          <Pelat teks={plat.trim().toUpperCase()} besar />
+        </div>
+        <p className="mt-3 text-center text-xs text-tinta-redup">{TEKS.KONF_TAMBAH_KND}</p>
       </KonfirmasiAksi>
 
       <KonfirmasiAksi
@@ -182,8 +258,10 @@ export default function HalamanKendaraan() {
         onKonfirmasi={() => nonaktifTarget && void tanganiNonaktif(nonaktifTarget.id)}
         onTutup={() => setNonaktifTarget(null)}
       >
-        <p className="text-center font-mono text-2xl font-semibold tracking-widest text-tinta">{nonaktifTarget?.plat}</p>
-        <p className="mt-2 text-center text-xs text-tinta-redup">{TEKS.KONF_NONAKTIF_KND}</p>
+        <div className="flex justify-center">
+          <Pelat teks={nonaktifTarget?.plat ?? ""} besar />
+        </div>
+        <p className="mt-3 text-center text-xs text-tinta-redup">{TEKS.KONF_NONAKTIF_KND}</p>
       </KonfirmasiAksi>
     </div>
   );

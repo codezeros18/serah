@@ -130,7 +130,7 @@ export function TabelLaporan({ pihak, periode, kawasanId }: { pihak: PihakLapora
       ) : (
         <>
           <div className="grid gap-4 lg:grid-cols-3">
-            <KartuViz judul="Komposisi diterima" className="lg:col-span-1">
+            <KartuViz judul="Komposisi diterima" className="lg:col-span-1 lg:self-start">
               <BilahSegmen
                 segmen={data.total.map((t) => ({
                   kunci: t.aliran,

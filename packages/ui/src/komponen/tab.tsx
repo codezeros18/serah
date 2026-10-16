@@ -30,7 +30,7 @@ export function Tab({
   const panel = item.find((t) => t.kunci === aktif) ?? item[0];
   return (
     <div>
-      <div ref={daftar} role="tablist" className="flex gap-1 overflow-x-auto border-b-2 border-garis">
+      <div ref={daftar} role="tablist" className="gulir-halus flex gap-2 overflow-x-auto pb-1">
         {item.map((t, i) => {
           const dipilih = t.kunci === panel?.kunci;
           return (
@@ -45,8 +45,10 @@ export function Tab({
               tabIndex={dipilih ? 0 : -1}
               onClick={() => onPilih(t.kunci)}
               onKeyDown={(e) => tekan(e, i)}
-              className={`min-h-12 whitespace-nowrap px-4 text-base font-semibold ${
-                dipilih ? "border-b-4 border-aksi text-aksi" : "text-tinta-redup"
+              className={`inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border px-4 text-sm font-medium transition-all duration-200 ${
+                dipilih
+                  ? "border-tinta bg-tinta text-white shadow-sm"
+                  : "border-garis-halus bg-kertas text-tinta hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
               }`}
             >
               {t.judul}
@@ -59,7 +61,7 @@ export function Tab({
           role="tabpanel"
           id={`${dasar}-panel-${panel.kunci}`}
           aria-labelledby={`${dasar}-tab-${panel.kunci}`}
-          className="pt-4"
+          className="pt-5"
         >
           {panel.isi}
         </div>

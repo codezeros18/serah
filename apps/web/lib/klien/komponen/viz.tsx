@@ -318,9 +318,11 @@ function jalurHalus(p: readonly { x: number; y: number }[]): string {
     const e = p[i + 2] ?? c;
     if (!a || !b || !c || !e) continue;
     const c1x = b.x + (c.x - a.x) / 6;
-    const c1y = b.y + (c.y - a.y) / 6;
+    const lo = Math.min(b.y, c.y);
+    const hi = Math.max(b.y, c.y);
+    const c1y = Math.min(hi, Math.max(lo, b.y + (c.y - a.y) / 6));
     const c2x = c.x - (e.x - b.x) / 6;
-    const c2y = c.y - (e.y - b.y) / 6;
+    const c2y = Math.min(hi, Math.max(lo, c.y - (e.y - b.y) / 6));
     d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${c.x} ${c.y}`;
   }
   return d;

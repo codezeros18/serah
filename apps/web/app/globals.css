@@ -306,3 +306,38 @@ dialog.lembar {
   height: 1.5rem;
   border-radius: 0.6rem;
 }
+
+/* Saklar geser (tetap <input type="checkbox" role="switch"> asli) */
+.saklar {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.625rem;
+  border-radius: 999px;
+  background: #d7dde6;
+  cursor: pointer;
+  transition: background-color 0.25s;
+}
+.saklar::after {
+  content: "";
+  position: absolute;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.saklar:checked {
+  background: var(--color-aksi);
+}
+.saklar:checked::after {
+  transform: translateX(1.125rem);
+}
+.saklar:focus-visible {
+  outline: 3px solid var(--color-fokus);
+  outline-offset: 2px;
+}
