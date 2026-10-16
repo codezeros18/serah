@@ -55,7 +55,7 @@ export function BannerGalat({ pesan, onCoba }: { pesan: string; onCoba?: () => v
   return (
     <div
       role="alert"
-      className="flex flex-wrap items-center gap-3 rounded-2xl border border-l-4 border-garis-halus border-l-galat bg-galat-latar p-3.5 text-base shadow-[0_4px_20px_rgba(15,23,42,0.05)]"
+      className="flex flex-wrap items-center gap-3 rounded-2xl border border-garis-halus bg-galat-latar p-3.5 text-base shadow-[0_4px_20px_rgba(15,23,42,0.05)]"
     >
       <span
         aria-hidden="true"

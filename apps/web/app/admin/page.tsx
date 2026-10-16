@@ -524,7 +524,7 @@ export default function HalamanAdmin() {
                 {daftarAudit.map((aud) => (
                   <Kartu
                     key={aud.id}
-                    className="flex flex-col gap-2 border-l-4 border-l-aksi border-garis-halus bg-kertas p-4 shadow-xs text-sm hover:shadow-sm transition-all"
+                    className="flex flex-col gap-2 border-garis-halus bg-kertas p-4 shadow-xs text-sm hover:shadow-sm transition-all"
                   >
                     <div className="flex items-center justify-between text-xs text-tinta-redup">
                       <span className="font-mono">{aud.dibuatPada.slice(0, 19).replace("T", " ")} WIB</span>

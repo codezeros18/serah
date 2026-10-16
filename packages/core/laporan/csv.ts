@@ -6,12 +6,18 @@ import type { TotalAliran } from "./index";
 // CSV laporan (BLUEPRINT §K.2): UTF-8 BOM, pemisah ";", angka kg berkoma desimal (formatGramKeKg), header KOL_*,
 // baris catatan EKSPOR_CATATAN di akhir berisi sidik SHA-256 atas isi TANPA baris catatan.
 //
-// Cara memeriksa sidik dari berkas: buang BOM, buang baris terakhir (catatan), hitung SHA-256 atas sisanya
+// Cara memeriksa sidik dari berkas: buang BOM dan baris pengarah `sep=;`, buang baris terakhir (catatan), hitung SHA-256 atas sisanya
 // (UTF-8, setiap baris diakhiri CRLF) → hex huruf kecil = nilai "Sidik berkas" pada catatan & header X-Sidik-Isi.
 
 export const BOM_UTF8 = "﻿";
 export const PEMISAH_CSV = ";";
 export const AKHIR_BARIS_CSV = "\r\n";
+
+/**
+ * Baris pengarah untuk Excel (setelah BOM): `sep=;` membuat Excel memakai titik koma sebagai pemisah apa pun pengaturan
+ * regional komputernya (tanpa ini, Excel berpemisah koma menumpuk seluruh baris di satu sel). Bukan bagian isi: tidak ikut sidik.
+ */
+export const PETUNJUK_PEMISAH = `sep=${PEMISAH_CSV}${AKHIR_BARIS_CSV}`;
 
 export type HasilCsv = {
   /** Isi berkas lengkap (dengan BOM dan baris catatan). */
@@ -90,5 +96,5 @@ export function susunCsv(data: readonly BarisLaporan[], total: readonly TotalAli
   const isiCsv = isiCsvTanpaCatatan(data, total);
   const sidikIsi = sha256Hex(isiCsv);
   const catatan = sel(isi("EKSPOR_CATATAN", { sidik_isi: sidikIsi })) + AKHIR_BARIS_CSV;
-  return { teks: BOM_UTF8 + isiCsv + catatan, sidikIsi, jumlahBaris: data.length };
+  return { teks: BOM_UTF8 + PETUNJUK_PEMISAH + isiCsv + catatan, sidikIsi, jumlahBaris: data.length };
 }

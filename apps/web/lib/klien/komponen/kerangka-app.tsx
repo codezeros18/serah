@@ -147,6 +147,12 @@ function Isi({ children }: { children: ReactNode }) {
 
   const notifAktif = jalur === "/notifikasi";
 
+  // Halaman fokus (cetak QR): tanpa sidebar, navbar, dan bilah bawah.
+  const tanpaShell = jalur.startsWith("/kawasan/tps/cetak");
+  if (tanpaShell && boleh) {
+    return <div className={`${poppins.className} min-h-dvh bg-kertas text-tinta`}>{children}</div>;
+  }
+
   return (
     <div className={`${poppins.className} min-h-dvh bg-latar text-tinta`}>
       {MOCK_AKTIF && !adalahPanelDemo ? <LabelDemo /> : null}

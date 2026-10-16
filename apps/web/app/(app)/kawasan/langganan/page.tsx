@@ -118,7 +118,7 @@ export default function HalamanLangganan() {
       {sedangMuat ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
       {langganan ? (
-        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
+        <Kartu className="flex flex-col gap-4 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="text-sm font-semibold text-tinta-redup">{TEKS.KOL_STATUS}</span>
             <span className="rounded-full border border-aksi-garis bg-aksi-latar px-3 py-0.5 text-xs font-bold text-aksi">

@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
-import { totalPerAliran } from "@serah/core/laporan";
+import { PETUNJUK_PEMISAH, totalPerAliran } from "@serah/core/laporan";
 import { periodeWib } from "@serah/core/waktu";
 import { HEADER_SIDIK_ISI, TEKS, isi } from "@serah/kontrak";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -337,7 +337,7 @@ describe("CSV ekspor", () => {
     const mentah = new Uint8Array(await r.arrayBuffer());
     expect([...mentah.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     // ignoreBOM: pertahankan U+FEFF supaya terlihat dan dibuang eksplisit (pembaca bawaan membuangnya diam-diam).
-    const teks = new TextDecoder("utf-8", { ignoreBOM: true }).decode(mentah).slice(1);
+    const teks = new TextDecoder("utf-8", { ignoreBOM: true }).decode(mentah).slice(1 + PETUNJUK_PEMISAH.length);
     const baris = teks.split("\r\n");
     expect(baris.at(-1)).toBe(""); // diakhiri CRLF
     const garis = baris.slice(0, -1);

@@ -35,7 +35,7 @@ export default function DaftarSetujui() {
         <div className="flex flex-col gap-3">
           {keadaan.data.serah.map((s) => (
             <Link key={s.kode} href={`/kawasan/setujui/${s.kode}`} className="group block">
-              <Kartu className="flex flex-col gap-3 border-l-4 border-l-status-menunggu transition-all duration-150 group-hover:border-aksi group-hover:shadow-md active:scale-[0.99]">
+              <Kartu className="flex flex-col gap-3 transition-all duration-150 group-hover:border-aksi group-hover:shadow-md active:scale-[0.99]">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
                     <p className="text-lg font-bold text-tinta group-hover:text-aksi transition-colors">

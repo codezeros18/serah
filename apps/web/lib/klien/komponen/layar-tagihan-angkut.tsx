@@ -134,7 +134,7 @@ export function LayarTagihanAngkut({ peran }: { peran: "PENGANGKUT" | "KAWASAN" 
       {memuat && !pratinjau ? <p role="status">{TEKS.UMUM_MUAT}</p> : null}
 
       {pratinjau ? (
-        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
+        <Kartu className="flex flex-col gap-4 shadow-xs">
           <h2 className="text-lg font-bold tracking-tight text-tinta">{TEKS.TGA_JUDUL}</h2>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -7,6 +7,7 @@ import { TEKS } from "@serah/kontrak/teks";
 import { BannerGalat, Dialog, Kartu, Tombol } from "@serah/ui";
 import { formatE6, parseKoordinat } from "@/lib/klien/angka";
 import { panggil } from "@/lib/klien/api";
+import { GambarAman } from "@/lib/klien/komponen/gambar-aman";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { useKawasanSaya } from "@/lib/klien/kawasan-saya";
 
@@ -148,12 +149,17 @@ export default function HalamanTps() {
               </span>
             </div>
 
-            <div className="flex items-center justify-center rounded-kontrol border border-garis-halus bg-kertas p-4 shadow-2xs">
-              <img
-                src={`/api/tps/${tps.id}/qr?format=svg&v=${tps.qrVersi}`}
-                alt={`${tps.nama} - ${tps.kode}`}
-                className="h-40 w-40"
-              />
+            <div className="flex items-center justify-center rounded-2xl bg-latar/70 p-4">
+              <div className="rounded-2xl bg-white p-2 shadow-[0_2px_10px_rgba(15,23,42,0.06)] ring-1 ring-garis-halus">
+                <GambarAman
+                  src={`/api/tps/${tps.id}/qr?format=svg&v=${tps.qrVersi}`}
+                  alt={`${tps.nama} - ${tps.kode}`}
+                  teksKosong={TEKS.QR_TPS_TIDAK_ADA}
+                  ikon="tps"
+                  className="h-40 w-40"
+                  kelasKosong="h-40 w-40"
+                />
+              </div>
             </div>
 
             <div className="mt-auto flex flex-wrap gap-2 pt-2 border-t border-garis-halus/60">

@@ -1,6 +1,6 @@
 import { TEKS, type BarisLaporan } from "@serah/kontrak";
 import { describe, expect, it } from "vitest";
-import { susunCsv, totalPerAliran } from "../laporan";
+import { PETUNJUK_PEMISAH, susunCsv, totalPerAliran } from "../laporan";
 import { selAsal, susunModelLaporanPdf, susunModelLembarNeraca } from "./index";
 
 const H = (c: string) => c.repeat(64);
@@ -42,7 +42,7 @@ describe("susunModelLaporanPdf — total & isi = CSV (S23-1)", () => {
   });
 
   it("baris & total identik dengan sel CSV (angka kg berkoma desimal), kolom = header CSV", () => {
-    const sel = csv.teks.slice(1).split("\r\n").filter(Boolean).slice(0, -1).map((g) => g.split(";"));
+    const sel = csv.teks.slice(1 + PETUNJUK_PEMISAH.length).split("\r\n").filter(Boolean).slice(0, -1).map((g) => g.split(";"));
     expect(sel[0]).toEqual([...m.kolom]);
     // Baris data tanpa sel yang berisi pemisah/kutip: perbandingan langsung.
     expect(sel.slice(1, 1 + DATA.length).map((r) => r.slice(0, 6))).toEqual(m.baris.map((r) => r.slice(0, 6)));

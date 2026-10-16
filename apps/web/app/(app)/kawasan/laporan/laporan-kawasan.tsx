@@ -56,7 +56,7 @@ export function LaporanKawasan() {
       />
 
       <section
-        className="flex flex-col gap-3 rounded-kartu border border-garis-halus border-l-4 border-l-aksi bg-kertas p-5 shadow-xs"
+        className="flex flex-col gap-3 rounded-kartu border border-garis-halus bg-kertas p-5 shadow-xs"
         aria-labelledby="lembar"
       >
         <div className="flex flex-col gap-1">

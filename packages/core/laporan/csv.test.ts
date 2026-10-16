@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 import { TEKS, isi, type BarisLaporan } from "@serah/kontrak";
 import { describe, expect, it } from "vitest";
-import { susunCsv, totalPerAliran } from "./index";
+import { PETUNJUK_PEMISAH, susunCsv, totalPerAliran } from "./index";
+
+/** Isi berkas tanpa BOM dan tanpa baris pengarah `sep=;`. */
+const tanpaPengantar = (teks: string) => teks.slice(1 + PETUNJUK_PEMISAH.length);
 
 const HASH = "f".repeat(64);
 const dasar: BarisLaporan = {
@@ -60,14 +63,15 @@ const buat = (data: BarisLaporan[]) => susunCsv(data, totalPerAliran(data));
 describe("susunCsv — bentuk berkas", () => {
   const h = buat([dasar, baris2]);
 
-  it("diawali BOM UTF-8; setiap baris diakhiri CRLF", () => {
+  it("diawali BOM UTF-8 lalu baris pengarah sep=; ; setiap baris diakhiri CRLF", () => {
     expect(h.teks.charCodeAt(0)).toBe(0xfeff);
+    expect(h.teks.slice(1, 1 + PETUNJUK_PEMISAH.length)).toBe("sep=;\r\n");
     expect(h.teks.endsWith("\r\n")).toBe(true);
     expect(h.teks.replaceAll("\r\n", "").includes("\n")).toBe(false);
   });
 
   it("header = kolom KOL_* berurutan; 13 sel pada setiap baris", () => {
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect(b[0]).toEqual([
       TEKS.KOL_TANGGAL, TEKS.KOL_KODE_SERAH, TEKS.KOL_ALIRAN, TEKS.KOL_BERAT_TPS, TEKS.KOL_BERAT_DITERIMA, TEKS.KOL_BERAT_DITOLAK,
       TEKS.KOL_ALASAN, TEKS.KOL_LOKASI, TEKS.KOL_PENGANGKUT, TEKS.KOL_PLAT, TEKS.KOL_TUJUAN, TEKS.KOL_STATUS, TEKS.KOL_SIDIK,
@@ -76,7 +80,7 @@ describe("susunCsv — bentuk berkas", () => {
   });
 
   it("baris data: kg berkoma desimal dengan titik ribuan, label dari teks.ts", () => {
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect(b[1]).toEqual([
       "2026-10-15",
       "SRH-20261015-0001",
@@ -96,7 +100,7 @@ describe("susunCsv — bentuk berkas", () => {
   });
 
   it("total per aliran (huruf d) menyusul setelah baris data, dari baris yang sama", () => {
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect(b[3]).toEqual([TEKS.LAPORAN_TOTAL, "", TEKS.ALIRAN_KUNING, "1.250,5", "1.000", "250,5", "", "", "", "", "", "", ""]);
     expect(b[4]).toEqual([TEKS.LAPORAN_TOTAL, "", TEKS.ALIRAN_ABU, "42,5", "42,5", "0", "", "", "", "", "", "", ""]);
   });
@@ -109,7 +113,7 @@ describe("susunCsv — bentuk berkas", () => {
 describe("susunCsv — sidik isi & catatan", () => {
   it("baris terakhir = EKSPOR_CATATAN berisi sidik; sidik = SHA-256 atas isi tanpa BOM & tanpa baris catatan", () => {
     const h = buat([dasar, baris2]);
-    const tanpaBom = h.teks.slice(1);
+    const tanpaBom = tanpaPengantar(h.teks);
     const akhir = tanpaBom.slice(0, -2).lastIndexOf("\r\n") + 2; // awal baris catatan
     const isiTanpaCatatan = tanpaBom.slice(0, akhir);
     const catatan = tanpaBom.slice(akhir, -2);
@@ -126,10 +130,11 @@ describe("susunCsv — sidik isi & catatan", () => {
 
   it("tanpa data: header + catatan saja; sidik atas header", () => {
     const h = susunCsv([], []);
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect(b).toHaveLength(2);
     expect(h.jumlahBaris).toBe(0);
-    const header = h.teks.slice(1, h.teks.indexOf("\r\n") + 2);
+    const isiCsv = tanpaPengantar(h.teks);
+    const header = isiCsv.slice(0, isiCsv.indexOf("\r\n") + 2);
     expect(h.sidikIsi).toBe(sha(header));
   });
 });
@@ -138,7 +143,7 @@ describe("susunCsv — keamanan sel", () => {
   it("sel berawalan = + - @ diberi apostrof agar tidak dijalankan sebagai rumus", () => {
     for (const awal of ["=HYPERLINK(\"http://x\")", "+1+1", "-2+3", "@SUM(A1)", "\tcmd"]) {
       const h = buat([{ ...dasar, kawasanNama: awal, pengangkutNama: awal, penerimaNama: awal }]);
-      const b = urai(h.teks.slice(1));
+      const b = urai(tanpaPengantar(h.teks));
       expect(b[1]?.[8]?.startsWith("'")).toBe(true);
       expect(b[1]?.[8]?.slice(1)).toBe(awal);
       expect(b[1]?.[7]?.includes(`, '${awal}`) ?? false).toBe(false); // awalan di tengah sel tidak berbahaya
@@ -148,7 +153,7 @@ describe("susunCsv — keamanan sel", () => {
   it("nama berisi pemisah, kutip, dan baris baru dikutip benar dan terbaca utuh", () => {
     const nama = 'Pasar "Contoh"; Sejahtera\nBlok A';
     const h = buat([{ ...dasar, kawasanNama: nama, pengangkutNama: nama }]);
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect(b[1]).toHaveLength(13);
     expect(b[1]?.[8]).toBe(nama);
     expect(b[1]?.[7]).toBe(`TPS-PCS-01, ${nama}, Jl. Contoh No. 1`);
@@ -156,7 +161,7 @@ describe("susunCsv — keamanan sel", () => {
 
   it("nilai kosong (tanpa alasan/pengangkut/plat/penerima) menjadi sel kosong", () => {
     const h = buat([{ ...dasar, alasanTolak: null, pengangkutNama: null, plat: null, penerimaNama: null, penerimaJenis: null }]);
-    const b = urai(h.teks.slice(1));
+    const b = urai(tanpaPengantar(h.teks));
     expect([b[1]?.[6], b[1]?.[8], b[1]?.[9], b[1]?.[10]]).toEqual(["", "", "", ""]);
   });
 });

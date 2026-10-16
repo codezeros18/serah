@@ -79,10 +79,10 @@ export function LayarPermintaanKoreksi() {
                   <Kartu
                     className={`flex flex-col gap-4 shadow-xs transition-shadow duration-150 hover:shadow-md ${
                       item.status === "DIAJUKAN"
-                        ? "border-l-4 border-l-status-menunggu"
+                        ? "bg-status-menunggu-latar/30"
                         : item.status === "DISETUJUI"
-                          ? "border-l-4 border-l-status-selesai"
-                          : "border-l-4 border-l-status-tolak"
+                          ? "bg-status-selesai-latar/30"
+                          : "bg-status-tolak-latar/30"
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/60 pb-3">

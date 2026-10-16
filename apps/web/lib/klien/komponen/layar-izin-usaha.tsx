@@ -110,7 +110,7 @@ export function LayarIzinUsaha() {
 
       {organisasi ? (
         <>
-          <Kartu className="flex flex-col gap-3 border-l-4 border-l-aksi shadow-xs">
+          <Kartu className="flex flex-col gap-3 shadow-xs">
             <span className="text-xs font-semibold text-tinta-redup">{TEKS.KOL_STATUS}</span>
             <div className="flex items-center gap-2">
               <span

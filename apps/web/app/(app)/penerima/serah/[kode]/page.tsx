@@ -220,7 +220,7 @@ export default function LayarTutup() {
       {serah.keadaan.status === "galat" ? <BannerGalat pesan={serah.keadaan.pesan} onCoba={() => void serah.ulang()} /> : null}
 
       {d ? (
-        <Kartu className="flex flex-col gap-4 border-l-4 border-l-aksi shadow-xs">
+        <Kartu className="flex flex-col gap-4 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-garis-halus/60 pb-3">
             <p className="text-base font-bold text-tinta">{isi("P1_MUATAN", { nama_kawasan: d.kawasan.nama })}</p>
             <LencanaStatus status={d.status} />
@@ -270,7 +270,7 @@ export default function LayarTutup() {
           {aiMati && ai === null && fotoTiketId !== null ? <BannerGalat pesan={TEKS.G_AI_MATI} /> : null}
           {ai !== null ? (
             ai.keyakinan === "TINGGI" && ai.beratG !== null ? (
-              <p role="note" className="rounded-kartu border-l-4 border-l-aksi bg-aksi-latar/40 p-4 text-base font-semibold text-tinta shadow-2xs">
+              <p role="note" className="rounded-2xl bg-aksi-latar/50 p-4 text-sm font-medium text-tinta ring-1 ring-inset ring-aksi-garis">
                 {TEKS.AI_LABEL}
               </p>
             ) : (
