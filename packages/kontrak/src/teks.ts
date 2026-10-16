@@ -169,6 +169,7 @@ export const TEKS = {
   T2_BUAT: "Buat serah",
   T2_DIBUAT: "Serah {kode_serah} siap diambil.",
   T2_QR_PETUNJUK: "Tunjukkan kode QR ini kepada pengangkut saat sampah diambil.",
+  T2_SATU_ALIRAN: "Satu serah hanya untuk satu warna wadah, karena penerima menerima aliran tertentu saja. Buat serah terpisah untuk warna lain.",
   T2_TANPA_PILIHAN: "Pilih minimal satu wadah.",
   // M.7 Pengangkut (A1, A2, kendaraan)
   A1_JUDUL: "Serah yang menunggu diambil",

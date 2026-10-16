@@ -48,6 +48,9 @@ export function SiapkanSerah() {
     void muat();
   }, [muat]);
 
+  // Satu serah = satu aliran: penerima hanya menerima aliran tertentu (R-01/R-03), jadi serah campuran tidak punya tujuan sah.
+  const aliranDipilih = wadah.find((w) => dipilih.has(w.id))?.aliran ?? null;
+
   function alih(id: string) {
     setDipilih((s) => {
       const n = new Set(s);
@@ -134,6 +137,11 @@ export function SiapkanSerah() {
                 </span>
               ) : null}
             </legend>
+            {aliranDipilih !== null && wadah.some((w) => w.aliran !== aliranDipilih) ? (
+              <p role="status" className="rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-200">
+                {TEKS.T2_SATU_ALIRAN}
+              </p>
+            ) : null}
             {wadah.length === 0 ? (
               <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-garis-halus bg-latar/50 px-6 py-10 text-center">
                 <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)]">
@@ -145,10 +153,13 @@ export function SiapkanSerah() {
               <ul className="flex flex-col gap-2.5" data-testid="wadah-menunggu">
                 {wadah.map((w) => {
                   const dipilihIni = dipilih.has(w.id);
+                  const terkunci = aliranDipilih !== null && w.aliran !== aliranDipilih;
                   return (
                     <li key={w.id}>
                       <label
-                        className={`flex min-h-16 cursor-pointer items-center gap-3 rounded-3xl p-3.5 transition-all duration-200 active:scale-[0.99] ${
+                        className={`flex min-h-16 items-center gap-3 rounded-3xl p-3.5 transition-all duration-200 active:scale-[0.99] ${
+                          terkunci ? "cursor-not-allowed opacity-45" : "cursor-pointer"
+                        } ${
                           dipilihIni
                             ? "bg-aksi-latar/70 shadow-[0_8px_24px_rgba(36,87,197,0.14)] ring-2 ring-aksi/60"
                             : "bg-white/80 shadow-[0_4px_16px_rgba(15,23,42,0.04)] ring-1 ring-garis-halus/70 hover:-translate-y-0.5 hover:ring-aksi-garis"
@@ -158,6 +169,7 @@ export function SiapkanSerah() {
                           type="checkbox"
                           className="kotak-centang kotak-bulat"
                           checked={dipilihIni}
+                          disabled={terkunci}
                           onChange={() => alih(w.id)}
                           data-wadah={w.id}
                         />
