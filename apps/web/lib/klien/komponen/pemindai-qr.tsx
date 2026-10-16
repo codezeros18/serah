@@ -101,28 +101,35 @@ export function PemindaiQr({ petunjuk, onHasil }: { petunjuk: string; onHasil: (
     panggilHasil.current(teks);
   }
 
-  const kelasPilihan = (aktif: boolean) =>
-    `flex min-h-12 flex-1 items-center justify-center gap-2 rounded-2xl px-3 text-sm font-medium transition-all duration-200 ${
-      aktif
-        ? "bg-tinta text-white shadow-[0_8px_20px_rgba(15,23,42,0.18)]"
-        : "bg-latar text-tinta hover:bg-aksi-latar hover:text-aksi"
-    }`;
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Pilihan cara memindai */}
-      <div role="group" aria-label={TEKS.T1_PINDAI} className="flex gap-2">
-        <button type="button" aria-pressed={mode === "kamera"} onClick={() => setMode("kamera")} className={kelasPilihan(mode === "kamera")}>
-          <IkonKamera />
-          <span>{TEKS.QR_MODE_KAMERA}</span>
-        </button>
-        <button type="button" aria-pressed={mode === "unggah"} onClick={() => setMode("unggah")} className={kelasPilihan(mode === "unggah")}>
-          <IkonGambar />
-          <span>{TEKS.QR_MODE_UNGGAH}</span>
-        </button>
+      {/* Pilihan cara memindai: ikon saja (nama tetap tersedia untuk pembaca layar & tooltip) */}
+      <div role="group" aria-label={TEKS.T1_PINDAI} className="mx-auto inline-flex gap-1 rounded-full bg-latar p-1">
+        {(
+          [
+            { id: "kamera", label: TEKS.QR_MODE_KAMERA, ikon: <IkonKamera /> },
+            { id: "unggah", label: TEKS.QR_MODE_UNGGAH, ikon: <IkonGambar /> },
+          ] as const
+        ).map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            aria-pressed={mode === m.id}
+            aria-label={m.label}
+            title={m.label}
+            onClick={() => setMode(m.id)}
+            className={`flex h-11 w-16 items-center justify-center rounded-full transition-all duration-200 active:scale-95 ${
+              mode === m.id ? "bg-white text-aksi shadow-[0_2px_10px_rgba(15,23,42,0.12)]" : "text-tinta-redup hover:text-aksi"
+            }`}
+          >
+            {m.ikon}
+          </button>
+        ))}
       </div>
 
-      <p className="text-sm leading-relaxed text-tinta-redup">{mode === "kamera" ? petunjuk : TEKS.QR_UNGGAH_PETUNJUK}</p>
+      <p className={mode === "kamera" ? "sr-only" : "text-center text-xs leading-relaxed text-tinta-redup"}>
+        {mode === "kamera" ? petunjuk : TEKS.QR_UNGGAH_PETUNJUK}
+      </p>
 
       {mode === "kamera" ? (
         galat ? (

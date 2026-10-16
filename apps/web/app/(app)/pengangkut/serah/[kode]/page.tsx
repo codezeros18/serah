@@ -10,6 +10,7 @@ import { panggil } from "@/lib/klien/api";
 import { unggahFoto } from "@/lib/klien/foto";
 import dynamic from "next/dynamic";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
 import { Rangka } from "@/lib/klien/komponen/rangka";
 
 const KameraFoto = dynamic(() => import("@/lib/klien/komponen/kamera-foto").then((m) => m.KameraFoto), {
@@ -32,6 +33,66 @@ const KUNCI_KONTRAK = {
   BERAKHIR: "KONTRAK_BERAKHIR",
   DIBATALKAN: "KONTRAK_DIBATALKAN",
 } as const satisfies Record<string, KunciTeks>;
+
+const LANGKAH_PROGRES: readonly { id: Langkah; ikon: NamaIkon; label: string }[] = [
+  { id: "pindai", ikon: "qr", label: TEKS.A2_PINDAI },
+  { id: "foto", ikon: "kamera", label: TEKS.A2_FOTO },
+  { id: "tujuan", ikon: "truk", label: TEKS.A2_KENDARAAN },
+  { id: "terkirim", ikon: "centang", label: TEKS.UMUM_KONFIRMASI },
+];
+
+/** Progres bergaya pelacak pesanan: simpul berikon di sepanjang garis yang terisi; hanya langkah aktif yang berlabel. */
+function ProgresAmbil({ aktif }: { aktif: number }) {
+  const n = LANGKAH_PROGRES.length;
+  const persenIsi = (aktif / (n - 1)) * 100;
+  return (
+    <nav aria-label={TEKS.A2_JUDUL.split("{")[0]?.trim()} className="rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-garis-halus/70 backdrop-blur">
+      <ol className="relative flex items-center justify-between">
+        {/* garis dasar + garis terisi, berada di antara pusat simpul pertama dan terakhir */}
+        <span aria-hidden="true" className="absolute left-5 right-5 top-1/2 h-1 -translate-y-1/2 rounded-full bg-latar" />
+        <span
+          aria-hidden="true"
+          className="absolute left-5 top-1/2 h-1 -translate-y-1/2 rounded-full bg-gradient-to-r from-aksi to-emerald-500 transition-all duration-700 ease-out"
+          style={{ width: `calc((100% - 2.5rem) * ${persenIsi / 100})` }}
+        />
+        {LANGKAH_PROGRES.map((t, i) => {
+          const sudah = i < aktif;
+          const sekarang = i === aktif;
+          return (
+            <li key={t.id} className="relative z-10" aria-current={sekarang ? "step" : undefined}>
+              <span
+                className={`flex h-10 w-10 items-center justify-center rounded-full transition-all duration-500 ${
+                  sudah
+                    ? "bg-emerald-500 text-white shadow-[0_6px_16px_rgba(16,185,129,0.35)]"
+                    : sekarang
+                      ? "scale-110 bg-white shadow-[0_6px_20px_rgba(36,87,197,0.30)] ring-[3px] ring-aksi"
+                      : "bg-latar ring-1 ring-garis-halus"
+                }`}
+              >
+                {sudah ? (
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+                    <path d="m5 12.500 4.500 4.500L19 7" stroke="currentColor" strokeWidth="2.600" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <IkonLanding nama={t.ikon} className={`h-5 w-5 ${sekarang ? "" : "opacity-40 grayscale"}`} />
+                )}
+              </span>
+              <span className="sr-only">{t.label}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-3 flex items-center justify-between">
+        <p key={aktif} className="hero-masuk text-sm font-semibold text-tinta">
+          {LANGKAH_PROGRES[aktif]?.label}
+        </p>
+        <span className="rounded-full bg-latar px-2.5 py-0.5 font-mono text-xs tabular-nums text-tinta-redup">
+          {aktif + 1} / {n}
+        </span>
+      </div>
+    </nav>
+  );
+}
 
 /** A2 — ambil serah: pindai QR → foto muatan → kendaraan & penerima → kirim. */
 export default function LayarA2() {
@@ -116,58 +177,26 @@ export default function LayarA2() {
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight text-tinta">{isi("A2_JUDUL", { kode_serah: kode })}</h1>
+      <h1 className="text-xl font-semibold tracking-tight text-tinta sm:text-2xl">
+        {isi("A2_JUDUL", { kode_serah: kode }).split(kode)[0]}
+        <span className="mt-1 block font-mono text-base font-medium tracking-wider text-tinta-redup sm:inline sm:text-2xl sm:text-tinta">{kode}</span>
+      </h1>
 
-      {/* Indikator Langkah Bertahap untuk Driver */}
-      <div className="flex items-center justify-between gap-1 rounded-kartu border-2 border-garis-halus bg-kertas p-3 shadow-xs">
-        {[
-          { id: "pindai", label: TEKS.A2_PINDAI, nomor: 1 },
-          { id: "foto", label: TEKS.A2_FOTO, nomor: 2 },
-          { id: "tujuan", label: TEKS.A2_KENDARAAN, nomor: 3 },
-          { id: "terkirim", label: TEKS.UMUM_KONFIRMASI, nomor: 4 },
-        ].map((t, idx) => {
-          const aktif = idx === indeksAktif;
-          const sudah = idx < indeksAktif;
-          return (
-            <div key={t.id} className="flex flex-1 flex-col items-center gap-1 text-center">
-              <span
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-all ${
-                  sudah
-                    ? "bg-status-selesai text-white"
-                    : aktif
-                      ? "border-2 border-aksi bg-aksi text-aksi-teks ring-2 ring-aksi/30"
-                      : "border-2 border-garis-halus bg-latar text-tinta-redup"
-                }`}
-              >
-                {sudah ? "✓" : t.nomor}
-              </span>
-              <span
-                className={`truncate text-xs font-semibold ${
-                  aktif ? "font-bold text-aksi" : sudah ? "text-status-selesai" : "text-tinta-redup"
-                }`}
-              >
-                {t.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+      <ProgresAmbil aktif={indeksAktif} />
 
       {serah.keadaan.status === "galat" ? <BannerGalat pesan={serah.keadaan.pesan} onCoba={() => void serah.ulang()} /> : null}
       {detail ? (
-        <div className="flex flex-col gap-2.5 rounded-kartu border-2 border-garis bg-kertas p-4 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-lg font-semibold tracking-tight text-tinta">{detail.tps.nama}</p>
-              <p className="text-sm font-semibold text-tinta-redup">{detail.kawasan.nama}</p>
-            </div>
-            <span className="shrink-0 rounded-kontrol border border-garis bg-latar px-2.5 py-1 font-mono text-sm font-bold text-tinta">
-              {kode}
-            </span>
+        <div className="flex items-center gap-3 rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur">
+          <span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-aksi-latar">
+            <IkonLanding nama="tps" className="h-7 w-7" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-base font-semibold tracking-tight text-tinta">{detail.tps.nama}</p>
+            <p className="truncate text-xs text-tinta-redup">{detail.kawasan.nama}</p>
           </div>
-          <div className="flex flex-wrap gap-2 pt-0.5">
+          <div className="flex shrink-0 -space-x-2">
             {detail.aliran.map((a) => (
-              <LencanaAliran key={a} aliran={a} pendek />
+              <LencanaAliran key={a} aliran={a} pendek ikon />
             ))}
           </div>
         </div>
@@ -177,33 +206,24 @@ export default function LayarA2() {
       {tolak ? <PanelAturan aksi="TOLAK" kode={tolak.kode} teks={tolak.teks} /> : null}
 
       {langkah === "pindai" ? (
-        <section className="flex flex-col gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-4 shadow-sm">
-          <h2 className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
-              1
-            </span>
-            <span>{TEKS.A2_PINDAI}</span>
-          </h2>
+        <section className="flex flex-col gap-4 rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur">
+          <h2 className="sr-only">{TEKS.A2_PINDAI}</h2>
           <PemindaiQr petunjuk={TEKS.A2_PINDAI} onHasil={hasilPindai} />
           {/* QR sudah dikenal dari daftar A1; tombol ini untuk perangkat tanpa kamera yang bisa memindai. */}
-          <Tombol
-            varian="sekunder"
-            className="min-h-14 w-full border-2 border-garis text-base font-bold active:scale-[0.98] transition-all"
+          <button
+            type="button"
             onClick={() => setLangkah("foto")}
+            className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl text-sm font-medium text-tinta-redup transition-all duration-200 hover:bg-aksi-latar hover:text-aksi active:scale-[0.98]"
           >
             {TEKS.UMUM_LANJUT}
-          </Tombol>
+            <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+          </button>
         </section>
       ) : null}
 
       {langkah === "foto" ? (
-        <section className="flex flex-col gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-4 shadow-sm">
-          <h2 className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
-              2
-            </span>
-            <span>{TEKS.A2_FOTO}</span>
-          </h2>
+        <section className="flex flex-col gap-4 rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur">
+          <h2 className="sr-only">{TEKS.A2_FOTO}</h2>
           <KameraFoto
             petunjuk={TEKS.A2_FOTO_PETUNJUK}
             labelAmbil={sibuk ? TEKS.UMUM_MUAT : TEKS.A2_FOTO}
@@ -212,7 +232,7 @@ export default function LayarA2() {
           {tolak ? (
             <Tombol
               varian="sekunder"
-              className="min-h-14 w-full border-2 border-garis text-base font-bold active:scale-[0.98] transition-all"
+              className="min-h-14 w-full rounded-2xl"
               onClick={() => setTolak(null)}
             >
               {TEKS.A2_FOTO_ULANG}
