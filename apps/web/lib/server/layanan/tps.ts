@@ -39,7 +39,11 @@ async function wajibBatasTps(tx: Tx, organisasiId: string): Promise<void> {
 export async function buatTps(tx: Tx, sesi: Sesi, m: { kawasanId: string; nama: string; latE6: number; lonE6: number }, sekarang: Date): Promise<Tps> {
   const kawasan = await muatKawasanMilik(tx, sesi, m.kawasanId);
   await wajibBatasTps(tx, kawasan.organisasiId);
-  const kode = kodeTps(kawasan.kode, await nomorBerikut(tx, "TPS", kawasan.kode));
+  // Nomor urut dilewati bila kodenya sudah dipakai (TPS yang dimasukkan di luar API, mis. seed, tidak memajukan penghitung).
+  let kode = kodeTps(kawasan.kode, await nomorBerikut(tx, "TPS", kawasan.kode));
+  for (let i = 0; i < 100 && kode.ok && (await tx.tps.findFirst({ where: { kode: kode.kode }, select: { id: true } })); i++) {
+    kode = kodeTps(kawasan.kode, await nomorBerikut(tx, "TPS", kawasan.kode));
+  }
   if (!kode.ok) throw new GalatApi("VALIDASI_GAGAL", { rincian: [{ jalur: ["kawasanId"], kode: "tps_penuh" }] });
   const id = idBaru();
   const t = await tx.tps.create({

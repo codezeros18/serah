@@ -133,6 +133,7 @@ export async function seedDemo(k: Klien, sekarang: Date): Promise<boolean> {
       dibuat_pada: hari(60),
     });
   }
+  await sisip(k, "penomoran", { jenis: "TPS", tanggal_atau_periode: "KWS-PCS", nomor_terakhir: DAFTAR_TPS.length });
   const kendaraan = PLAT_KENDARAAN.map(() => idBaru());
   for (const [i, plat] of PLAT_KENDARAAN.entries()) {
     await sisip(k, "kendaraan", { id: kendaraan[i], organisasi_id: org.pengangkut, plat, aktif: true, dibuat_pada: hari(60) });
