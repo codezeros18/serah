@@ -14,7 +14,7 @@ import { unduhBerkas } from "../unduh";
 import { LegendaIkon } from "./legenda-ikon";
 import { Rangka } from "./rangka";
 import { TombolBerhak } from "./tombol-berhak";
-import { BilahSegmen, GrafikArea, KartuViz, WARNA_ALIRAN } from "./viz";
+import { BilahSegmen, Donat, GrafikArea, KartuViz, WARNA_ALIRAN } from "./viz";
 
 type Laporan = z.infer<typeof LaporanKeluaran>;
 type Baris = Laporan["baris"][number];
@@ -130,16 +130,25 @@ export function TabelLaporan({ pihak, periode, kawasanId }: { pihak: PihakLapora
       ) : (
         <>
           <div className="grid gap-4 lg:grid-cols-3">
-            <KartuViz judul="Komposisi diterima" className="lg:col-span-1 lg:self-start">
-              <BilahSegmen
-                segmen={data.total.map((t) => ({
+            <KartuViz judul="Komposisi diterima" className="lg:col-span-1">
+              {(() => {
+                const segmen = data.total.map((t) => ({
                   kunci: t.aliran,
                   label: TEKS[KUNCI_ALIRAN_PENDEK[t.aliran]],
                   nilai: t.beratDiterimaG,
                   warna: WARNA_ALIRAN[t.aliran],
                   teksNilai: `${kg(t.beratDiterimaG)} kg`,
-                }))}
-              />
+                }));
+                const total = data.total.reduce((j, t) => j + t.beratDiterimaG, 0);
+                return (
+                  <div className="flex w-full flex-1 flex-col items-center justify-center gap-6">
+                    <Donat segmen={segmen} tengah={kg(total)} subteks="kg" ukuran={176} />
+                    <div className="w-full">
+                      <BilahSegmen segmen={segmen} />
+                    </div>
+                  </div>
+                );
+              })()}
             </KartuViz>
             <KartuViz judul="Tren harian" className="lg:col-span-2">
               <GrafikArea
