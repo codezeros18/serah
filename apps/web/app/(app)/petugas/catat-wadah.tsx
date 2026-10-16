@@ -4,13 +4,16 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ALIRAN, type AksiAturan, type Aliran, type KodeAturan } from "@serah/kontrak/enum";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, IsianBerat, KELAS_ALIRAN_LEMBUT, KUNCI_ALIRAN, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
+import { BannerGalat, IsianBerat, KELAS_ALIRAN_LEMBUT, KUNCI_ALIRAN, KUNCI_ALIRAN_PENDEK, LencanaAliran, PanelAturan } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { antreanBersama } from "@/lib/klien/antrean/bersama";
 import { useAntrean } from "@/lib/klien/antrean/pakai-antrean";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
 import { BilahSegmen, WARNA_ALIRAN } from "@/lib/klien/komponen/viz";
+import { IkonLanding } from "@/lib/klien/komponen/ikon-landing";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
+import { KartuTps } from "./kartu-tps";
 import { PilihTps } from "./pilih-tps";
 import { PitaAntrean } from "./pita-antrean";
 import { bacaTpsTerpilih, type TpsTerpilih } from "./tps-terpilih";
@@ -29,7 +32,8 @@ export function CatatWadah() {
   const [jumlah, setJumlah] = useState("");
   const [beratSalah, setBeratSalah] = useState(false);
   const [galat, setGalat] = useState<string | null>(null);
-  const [hasil, setHasil] = useState<"terkirim" | "lokal" | null>(null);
+  const [, setHasil] = useState<"terkirim" | "lokal" | null>(null);
+  const { tampil, modal } = useModalHasil();
   const [baris, setBaris] = useState<Baris[]>([]);
   const [peringatan, setPeringatan] = useState<Peringatan[]>([]);
   const { keadaan } = useAntrean();
@@ -99,7 +103,13 @@ export function CatatWadah() {
     };
     await antreanBersama().tambah("WADAH_CATAT", payload);
     const r = navigator.onLine ? await antreanBersama().sinkron() : null;
-    setHasil(r && r.sisa === 0 ? "terkirim" : "lokal");
+    const terkirim = Boolean(r && r.sisa === 0);
+    setHasil(terkirim ? "terkirim" : "lokal");
+    tampil(
+      terkirim
+        ? { jenis: "sukses", pesan: TEKS.T1_TERSIMPAN, testId: "hasil-simpan" }
+        : { jenis: "offline", judul: TEKS.HASIL_TERSIMPAN_LOKAL, pesan: TEKS.T1_TERSIMPAN_LOKAL, testId: "hasil-simpan", otomatisMs: 2600 },
+    );
     performance.mark("t1-simpan");
     if (performance.getEntriesByName("t1-qr").length > 0) performance.measure("t1-qr-ke-simpan", "t1-qr", "t1-simpan");
     setBerat("");
@@ -115,42 +125,21 @@ export function CatatWadah() {
         <InfoTip judul={TEKS.T1_JUDUL} isi={TEKS.INFO_T1} />
       </div>
       <PitaAntrean />
+      {modal}
 
       {!tps ? (
         <PilihTps onTerpilih={setTps} />
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-kartu border-2 border-garis bg-kertas p-4 shadow-sm">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-kontrol border-2 border-aksi-garis bg-aksi-latar font-bold text-aksi">
-                TPS
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-lg font-bold text-tinta truncate" data-testid="tps-terpilih">
-                  {isi("T1_TPS_TERPILIH", { kode_tps: tps.kode, nama_kawasan: tps.namaKawasan })}
-                </p>
-              </div>
-            </div>
-            <Tombol
-              varian="sekunder"
-              className="min-h-12 border-2 border-garis font-bold shrink-0 active:scale-[0.98] transition-all"
-              onClick={() => setTps(null)}
-            >
-              {TEKS.T1_PINDAI}
-            </Tombol>
-          </div>
+          <KartuTps tps={tps} onGanti={() => setTps(null)} />
 
           {peringatan.map((p) => (
             <PanelAturan key={p.kode} aksi={p.aksi} kode={p.kode} teks={p.teks} />
           ))}
 
+          {/* Warna wadah */}
           <fieldset className="flex flex-col gap-3">
-            <legend className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
-                1
-              </span>
-              <span>{TEKS.T1_PILIH_ALIRAN}</span>
-            </legend>
+            <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-tinta-redup">{TEKS.T1_PILIH_ALIRAN}</legend>
             <div className="grid grid-cols-2 gap-3">
               {ALIRAN.map((a) => {
                 const terpilih = aliran === a;
@@ -160,135 +149,129 @@ export function CatatWadah() {
                     type="button"
                     data-aliran-pilih={a}
                     aria-pressed={terpilih}
+                    aria-label={TEKS[KUNCI_ALIRAN[a]]}
                     onClick={() => setAliran(a)}
-                    className={`min-h-20 rounded-3xl px-4 py-3 text-lg font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] shadow-sm ${KELAS_ALIRAN_LEMBUT[a]} ${
-                      terpilih ? "outline outline-4 outline-offset-2 outline-fokus" : ""
+                    className={`relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-3xl p-4 text-left transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.97] ${KELAS_ALIRAN_LEMBUT[a]} ${
+                      terpilih ? "shadow-[0_12px_30px_rgba(36,87,197,0.18)] ring-2 ring-aksi" : "shadow-sm"
                     }`}
                   >
-                    {TEKS[KUNCI_ALIRAN[a]]}
+                    <LencanaAliran aliran={a} ikon />
+                    <span className="text-sm font-semibold leading-tight" aria-hidden="true">
+                      {TEKS[KUNCI_ALIRAN_PENDEK[a]]}
+                    </span>
+                    {terpilih ? (
+                      <span aria-hidden="true" className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-aksi text-white">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none">
+                          <path d="m5 12.500 4.500 4.500L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    ) : null}
                   </button>
                 );
               })}
             </div>
           </fieldset>
 
-          <div className="flex flex-col gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-4 shadow-sm">
-            <div className="flex items-center gap-2.5">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
-                2
-              </span>
-              <span className="text-lg font-semibold text-tinta">{TEKS.T1_BERAT_LABEL}</span>
+          {/* Berat / jumlah */}
+          <section className="flex flex-col gap-4 rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur" aria-label={TEKS.T1_BERAT_LABEL}>
+            <IsianBerat id="t1-berat" nilai={berat} onUbah={setBerat} salah={beratSalah} />
+
+            <div className="flex items-center gap-3 text-xs text-tinta-redup" aria-hidden="true">
+              <span className="h-px flex-1 bg-garis-halus" />
+              <span>{TEKS.T1_JUMLAH_LABEL}</span>
+              <span className="h-px flex-1 bg-garis-halus" />
             </div>
 
-            <IsianBerat
-              id="t1-berat"
-              nilai={berat}
-              onUbah={setBerat}
-              salah={beratSalah}
-              className="min-h-14 text-2xl font-mono font-bold tabular-nums"
-            />
-
-            <div className="flex flex-col gap-1.5 pt-1">
-              <label htmlFor="t1-jumlah" className="text-base font-bold text-tinta">
-                {TEKS.T1_JUMLAH_LABEL}
-              </label>
-              <div className="flex items-stretch gap-2">
-                <button
-                  type="button"
-                  aria-label={TEKS.UMUM_KURANGI}
-                  onClick={() => setJumlah(String(Math.max(0, (Number.parseInt(jumlah, 10) || 0) - 1) || ""))}
-                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-latar text-2xl font-semibold text-tinta transition-all duration-150 hover:bg-aksi-latar hover:text-aksi active:scale-95"
-                >
-                  −
-                </button>
-                <input
-                  id="t1-jumlah"
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={jumlah}
-                  onChange={(e) => setJumlah(e.target.value)}
-                  className="min-h-14 min-w-0 flex-1 rounded-2xl border border-garis-halus bg-kertas px-4 text-center font-mono text-2xl font-semibold tabular-nums text-tinta transition-all hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
-                />
-                <button
-                  type="button"
-                  aria-label={TEKS.UMUM_TAMBAH}
-                  onClick={() => setJumlah(String((Number.parseInt(jumlah, 10) || 0) + 1))}
-                  className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-aksi text-2xl font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-150 hover:bg-aksi-hover active:scale-95"
-                >
-                  +
-                </button>
-              </div>
+            <div className="flex items-stretch gap-2">
+              <button
+                type="button"
+                aria-label={TEKS.UMUM_KURANGI}
+                onClick={() => setJumlah(String(Math.max(0, (Number.parseInt(jumlah, 10) || 0) - 1) || ""))}
+                className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-latar text-2xl font-semibold text-tinta transition-all duration-150 hover:bg-aksi-latar hover:text-aksi active:scale-95"
+              >
+                −
+              </button>
+              <input
+                id="t1-jumlah"
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={TEKS.T1_JUMLAH_LABEL}
+                placeholder="0"
+                value={jumlah}
+                onChange={(e) => setJumlah(e.target.value)}
+                className="min-h-14 min-w-0 flex-1 rounded-2xl border border-garis-halus bg-kertas px-4 text-center font-mono text-2xl font-semibold tabular-nums text-tinta transition-all placeholder:text-garis hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
+              />
+              <button
+                type="button"
+                aria-label={TEKS.UMUM_TAMBAH}
+                onClick={() => setJumlah(String((Number.parseInt(jumlah, 10) || 0) + 1))}
+                className="flex min-h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-aksi text-2xl font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-150 hover:bg-aksi-hover active:scale-95"
+              >
+                +
+              </button>
             </div>
-          </div>
+          </section>
 
           {galat ? <BannerGalat pesan={galat} /> : null}
-          <Tombol
+          <button
+            type="button"
             onClick={() => void simpan()}
-            className="min-h-14 w-full text-lg font-semibold bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
+            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-aksi text-base font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover active:translate-y-0 active:scale-[0.98]"
           >
             {TEKS.T1_SIMPAN}
-          </Tombol>
-          {hasil ? (
-            <div className="flex items-center gap-3 rounded-kartu border-2 border-status-selesai bg-status-selesai-latar p-4 text-status-selesai shadow-xs">
-              <span aria-hidden="true" className="text-2xl font-semibold">
-                ✓
-              </span>
-              <p role="status" data-testid="hasil-simpan" className="text-base font-bold">
-                {hasil === "terkirim" ? TEKS.T1_TERSIMPAN : TEKS.T1_TERSIMPAN_LOKAL}
-              </p>
-            </div>
-          ) : null}
+          </button>
 
-          <section className="flex flex-col gap-2.5 pt-2" aria-labelledby="t1-terakhir">
-            <h2 id="t1-terakhir" className="text-lg font-semibold text-tinta">
+          {/* Catatan hari ini */}
+          <section className="flex flex-col gap-3 pt-2" aria-labelledby="t1-terakhir">
+            <h2 id="t1-terakhir" className="text-xs font-semibold uppercase tracking-[0.12em] text-tinta-redup">
               {TEKS.T1_TERAKHIR}
             </h2>
             {baris.length === 0 ? (
-              <p className="text-base font-semibold text-tinta-redup rounded-kartu border border-dashed border-garis p-4 text-center">
+              <p className="rounded-2xl border border-dashed border-garis-halus bg-latar/50 p-5 text-center text-sm text-tinta-redup">
                 {TEKS.K_KOSONG_TPS}
               </p>
             ) : (
               <>
-              <BilahSegmen
-                tanpaLegenda
-                segmen={ALIRAN.map((a) => ({
-                  kunci: a,
-                  label: TEKS[KUNCI_ALIRAN[a]],
-                  nilai: baris.filter((b) => b.aliran === a).reduce((j, b) => j + (b.beratG ?? 0), 0),
-                  warna: WARNA_ALIRAN[a],
-                }))}
-              />
-              <ul className="flex flex-col gap-2.5" data-testid="catatan-terakhir">
-                {baris.map((b) => (
-                  <li
-                    key={b.kunci}
-                    className="flex min-h-14 flex-wrap items-center gap-3 rounded-kartu border-2 border-garis-halus bg-kertas p-3.5 shadow-xs transition-colors hover:border-garis"
-                  >
-                    <LencanaAliran aliran={b.aliran} pendek />
-                    <span className="font-mono text-lg font-bold tabular-nums text-tinta">
-                      {b.beratG !== null
-                        ? isi("UMUM_KG", { nilai: formatGramKeKg(b.beratG) })
-                        : b.jumlahWadah !== null
-                          ? isi("UMUM_WADAH", { jumlah: b.jumlahWadah })
-                          : TEKS.UMUM_BERAT_BELUM}
-                    </span>
-                    <span className="ml-auto rounded-full border border-garis-halus bg-latar px-2.5 py-1 text-xs font-semibold tabular-nums text-tinta-redup">
-                      {b.umurJam === null ? TEKS.T1_TERSIMPAN_LOKAL : isi("UMUM_JAM_LALU", { jam: b.umurJam })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+                <BilahSegmen
+                  tanpaLegenda
+                  segmen={ALIRAN.map((a) => ({
+                    kunci: a,
+                    label: TEKS[KUNCI_ALIRAN[a]],
+                    nilai: baris.filter((b) => b.aliran === a).reduce((j, b) => j + (b.beratG ?? 0), 0),
+                    warna: WARNA_ALIRAN[a],
+                  }))}
+                />
+                <ul className="overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur" data-testid="catatan-terakhir">
+                  {baris.map((b) => (
+                    <li key={b.kunci} className="flex min-h-14 items-center gap-3 border-b border-garis-halus/60 px-3.5 py-2.5 last:border-b-0">
+                      <LencanaAliran aliran={b.aliran} pendek ikon />
+                      <span className="flex-1 font-mono text-base font-semibold tabular-nums text-tinta">
+                        {b.beratG !== null
+                          ? isi("UMUM_KG", { nilai: formatGramKeKg(b.beratG) })
+                          : b.jumlahWadah !== null
+                            ? isi("UMUM_WADAH", { jumlah: b.jumlahWadah })
+                            : TEKS.UMUM_BERAT_BELUM}
+                      </span>
+                      <span className="shrink-0 rounded-full bg-latar px-2.5 py-1 text-xs tabular-nums text-tinta-redup">
+                        {b.umurJam === null ? TEKS.T1_TERSIMPAN_LOKAL : isi("UMUM_JAM_LALU", { jam: b.umurJam })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               </>
             )}
           </section>
 
           <Link
             href="/petugas/serah"
-            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-kontrol border-2 border-aksi bg-aksi-latar px-5 text-base font-bold text-aksi shadow-xs transition-all hover:bg-aksi hover:text-aksi-teks active:scale-[0.98]"
+            className="group flex min-h-16 items-center gap-3 rounded-3xl bg-gradient-to-br from-white to-aksi-latar/70 px-4 shadow-[0_8px_30px_rgba(36,87,197,0.10)] ring-1 ring-aksi-garis transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_rgba(36,87,197,0.18)] active:scale-[0.99]"
           >
-            <span>{TEKS.T1_KE_SERAH}</span>
-            <span aria-hidden="true" className="text-lg font-semibold">
+            <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white shadow-[0_2px_8px_rgba(15,23,42,0.08)]">
+              <IkonLanding nama="truk" className="h-6 w-6" />
+            </span>
+            <span className="flex-1 text-base font-semibold text-aksi">{TEKS.T1_KE_SERAH}</span>
+            <span aria-hidden="true" className="text-xl text-aksi transition-transform duration-200 group-hover:translate-x-1">
               →
             </span>
           </Link>

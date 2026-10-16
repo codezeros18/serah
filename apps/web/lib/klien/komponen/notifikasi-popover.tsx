@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Poppins } from "next/font/google";
 import { createPortal } from "react-dom";
 import { TEKS } from "@serah/kontrak/teks";
 import { panggil } from "../api";
 import { type ItemNotifikasi, susunPesanNotifikasi, tautanObjek } from "../notifikasi-teks";
 import { useLangsung } from "../sse";
 import { IkonNav } from "./ikon-nav";
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], display: "swap" });
 
 /**
  * Lonceng di navbar: lencana jumlah belum dibaca + popover daftar notifikasi
@@ -21,7 +24,7 @@ export function NotifikasiPopover() {
   const setBuka = useCallback((v: boolean | ((b: boolean) => boolean)) => {
     setBukaMentah((b) => {
       const baru = typeof v === "function" ? v(b) : v;
-      if (baru && !b) setSeluler(window.innerWidth < 640);
+      if (baru && !b) setSeluler(window.innerWidth < 1024);
       return baru;
     });
   }, []);
@@ -82,15 +85,15 @@ export function NotifikasiPopover() {
   }
 
   const lapisan = (
-    <>
-      {buka ? <div aria-hidden="true" onClick={() => setBuka(false)} className="fixed inset-0 z-40 bg-tinta/30 backdrop-blur-sm sm:hidden" /> : null}
+    <div className={poppins.className}>
+      {buka ? <div aria-hidden="true" onClick={() => setBuka(false)} className="fixed inset-0 z-40 bg-tinta/20 backdrop-blur-[2px] lg:hidden" /> : null}
 
       {buka ? (
         <section
           ref={panel}
           role="dialog"
           aria-label={TEKS.NTF_JUDUL}
-          className="dropdown-masuk z-50 flex max-h-[70dvh] flex-col overflow-hidden border border-garis-halus bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] max-sm:fixed max-sm:inset-x-3 max-sm:bottom-3 max-sm:rounded-3xl sm:absolute sm:right-0 sm:top-full sm:mt-3 sm:w-[24rem] sm:origin-top-right sm:rounded-3xl"
+          className="dropdown-masuk z-50 flex max-h-[70dvh] flex-col overflow-hidden border border-garis-halus bg-white shadow-[0_24px_70px_rgba(15,23,42,0.22)] max-lg:fixed max-lg:right-3 max-lg:top-[calc(env(safe-area-inset-top)+4.75rem)] max-lg:w-[min(26rem,calc(100vw-1.5rem))] max-lg:origin-top-right max-lg:rounded-3xl lg:absolute lg:right-0 lg:top-full lg:mt-3 lg:w-[24rem] lg:origin-top-right lg:rounded-3xl"
         >
           <header className="flex items-center justify-between gap-3 border-b border-garis-halus/70 px-4 py-3.5">
             <div className="flex items-center gap-2">
@@ -117,7 +120,7 @@ export function NotifikasiPopover() {
                 type="button"
                 onClick={() => setBuka(false)}
                 aria-label={TEKS.UMUM_TUTUP}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-tinta-redup transition-colors hover:bg-latar hover:text-tinta active:scale-95 sm:hidden"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-tinta-redup transition-colors hover:bg-latar hover:text-tinta active:scale-95 lg:hidden"
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
                   <path d="m6 6 12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -202,7 +205,7 @@ export function NotifikasiPopover() {
           </footer>
         </section>
       ) : null}
-    </>
+    </div>
   );
 
   return (

@@ -22,7 +22,8 @@ async function axeBersih(page: Page) {
 }
 
 async function ambilFotoMuatan(page: Page) {
-  await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
+  await page.getByLabel(TEKS.T1_KETIK_QR).fill(page.url().split("/").pop() ?? "");
+  await page.getByRole("button", { name: TEKS.T1_KETIK_QR_LANJUT }).click();
   const ambil = page.getByRole("button", { name: TEKS.A2_FOTO });
   await expect(ambil).toBeEnabled();
   await ambil.click();

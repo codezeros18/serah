@@ -3,10 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import type { AksiAturan, Aliran, KodeAturan } from "@serah/kontrak/enum";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, Kartu, LencanaAliran, PanelAturan, Tombol } from "@serah/ui";
+import { BannerGalat, LencanaAliran, PanelAturan } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { formatGramKeKg } from "@/lib/klien/angka";
+import { IkonLanding } from "@/lib/klien/komponen/ikon-landing";
 import { QrTampil } from "@/lib/klien/komponen/qr-tampil";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
+import { KartuTps } from "./kartu-tps";
 import { PilihTps } from "./pilih-tps";
 import { PitaAntrean } from "./pita-antrean";
 import { bacaTpsTerpilih, type TpsTerpilih } from "./tps-terpilih";
@@ -23,6 +26,7 @@ export function SiapkanSerah() {
   const [dipilih, setDipilih] = useState<Set<string>>(new Set());
   const [galat, setGalat] = useState<string | null>(null);
   const [sibuk, setSibuk] = useState(false);
+  const { galat: tampilGalat, modal } = useModalHasil();
   const [dibuat, setDibuat] = useState<{ kode: string; qrToken: string } | null>(null);
 
   useEffect(() => {
@@ -68,7 +72,8 @@ export function SiapkanSerah() {
     });
     setSibuk(false);
     if (!h.ok) {
-      setGalat(h.galat.kode === "ATURAN_DITOLAK" && h.galat.aturan ? h.galat.aturan.teks : h.pesan);
+      if (h.galat.kode === "ATURAN_DITOLAK" && h.galat.aturan) setGalat(h.galat.aturan.teks);
+      else tampilGalat(h.pesan, () => void buat());
       return;
     }
     setDibuat(h.data);
@@ -77,80 +82,65 @@ export function SiapkanSerah() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl flex flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
       <h1 className="text-2xl font-semibold tracking-tight text-tinta">{TEKS.T2_JUDUL}</h1>
       <PitaAntrean />
+      {modal}
 
       {!tps ? (
         <PilihTps onTerpilih={setTps} />
       ) : dibuat ? (
-        <Kartu
-          className="flex flex-col items-center gap-4 rounded-kartu border-2 border-aksi bg-kertas p-6 text-center shadow-md"
+        <section
+          className="muncul flex flex-col items-center gap-5 rounded-[2rem] bg-white/80 p-6 text-center shadow-[0_24px_70px_rgba(36,87,197,0.12)] ring-1 ring-garis-halus/70 backdrop-blur"
           data-testid="serah-dibuat"
         >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-status-selesai bg-status-selesai-latar text-status-selesai">
-            <span className="text-2xl font-semibold">✓</span>
-          </div>
-          <p role="status" className="text-xl font-semibold text-tinta">
+          <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
+              <path className="gambar-centang" d="m5 12.500 4.500 4.500L19 7" stroke="currentColor" strokeWidth="2.600" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <p role="status" className="text-lg font-semibold text-tinta">
             {isi("T2_DIBUAT", { kode_serah: dibuat.kode })}
           </p>
-          <div className="rounded-kartu border-2 border-garis bg-white p-3 shadow-inner">
+          <div className="rounded-3xl bg-white p-3 shadow-[0_8px_30px_rgba(15,23,42,0.08)] ring-1 ring-garis-halus">
             <QrTampil isi={dibuat.qrToken} label={TEKS.T2_QR_PETUNJUK} lebarPx={280} />
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <p
-              className="rounded-kontrol border-2 border-garis bg-latar px-4 py-2 font-mono text-3xl font-semibold tracking-widest text-aksi"
-              data-testid="kode-serah"
-            >
-              {dibuat.kode}
-            </p>
-          </div>
-          <p className="max-w-sm text-base font-semibold text-tinta-redup">{TEKS.T2_QR_PETUNJUK}</p>
-          <Tombol
-            varian="sekunder"
-            className="min-h-14 w-full border-2 border-garis text-base font-bold active:scale-[0.98] transition-all"
+          <p className="rounded-xl bg-latar px-4 py-2 font-mono text-xl font-semibold tracking-widest text-aksi" data-testid="kode-serah">
+            {dibuat.kode}
+          </p>
+          <p className="max-w-xs text-sm text-tinta-redup">{TEKS.T2_QR_PETUNJUK}</p>
+          <button
+            type="button"
             onClick={() => setDibuat(null)}
+            className="inline-flex min-h-14 w-full items-center justify-center rounded-2xl border border-garis-halus bg-kertas text-base font-medium text-tinta transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar hover:text-aksi"
           >
             {TEKS.UMUM_TUTUP}
-          </Tombol>
-        </Kartu>
+          </button>
+        </section>
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-kartu border-2 border-garis bg-kertas p-4 shadow-sm">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-kontrol border-2 border-aksi-garis bg-aksi-latar font-bold text-aksi">
-                TPS
-              </div>
-              <div className="min-w-0">
-                <p className="text-base sm:text-lg font-bold text-tinta truncate" data-testid="tps-terpilih">
-                  {isi("T1_TPS_TERPILIH", { kode_tps: tps.kode, nama_kawasan: tps.namaKawasan })}
-                </p>
-              </div>
-            </div>
-            <Tombol
-              varian="sekunder"
-              className="min-h-12 border-2 border-garis font-bold shrink-0 active:scale-[0.98] transition-all"
-              onClick={() => setTps(null)}
-            >
-              {TEKS.T1_PINDAI}
-            </Tombol>
-          </div>
+          <KartuTps tps={tps} onGanti={() => setTps(null)} />
 
           {peringatan.map((p) => (
             <PanelAturan key={p.kode} aksi={p.aksi} kode={p.kode} teks={p.teks} />
           ))}
 
           <fieldset className="flex flex-col gap-3">
-            <legend className="flex items-center gap-2.5 text-lg font-semibold text-tinta">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-aksi text-sm font-bold text-aksi-teks shadow-xs">
-                1
-              </span>
+            <legend className="mb-1 flex w-full items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-tinta-redup">
               <span>{TEKS.T2_PILIH}</span>
+              {dipilih.size > 0 ? (
+                <span className="rounded-full bg-aksi px-2 py-0.5 text-[11px] font-semibold tabular-nums normal-case tracking-normal text-white">
+                  {dipilih.size}
+                </span>
+              ) : null}
             </legend>
             {wadah.length === 0 ? (
-              <p className="rounded-kartu border border-dashed border-garis p-6 text-center text-base font-semibold text-tinta-redup">
-                {TEKS.K_KOSONG_TPS}
-              </p>
+              <div className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-garis-halus bg-latar/50 px-6 py-10 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-[0_2px_10px_rgba(15,23,42,0.06)]">
+                  <IkonLanding nama="tps" className="h-8 w-8" />
+                </span>
+                <p className="text-sm text-tinta-redup">{TEKS.K_KOSONG_TPS}</p>
+              </div>
             ) : (
               <ul className="flex flex-col gap-2.5" data-testid="wadah-menunggu">
                 {wadah.map((w) => {
@@ -158,10 +148,10 @@ export function SiapkanSerah() {
                   return (
                     <li key={w.id}>
                       <label
-                        className={`flex min-h-16 cursor-pointer items-center gap-3.5 rounded-kartu border-2 p-3.5 transition-all duration-150 active:scale-[0.99] ${
+                        className={`flex min-h-16 cursor-pointer items-center gap-3 rounded-3xl p-3.5 transition-all duration-200 active:scale-[0.99] ${
                           dipilihIni
-                            ? "border-aksi bg-aksi-latar shadow-sm ring-2 ring-aksi/30"
-                            : "border-garis-halus bg-kertas hover:border-garis"
+                            ? "bg-aksi-latar/70 shadow-[0_8px_24px_rgba(36,87,197,0.14)] ring-2 ring-aksi/60"
+                            : "bg-white/80 shadow-[0_4px_16px_rgba(15,23,42,0.04)] ring-1 ring-garis-halus/70 hover:-translate-y-0.5 hover:ring-aksi-garis"
                         }`}
                       >
                         <input
@@ -171,15 +161,15 @@ export function SiapkanSerah() {
                           onChange={() => alih(w.id)}
                           data-wadah={w.id}
                         />
-                        <LencanaAliran aliran={w.aliran} pendek />
-                        <span className="font-mono text-lg font-bold tabular-nums text-tinta">
+                        <LencanaAliran aliran={w.aliran} pendek ikon />
+                        <span className="flex-1 font-mono text-base font-semibold tabular-nums text-tinta">
                           {w.beratG !== null
                             ? isi("UMUM_KG", { nilai: formatGramKeKg(w.beratG) })
                             : w.jumlahWadah !== null
                               ? isi("UMUM_WADAH", { jumlah: w.jumlahWadah })
                               : TEKS.UMUM_BERAT_BELUM}
                         </span>
-                        <span className="ml-auto rounded-full border border-garis-halus bg-latar px-2.5 py-1 text-xs font-semibold tabular-nums text-tinta-redup">
+                        <span className="shrink-0 rounded-full bg-latar px-2.5 py-1 text-xs tabular-nums text-tinta-redup">
                           {isi("T2_UMUR", { jam: w.umurJam })}
                         </span>
                       </label>
@@ -190,13 +180,14 @@ export function SiapkanSerah() {
             )}
           </fieldset>
           {galat ? <BannerGalat pesan={galat} /> : null}
-          <Tombol
+          <button
+            type="button"
             disabled={sibuk}
             onClick={() => void buat()}
-            className="min-h-14 w-full text-lg font-semibold bg-aksi text-aksi-teks hover:bg-aksi-hover shadow-md active:scale-[0.98] transition-all"
+            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-aksi text-base font-semibold text-white shadow-[0_8px_20px_rgba(36,87,197,0.28)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-hover active:translate-y-0 active:scale-[0.98] disabled:opacity-60 disabled:hover:translate-y-0"
           >
             {sibuk ? TEKS.UMUM_MUAT : TEKS.T2_BUAT}
-          </Tombol>
+          </button>
         </>
       )}
     </div>

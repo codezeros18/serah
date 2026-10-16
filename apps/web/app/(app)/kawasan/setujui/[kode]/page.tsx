@@ -9,6 +9,7 @@ import { panggil } from "@/lib/klien/api";
 import { IkonNav, type NamaIkonNav } from "@/lib/klien/komponen/ikon-nav";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
 import { GambarAman } from "@/lib/klien/komponen/gambar-aman";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
 import { Rangka } from "@/lib/klien/komponen/rangka";
 import { useMuat } from "@/lib/klien/muat";
 
@@ -47,6 +48,7 @@ export default function LayarK2() {
   const [hasil, setHasil] = useState<"disetujui" | "dikembalikan" | null>(null);
   const [sibuk, setSibuk] = useState(false);
   const [konfirmasiSetuju, setKonfirmasiSetuju] = useState(false);
+  const { galat: tampilGalat, modal } = useModalHasil();
 
   async function setujui() {
     setSibuk(true);
@@ -56,9 +58,9 @@ export default function LayarK2() {
     setKonfirmasiSetuju(false);
     if (h.ok) setHasil("disetujui");
     else if (h.galat.kode === "KONFLIK_VERSI") {
-      setGalat(h.pesan);
+      tampilGalat(h.pesan);
       void ulang();
-    } else setGalat(h.pesan);
+    } else tampilGalat(h.pesan, () => setKonfirmasiSetuju(true));
   }
 
   async function kirimKembalikan() {
@@ -75,7 +77,7 @@ export default function LayarK2() {
     });
     setSibuk(false);
     if (h.ok) setHasil("dikembalikan");
-    else setGalat(h.pesan);
+    else tampilGalat(h.pesan, () => void kirimKembalikan());
   }
 
   const d = keadaan.status === "siap" ? keadaan.data : null;
@@ -83,6 +85,7 @@ export default function LayarK2() {
 
   return (
     <div className="flex flex-col gap-5">
+      {modal}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
         <div className="flex items-center gap-3">
           <Link

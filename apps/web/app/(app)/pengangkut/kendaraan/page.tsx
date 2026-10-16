@@ -8,6 +8,7 @@ import { panggil } from "@/lib/klien/api";
 import { IkonLanding } from "@/lib/klien/komponen/ikon-landing";
 import { IkonNav } from "@/lib/klien/komponen/ikon-nav";
 import { KonfirmasiAksi } from "@/lib/klien/komponen/konfirmasi-aksi";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
 import { RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { StripKpi } from "@/lib/klien/komponen/viz";
 
@@ -42,6 +43,7 @@ export default function HalamanKendaraan() {
   const [konfirmasiTambah, setKonfirmasiTambah] = useState(false);
   const [nonaktifTarget, setNonaktifTarget] = useState<Kendaraan | null>(null);
   const [sedangNonaktif, setSedangNonaktif] = useState(false);
+  const { sukses, galat: tampilGalat, modal } = useModalHasil();
 
   const muat = useCallback(async () => {
     setSedangMuat(true);
@@ -79,9 +81,10 @@ export default function HalamanKendaraan() {
     if (res.ok) {
       setTambahTerbuka(false);
       setPlat("");
+      sukses(TEKS.UMUM_TERSIMPAN);
       await muat();
     } else {
-      setGalat(res.pesan);
+      tampilGalat(res.pesan, () => setKonfirmasiTambah(true));
     }
   }
 
@@ -96,9 +99,10 @@ export default function HalamanKendaraan() {
     setNonaktifTarget(null);
 
     if (res.ok) {
+      sukses(TEKS.KND_NONAKTIF);
       await muat();
     } else {
-      setGalat(res.pesan);
+      tampilGalat(res.pesan, () => setNonaktifTarget(nonaktifTarget));
     }
   }
 
@@ -126,6 +130,7 @@ export default function HalamanKendaraan() {
 
       {galat ? <BannerGalat pesan={galat} onCoba={() => void muat()} /> : null}
       {sedangMuat ? <RangkaHalaman jumlah={2} /> : null}
+      {modal}
 
       {!sedangMuat && daftarKendaraan.length > 0 ? (
         <section className="muncul rounded-3xl border border-garis-halus bg-kertas p-5 shadow-[0_8px_30px_rgba(15,23,42,0.05)]">

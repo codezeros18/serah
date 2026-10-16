@@ -97,7 +97,8 @@ test("A2 nyata: foto → kendaraan & penerima → ambil (atau panel aturan bila 
   test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/kontrak belum ada");
   const d = await api<Detail>(page, `/api/serah/${kodeAmbil}`);
   await page.goto(`/pengangkut/serah/${kodeAmbil}`);
-  await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
+  await page.getByLabel(TEKS.T1_KETIK_QR).fill(page.url().split("/").pop() ?? "");
+  await page.getByRole("button", { name: TEKS.T1_KETIK_QR_LANJUT }).click();
   const ambil = page.getByRole("button", { name: TEKS.A2_FOTO });
   await expect(ambil).toBeEnabled();
   await ambil.click();
@@ -136,7 +137,8 @@ test("A2 nyata: R-01 terlihat saat memilih TPST untuk muatan KUNING", async ({ p
   await masuk(page, "PENGANGKUT");
   test.skip(!(await rutePendukungAda(page)), "menunggu S13: /api/kendaraan & /api/kontrak belum ada");
   await page.goto(`/pengangkut/serah/${kuning.kode}`);
-  await page.getByRole("button", { name: TEKS.UMUM_LANJUT }).click();
+  await page.getByLabel(TEKS.T1_KETIK_QR).fill(page.url().split("/").pop() ?? "");
+  await page.getByRole("button", { name: TEKS.T1_KETIK_QR_LANJUT }).click();
   const ambil = page.getByRole("button", { name: TEKS.A2_FOTO });
   await expect(ambil).toBeEnabled();
   await ambil.click();

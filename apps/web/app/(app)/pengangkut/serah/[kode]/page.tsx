@@ -11,6 +11,7 @@ import { unggahFoto } from "@/lib/klien/foto";
 import dynamic from "next/dynamic";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
 import { IkonLanding, type NamaIkon } from "@/lib/klien/komponen/ikon-landing";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
 import { Rangka } from "@/lib/klien/komponen/rangka";
 
 const KameraFoto = dynamic(() => import("@/lib/klien/komponen/kamera-foto").then((m) => m.KameraFoto), {
@@ -104,6 +105,8 @@ export default function LayarA2() {
   const [kendaraanId, setKendaraanId] = useState("");
   const [penerimaId, setPenerimaId] = useState("");
   const [sibuk, setSibuk] = useState(false);
+  const { galat: tampilGalat, modal } = useModalHasil();
+  const [ketikKode, setKetikKode] = useState("");
 
   const serah = useMuat(() => panggil("GET", "/api/serah/[kode]", { params: { kode } }));
   const kendaraan = useMuat(() => panggil("GET", "/api/kendaraan"));
@@ -124,7 +127,7 @@ export default function LayarA2() {
 
   const hasilPindai = useCallback(
     (teks: string) => {
-      if (teks.trim() === kode) {
+      if (teks.trim().toUpperCase() === kode.toUpperCase()) {
         setGalat(null);
         setLangkah("foto");
       } else {
@@ -146,7 +149,7 @@ export default function LayarA2() {
     } else if (h.galat.kode === "ATURAN_DITOLAK" && h.galat.aturan) {
       setTolak({ kode: h.galat.aturan.kode, teks: h.galat.aturan.teks });
     } else {
-      setGalat(h.pesan);
+      tampilGalat(h.pesan);
     }
   }
 
@@ -166,7 +169,7 @@ export default function LayarA2() {
     } else if (h.galat.aturan && h.galat.kode === "ATURAN_DITOLAK") {
       setTolak({ kode: h.galat.aturan.kode, teks: h.galat.aturan.teks });
     } else {
-      setGalat(h.pesan);
+      tampilGalat(h.pesan, () => void kirim());
     }
   }
 
@@ -183,6 +186,7 @@ export default function LayarA2() {
       </h1>
 
       <ProgresAmbil aktif={indeksAktif} />
+      {modal}
 
       {serah.keadaan.status === "galat" ? <BannerGalat pesan={serah.keadaan.pesan} onCoba={() => void serah.ulang()} /> : null}
       {detail ? (
@@ -209,15 +213,37 @@ export default function LayarA2() {
         <section className="flex flex-col gap-4 rounded-3xl bg-white/80 p-4 shadow-[0_8px_30px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur">
           <h2 className="sr-only">{TEKS.A2_PINDAI}</h2>
           <PemindaiQr petunjuk={TEKS.A2_PINDAI} onHasil={hasilPindai} />
-          {/* QR sudah dikenal dari daftar A1; tombol ini untuk perangkat tanpa kamera yang bisa memindai. */}
-          <button
-            type="button"
-            onClick={() => setLangkah("foto")}
-            className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl text-sm font-medium text-tinta-redup transition-all duration-200 hover:bg-aksi-latar hover:text-aksi active:scale-[0.98]"
+          {/* Pindai wajib: tanpa kamera, kode serah harus diketik dan cocok. Tidak ada jalan pintas. */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              hasilPindai(ketikKode);
+            }}
+            className="flex flex-col gap-2"
           >
-            {TEKS.UMUM_LANJUT}
-            <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
-          </button>
+            <label htmlFor="ketik-kode-serah" className="text-xs font-medium text-tinta-redup">
+              {TEKS.T1_KETIK_QR}
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="ketik-kode-serah"
+                type="text"
+                autoComplete="off"
+                autoCapitalize="characters"
+                value={ketikKode}
+                onChange={(e) => setKetikKode(e.target.value)}
+                placeholder={TEKS.T1_KETIK_QR_PLACEHOLDER}
+                className="min-h-12 min-w-0 flex-1 rounded-2xl border border-garis-halus bg-kertas px-4 font-mono text-sm uppercase text-tinta transition-all placeholder:normal-case placeholder:text-garis hover:border-garis focus:border-aksi focus:outline-none focus:ring-4 focus:ring-aksi/15"
+              />
+              <button
+                type="submit"
+                disabled={ketikKode.trim() === ""}
+                className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl bg-aksi px-4 text-sm font-medium text-white shadow-[0_6px_16px_rgba(36,87,197,0.28)] transition-all hover:bg-aksi-hover disabled:opacity-50 disabled:shadow-none"
+              >
+                {TEKS.T1_KETIK_QR_LANJUT}
+              </button>
+            </div>
+          </form>
         </section>
       ) : null}
 

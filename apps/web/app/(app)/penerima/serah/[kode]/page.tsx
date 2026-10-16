@@ -12,6 +12,7 @@ import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { unggahFoto } from "@/lib/klien/foto";
 import { KameraFoto } from "@/lib/klien/komponen/kamera-foto";
 import { LembarKonfirmasi } from "@/lib/klien/komponen/lembar-konfirmasi";
+import { useModalHasil } from "@/lib/klien/komponen/modal-hasil";
 import { useMuat } from "@/lib/klien/muat";
 import { beratAtauNol, ringkasRincian, type IsianRincian } from "@/lib/klien/rincian";
 import { Pilih } from "@/lib/klien/komponen/pilih";
@@ -56,6 +57,7 @@ export default function LayarTutup() {
   const [peringatan, setPeringatan] = useState<RujukanAturan[]>([]);
   const [dialogR08, setDialogR08] = useState(false);
   const [lembarBuka, setLembarBuka] = useState(false);
+  const { galat: tampilGalat, modal } = useModalHasil();
   const [hasil, setHasil] = useState<Hasil>("siap");
 
   // Koreksi berat setelah tertutup.
@@ -141,7 +143,7 @@ export default function LayarTutup() {
     setSibuk(false);
     setLembarBuka(false);
     if (!h.ok) {
-      setGalat(h.pesan);
+      tampilGalat(h.pesan, h.galat.kode === "KONFLIK_VERSI" ? undefined : () => setLembarBuka(true));
       if (h.galat.kode === "KONFLIK_VERSI") void serah.ulang();
       return;
     }
@@ -204,6 +206,7 @@ export default function LayarTutup() {
 
   return (
     <div className="mx-auto w-full max-w-3xl flex flex-col gap-6">
+      {modal}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-garis-halus pb-3">
         <div className="flex items-center gap-3">
           <Link
