@@ -174,7 +174,7 @@ export default function HalamanMasuk() {
                 <span className="h-px flex-1 bg-garis-halus" />
               </div>
               <p className="text-center text-xs text-tinta-redup">{TEKS.MASUK_DEMO_SUB}</p>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2">
                 {AKUN_DEMO.map((a, i) => (
                   <button
                     key={a.peran}
@@ -182,21 +182,24 @@ export default function HalamanMasuk() {
                     disabled={memuat}
                     aria-label={isi("MASUK_DEMO", { peran: a.label })}
                     onClick={() => masukDemo(a.peran)}
-                    className="group flex items-center gap-3 rounded-2xl border border-garis-halus bg-kertas p-3 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-aksi-garis hover:bg-aksi-latar/50 hover:shadow-[0_10px_24px_rgba(36,87,197,0.12)] active:translate-y-0 disabled:opacity-50 disabled:hover:translate-y-0"
+                    className="group relative flex min-h-[4.5rem] items-center gap-3.5 rounded-2xl bg-white/80 p-3 pr-4 text-left shadow-[0_4px_16px_rgba(15,23,42,0.05)] ring-1 ring-garis-halus/70 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-aksi-latar/40 hover:shadow-[0_12px_28px_rgba(36,87,197,0.14)] hover:ring-aksi-garis active:translate-y-0 active:scale-[0.99] disabled:opacity-50 disabled:hover:translate-y-0"
                   >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-latar transition-colors duration-200 group-hover:bg-white">
-                      <IkonLanding
-                        nama={a.ikon}
-                        className="h-6 w-6 transition-transform duration-300 group-hover:scale-110"
-                      />
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm font-medium text-tinta">
-                        <span aria-hidden="true" className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-aksi-latar text-[11px] font-semibold text-aksi">{i + 1}</span>
-                        {a.label}
+                    <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-latar transition-colors duration-200 group-hover:bg-white">
+                      <IkonLanding nama={a.ikon} className="h-7 w-7 transition-transform duration-300 group-hover:scale-110" />
+                      <span
+                        aria-hidden="true"
+                        className="absolute -left-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-aksi text-[11px] font-semibold text-white ring-2 ring-white"
+                      >
+                        {i + 1}
                       </span>
-                      <span className="block truncate text-[11px] text-tinta-redup">{a.hint}</span>
                     </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold leading-tight text-tinta">{a.label}</span>
+                      <span className="mt-0.5 block text-xs leading-snug text-tinta-redup">{a.hint}</span>
+                    </span>
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true" className="shrink-0 text-garis transition-all duration-200 group-hover:translate-x-0.5 group-hover:text-aksi">
+                      <path d="m9.500 6 6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </button>
                 ))}
               </div>
