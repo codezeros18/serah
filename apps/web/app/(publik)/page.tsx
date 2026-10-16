@@ -261,7 +261,7 @@ export default function HalamanLanding() {
           </div>
 
           {/* Jenis kawasan */}
-          <div className="relative z-10 border-t border-garis-halus/70 px-5 pb-10 pt-8">
+          <div className="relative z-10 px-5 pb-10 pt-8">
             <p className="text-center text-sm text-tinta-redup">{TEKS.LANDING_PERCAYA}</p>
             <ul className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-x-10 gap-y-4">
               {KAWASAN.map((k) => (
