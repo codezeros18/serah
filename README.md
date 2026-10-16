@@ -11,10 +11,10 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-serah--production.up.railway.app-0284c7?style=for-the-badge&logo=railway)](https://serah-production.up.railway.app/demo)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16%20App%20Router-black?style=flat-square&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20RLS-4169E1?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
 [![PWA](https://img.shields.io/badge/PWA-Offline--First%20IndexedDB-5A0FC8?style=flat-square&logo=pwa)](https://developer.mozilla.org/)
-[![Claude AI](https://img.shields.io/badge/Claude%203.5-Vision%20OCR%20(Haiku)-D97706?style=flat-square&logo=anthropic)](https://www.anthropic.com/)
+[![Claude AI](https://img.shields.io/badge/Claude%205.5-Vision%20OCR%20(Haiku)-D97706?style=flat-square&logo=anthropic)](https://www.anthropic.com/)
 [![Pergub DKI](https://img.shields.io/badge/Regulasi-Pergub%20DKI%20102%2F2021-16A34A?style=flat-square)](https://jdih.jakarta.go.id)
 
 <br/>
@@ -29,7 +29,7 @@
 - [🚀 Panduan Khusus Juri (Test Drive 3 Menit)](#-panduan-khusus-juri-test-drive-3-menit)
 - [🌱 Latar Belakang & Masalah Riil](#-latar-belakang--masalah-riil)
 - [✨ Fitur & Inovasi Utama](#-fitur--inovasi-utama)
-- [⚖️ Penegakan Regulasi Otomatis (R-01 s/d R-11)](#-penegakan-regulasi-otomatis)
+- [⚖️ Penegakan Regulasi Otomatis (R-01 s/d R-11)](#️-penegakan-regulasi-otomatis)
 - [🤖 Pemanfaatan AI: Tepat Guna & Hemat](#-pemanfaatan-ai-tepat-guna--hemat)
 - [🏗️ Arsitektur & Kualitas Rekayasa](#️-arsitektur--kualitas-rekayasa)
 - [💻 Menjalankan Secara Lokal](#-menjalankan-secara-lokal)
@@ -60,9 +60,11 @@ Di halaman masuk, cukup klik salah satu tombol peran di bawah judul *Coba dengan
 | **2** | **Pengangkut** | `pengangkut@demo.serah.id` | Ambil muatan, foto bukti fisik, validasi tujuan sesuai izin Pergub |
 | **3** | **Pengelola Kawasan** | `pengelola@demo.serah.id` | Setujui pengangkutan, pantau peta TPS, awasi neraca & peringatan BMKG |
 | **4** | **Penerima (Daur Ulang)** | `penerima@demo.serah.id` | Foto struk timbangan (dibaca AI), verifikasi berat sah, tutup serah |
-| — | **Admin** | `admin@demo.serah.id` | Audit jejak integritas rantai catatan (Hash Chain SHA-256) |
+| — | **Admin** | `admin@demo.serah.id` | Audit jejak integritas rantai catatan (Hash Chain SHA-256) — tanpa tombol demo, akun hanya ada di basis data |
 
 > 💡 *Tips:* Satu peramban menyimpan satu sesi aktif. Gunakan tab penyamaran (*incognito*) berbeda atau gunakan langsung halaman **[/demo](https://serah-production.up.railway.app/demo)** untuk mencoba antar-peran sekaligus.
+>
+> 🧪 *Catatan: semua nama organisasi, kawasan, dan akun pada mode demo adalah rekaan; tidak ada usaha sungguhan yang dirujuk.*
 
 ---
 
@@ -133,10 +135,10 @@ SERAH menanamkan kepatuhan hukum langsung ke dalam state machine transaksi melal
 | :---: | :--- | :--- |
 | **R-01** | Pergub DKI 102/2021 Ps. 20(2)(d) | **Menolak keras** tujuan TPA/TPST untuk muatan selain residu (Abu-abu). |
 | **R-02** | Pergub DKI 102/2021 Ps. 20(2)(b) | Menolak pengiriman ke penerima tanpa kontrak aktif untuk jenis aliran sampah terkait. |
-| **R-03** | Pergub DKI 102/2021 Ps. 19(2)(c) | Menolak penerima yang tidak memiliki fasilitas pengolahan untuk aliran sampah tersebut. |
+| **R-03** | Pergub DKI 102/2021 Ps. 19(2)(c) | Menolak penerima yang tidak tercatat menerima aliran sampah tersebut. |
 | **R-04** | Integritas Bukti Visual | Menjaga keabsahan bukti dengan menolak foto muatan yang sangat mirip foto sebelumnya (perceptual hash). |
-| **R-05** | Pergub DKI 102/2021 Ps. 8(1)(g) | Peringatan otomatis jika wadah organik/residu menginap melewati batas tampung 1 hari. |
-| **R-06** | Pergub DKI 102/2021 Ps. 8(1)(h) | Peringatan otomatis jika wadah anorganik/daur ulang melewati batas tampung 3 hari. |
+| **R-05** | Pergub DKI 102/2021 Ps. 8(1)(g) | Peringatan otomatis jika wadah tidak mudah terurai (Kuning, Merah, Abu-abu) melewati batas tampung 3 hari. |
+| **R-06** | Pergub DKI 102/2021 Ps. 8(1)(h) | Peringatan otomatis jika wadah mudah terurai (Hijau) melewati batas tampung 1 hari. |
 | **R-07** | Integritas Waktu Serah | Menandai transaksi berstatus anomali jika tidak ditutup penerima dalam waktu >12 jam. |
 | **R-08** | Integritas Timbangan | Memunculkan peringatan audit jika selisih berat tiket penerima vs catatan awal TPS $>20\%$. |
 | **R-09** | Pergub DKI 102/2021 Ps. 13(4)(a) | Peringatan kawasan jika ada TPS aktif yang tidak memiliki catatan timbangan harian. |
@@ -150,9 +152,9 @@ SERAH menanamkan kepatuhan hukum langsung ke dalam state machine transaksi melal
 SERAH memegang prinsip **AI yang bertanggung jawab, deterministik, dan terukur secara biaya**:
 
 1. **Lingkup Tugas Spesifik:**  
-   AI hanya digunakan untuk satu tugas: **Membaca foto tiket timbang jembatan timbang** menggunakan model multimodal vision **Claude 3.5 Haiku** (`claude-haiku-5-5`), dengan **Claude 3.5 Sonnet** (`claude-sonnet-5-5`) sebagai fail-safe cadangan.
+   AI hanya digunakan untuk satu tugas: **Membaca foto tiket timbang jembatan timbang** menggunakan model multimodal vision **Claude Haiku 5.5** (`claude-haiku-5-5`), dengan **Claude Sonnet 5.5** (`claude-sonnet-5-5`) sebagai fail-safe cadangan.
 2. **Efisiensi Biaya Maksimal:**
-   * Fitur *extended thinking* sengaja dinonaktifkan (`thinking: disabled`).
+   * Fitur *extended thinking* dinonaktifkan pada model utama (`thinking: disabled`); model cadangan memakai mode yang didukungnya.
    * Output dibatasi hanya `max_tokens: 400` menggunakan skema JSON terstruktur (*Structured Outputs*).
    * Biaya operasional hanya $\approx$ **Rp 20 – Rp 30 per pembacaan tiket**.
 3. **Prinsip Human-in-the-Loop:**  
@@ -201,7 +203,8 @@ pnpm install
 
 # 3. Siapkan environment
 cp .env.example .env
-# Catatan: Untuk mencoba alur demo, pastikan DEMO_MODE=true
+# Wajib: isi TOKEN_PEPPER & SESI_SECRET (min. 32 karakter acak)
+# Untuk mencoba alur demo: DEMO_MODE=true
 
 # 4. Jalankan database Docker & migrasi skema
 pnpm db:up
@@ -220,6 +223,7 @@ pnpm test            # Unit Test & Integration Test (Vitest)
 pnpm test:e2e        # Pengujian End-to-End Layar HP & Laptop (Playwright)
 pnpm guard           # Pemeriksaan batas arsitektur paket & integritas privasi
 ```
+Sekali saja sebelum menjalankan uji E2E: `pnpm --filter @serah/web exec playwright install chromium`.
 
 ---
 
@@ -234,6 +238,14 @@ pnpm guard           # Pemeriksaan batas arsitektur paket & integritas privasi
 * SERAH **bukan timbangan digital IoT**: data berat berasal dari input jujur petugas TPS dan struk timbangan jembatan timbang resmi penerima.
 * SERAH **bukan portal pemerintah**: SERAH menyiapkan berkas neraca terverifikasi yang siap dilaporkan ke sistem Dinas Lingkungan Hidup (DLH).
 * SERAH fokus pada sampah kawasan sejenis domestik dan **tidak menangani limbah B3 industri berbahaya**.
+
+---
+
+## 📚 Sumber Data & Atribusi
+
+* **Cuaca:** data terbuka BMKG (data.bmkg.go.id) untuk prakiraan & peringatan dini hujan.
+* **Peta:** © OpenStreetMap contributors; pencarian alamat via Nominatim; dirender dengan Leaflet.
+* **Regulasi:** Pergub DKI Jakarta No. 102/2021 — JDIH Provinsi DKI Jakarta.
 
 ---
 
