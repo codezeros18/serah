@@ -27,7 +27,8 @@ export const TpsKeluaran = z.object({ tps: Tps });
 export const TpsDaftarKeluaran = z.object({ tps: z.array(Tps) });
 
 export const TpsQrBaruKeluaran = z.object({ qrVersi: z.number().int().min(1), qrToken: z.string() });
-export const TpsQrKueri = z.object({ format: z.enum(["png", "svg"]).default("svg") }).strict();
+// `v` = versi QR, hanya pemecah cache di sisi klien (diabaikan server).
+export const TpsQrKueri = z.object({ format: z.enum(["png", "svg"]).default("svg"), v: z.coerce.number().int().min(1).optional() }).strict();
 
 export const TpsQrTokenParams = z.object({ token: z.string().min(16).max(200) });
 export const TpsQrTokenKeluaran = z.object({ tps: RefKode, kawasan: RefKode });

@@ -187,6 +187,8 @@ describe("S13-2 kawasan, TPS, QR", () => {
     expect(png.headers.get("content-type")).toBe("image/png");
     expect([...new Uint8Array(await png.arrayBuffer()).slice(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     expect((await gambarQr(permintaan(`/api/tps/${tps.id}/qr?format=gif`, { metode: "GET", cookie: a.cookie }), ctx(tps.id))).status).toBe(400);
+    // Halaman TPS menambah `v=<versi QR>` sebagai pemecah cache; harus diterima (regresi: dulu 400 → "QR belum bisa dimuat").
+    expect((await gambarQr(permintaan(`/api/tps/${tps.id}/qr?format=svg&v=3`, { metode: "GET", cookie: a.cookie }), ctx(tps.id))).status).toBe(200);
     // Organisasi lain tidak dapat mengambil QR; hanya sidik token yang tersimpan.
     expect((await gambarQr(permintaan(`/api/tps/${tps.id}/qr`, { metode: "GET", cookie: b.cookie }), ctx(tps.id))).status).toBe(404);
     const [baris] = await kueriPemilik<{ qr_token_hash: string }>(`SELECT qr_token_hash FROM tps WHERE id = $1`, [tps.id]);
