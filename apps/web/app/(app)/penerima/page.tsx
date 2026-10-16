@@ -8,6 +8,7 @@ import { BannerGalat, Kosong, LencanaAliran, LencanaStatus } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import dynamic from "next/dynamic";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { KartuViz, StripKpi } from "@/lib/klien/komponen/viz";
 import { Rangka, RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { useMuat } from "@/lib/klien/muat";
 
@@ -87,6 +88,18 @@ export default function LayarP1() {
       ) : null}
 
       {galat ? <BannerGalat pesan={galat} /> : null}
+
+      {masuk.keadaan.status === "siap" && semua.length > 0 ? (
+        <KartuViz judul="Ringkasan">
+          <StripKpi
+            item={[
+              { kunci: "masuk", label: "Serah masuk", nilai: semua.length, nada: "aksi" },
+              { kunci: "gantung", label: TEKS.LIST_MENGGANTUNG, nilai: jumlahGantung, nada: jumlahGantung > 0 ? "waspada" : "netral" },
+              { kunci: "angkut", label: TEKS.LIST_DIANGKUT, nilai: jumlahAngkut, nada: "netral" },
+            ]}
+          />
+        </KartuViz>
+      ) : null}
 
       {masuk.keadaan.status === "siap" && semua.length > 0 ? (
         <div role="group" aria-label={TEKS.P1_JUDUL} className="flex gap-2 overflow-x-auto pb-1">

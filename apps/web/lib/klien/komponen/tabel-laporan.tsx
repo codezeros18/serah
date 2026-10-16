@@ -6,12 +6,15 @@ import type { z } from "zod";
 import type { PihakLaporan } from "@serah/kontrak/enum";
 import type { LaporanKeluaran } from "@serah/kontrak";
 import { TEKS, isi } from "@serah/kontrak/teks";
-import { BannerGalat, Kosong, LencanaAliran, LencanaStatus, Tabel, type KolomTabel } from "@serah/ui";
+import { BannerGalat, KUNCI_ALIRAN_PENDEK, Kosong, LencanaAliran, LencanaStatus, Tabel, type KolomTabel } from "@serah/ui";
 import { panggil } from "../api";
 import { formatGramKeKg } from "../angka";
+import { deretHarian } from "../statistik";
 import { unduhBerkas } from "../unduh";
+import { LegendaIkon } from "./legenda-ikon";
 import { Rangka } from "./rangka";
 import { TombolBerhak } from "./tombol-berhak";
+import { BilahSegmen, GrafikArea, KartuViz, WARNA_ALIRAN } from "./viz";
 
 type Laporan = z.infer<typeof LaporanKeluaran>;
 type Baris = Laporan["baris"][number];
@@ -109,6 +112,7 @@ export function TabelLaporan({ pihak, periode, kawasanId }: { pihak: PihakLapora
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold tracking-tight text-tinta">{TEKS[JUDUL[pihak]]}</h2>
         <div className="flex flex-wrap items-center gap-2">
+          <LegendaIkon />
           <button type="button" data-ekspor="csv" onClick={() => void unduh("csv")} className={KELAS_AKSI}>
             <IkonUnduh />
             {TEKS.EKSPOR_CSV}
@@ -125,6 +129,29 @@ export function TabelLaporan({ pihak, periode, kawasanId }: { pihak: PihakLapora
         <Kosong teks={TEKS.K_KOSONG_BULAN} />
       ) : (
         <>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <KartuViz judul="Komposisi diterima" className="lg:col-span-1">
+              <BilahSegmen
+                segmen={data.total.map((t) => ({
+                  kunci: t.aliran,
+                  label: TEKS[KUNCI_ALIRAN_PENDEK[t.aliran]],
+                  nilai: t.beratDiterimaG,
+                  warna: WARNA_ALIRAN[t.aliran],
+                  teksNilai: `${kg(t.beratDiterimaG)} kg`,
+                }))}
+              />
+            </KartuViz>
+            <KartuViz judul="Tren harian" className="lg:col-span-2">
+              <GrafikArea
+                data={deretHarian(data.baris, periode).map((d) => ({ label: String(d.hari), nilai: d.tpsG, nilai2: d.diterimaG }))}
+                format={(n) => `${kg(n)} kg`}
+                label1={TEKS.K1_DICATAT}
+                label2={TEKS.K1_DITERIMA}
+                tinggi={180}
+              />
+            </KartuViz>
+          </div>
+
           <Tabel keterangan={TEKS[JUDUL[pihak]]} kolom={kolom} baris={data.baris} kunciBaris={(b) => `${b.kodeSerah}-${b.aliran}`} />
 
           <section

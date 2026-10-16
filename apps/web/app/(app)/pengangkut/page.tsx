@@ -6,6 +6,7 @@ import { TEKS, isi } from "@serah/kontrak/teks";
 import { AtribusiBMKG, BannerGalat, Kosong, LencanaAliran, PanelAturan } from "@serah/ui";
 import { panggil } from "@/lib/klien/api";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { KartuViz, StripKpi } from "@/lib/klien/komponen/viz";
 import { RangkaHalaman } from "@/lib/klien/komponen/rangka";
 import { useMuat } from "@/lib/klien/muat";
 
@@ -35,6 +36,18 @@ export default function LayarA1() {
         <InfoTip judul={TEKS.A1_JUDUL} isi={TEKS.INFO_A1} rata="kanan" />
       </div>
       <p className="sr-only">{TEKS.A1_URUTAN}</p>
+
+      {keadaan.status === "siap" && urut.length > 0 ? (
+        <KartuViz judul="Ringkasan">
+          <StripKpi
+            item={[
+              { kunci: "tunggu", label: "Menunggu", nilai: urut.length, nada: "aksi" },
+              { kunci: "prioritas", label: "Prioritas", nilai: jumlahPrioritas, nada: jumlahPrioritas > 0 ? "waspada" : "netral" },
+              { kunci: "tertua", label: "Tertua (jam)", nilai: Math.max(...urut.map((x) => x.umurJamTertua)), nada: "netral" },
+            ]}
+          />
+        </KartuViz>
+      ) : null}
 
       {keadaan.status === "siap" && urut.length > 0 ? (
         <div role="group" aria-label={TEKS.A1_JUDUL} className="flex gap-2">

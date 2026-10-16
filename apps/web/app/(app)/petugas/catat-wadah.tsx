@@ -10,6 +10,7 @@ import { formatGramKeKg, parseBeratKgKeGram } from "@/lib/klien/angka";
 import { antreanBersama } from "@/lib/klien/antrean/bersama";
 import { useAntrean } from "@/lib/klien/antrean/pakai-antrean";
 import { InfoTip } from "@/lib/klien/komponen/info-tip";
+import { BilahSegmen, WARNA_ALIRAN } from "@/lib/klien/komponen/viz";
 import { PilihTps } from "./pilih-tps";
 import { PitaAntrean } from "./pita-antrean";
 import { bacaTpsTerpilih, type TpsTerpilih } from "./tps-terpilih";
@@ -248,6 +249,16 @@ export function CatatWadah() {
                 {TEKS.K_KOSONG_TPS}
               </p>
             ) : (
+              <>
+              <BilahSegmen
+                tanpaLegenda
+                segmen={ALIRAN.map((a) => ({
+                  kunci: a,
+                  label: TEKS[KUNCI_ALIRAN[a]],
+                  nilai: baris.filter((b) => b.aliran === a).reduce((j, b) => j + (b.beratG ?? 0), 0),
+                  warna: WARNA_ALIRAN[a],
+                }))}
+              />
               <ul className="flex flex-col gap-2.5" data-testid="catatan-terakhir">
                 {baris.map((b) => (
                   <li
@@ -268,6 +279,7 @@ export function CatatWadah() {
                   </li>
                 ))}
               </ul>
+              </>
             )}
           </section>
 
