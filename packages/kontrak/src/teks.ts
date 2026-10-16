@@ -418,6 +418,10 @@ export const TEKS = {
   TGH_UNGGAH_BUKTI: "Unggah bukti transfer",
   TGH_MENUNGGU_KONFIRMASI: "Bukti transfer diterima dan sedang diperiksa.",
   TGH_LUNAS: "Lunas",
+  TGH_LANJUT_BAYAR: "Lanjut ke pembayaran",
+  TGH_LANJUT_PETUNJUK: "Halaman pembayaran Midtrans terbuka di tab baru. Setelah selesai, kembali ke sini lalu tekan Periksa status.",
+  TGH_PERIKSA_STATUS: "Periksa status",
+  TGH_BELUM_LUNAS: "Pembayaran belum tercatat. Tunggu sebentar lalu periksa lagi.",
   TGH_SANDBOX: "Pembayaran online berjalan dalam mode uji (sandbox). Tidak ada uang sungguhan yang ditarik.",
   // M.14 Admin
   ADM_JUDUL: "Admin SERAH",

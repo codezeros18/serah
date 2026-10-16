@@ -22,6 +22,7 @@ export default function HalamanLangganan() {
   const [berkasDipilih, setBerkasDipilih] = useState<File | null>(null);
 
   // State Modal Sandbox (S20-2)
+  const [infoStatus, setInfoStatus] = useState<string | null>(null);
   const [modalBayar, setModalBayar] = useState<{ nomor: string; token: string; url: string } | null>(null);
 
   const muat = useCallback(async () => {
@@ -52,8 +53,21 @@ export default function HalamanLangganan() {
     void muat();
   }, [muat]);
 
+  async function periksaStatus(nomor: string) {
+    setInfoStatus(null);
+    const res = await panggil("GET", "/api/tagihan/[nomor]/status", { params: { nomor } });
+    if (!res.ok) {
+      setInfoStatus(res.pesan);
+      return;
+    }
+    await muat();
+    if (res.data.tagihan.status === "LUNAS") setModalBayar(null);
+    else setInfoStatus(TEKS.TGH_BELUM_LUNAS);
+  }
+
   async function bayarOnline(nomor: string) {
     setGalat(null);
+    setInfoStatus(null);
     const res = await panggil("POST", "/api/tagihan/[nomor]/bayar", {
       params: { nomor },
     });
@@ -260,12 +274,22 @@ export default function HalamanLangganan() {
               {TEKS.TGH_SANDBOX}
             </div>
 
-            <div className="flex flex-col gap-1 text-xs text-tinta-redup">
-              <span>Token: {modalBayar.token}</span>
-              <span>Nomor: {modalBayar.nomor}</span>
-            </div>
+            <p className="text-sm text-tinta-redup">{TEKS.TGH_LANJUT_PETUNJUK}</p>
+            <p className="font-mono text-xs text-tinta-redup">{modalBayar.nomor}</p>
+            {infoStatus ? <p role="status" className="text-sm font-medium text-tinta">{infoStatus}</p> : null}
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-garis-halus">
+            <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-garis-halus">
+              <a
+                href={modalBayar.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center justify-center rounded-kontrol bg-aksi px-5 text-base font-semibold text-white transition hover:opacity-90"
+              >
+                {TEKS.TGH_LANJUT_BAYAR}
+              </a>
+              <Tombol varian="sekunder" onClick={() => void periksaStatus(modalBayar.nomor)}>
+                {TEKS.TGH_PERIKSA_STATUS}
+              </Tombol>
               <Tombol
                 varian="sekunder"
                 onClick={() => setModalBayar(null)}
