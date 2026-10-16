@@ -341,3 +341,21 @@ dialog.lembar {
   outline: 3px solid var(--color-fokus);
   outline-offset: 2px;
 }
+
+/* Centang yang tergambar saat hasil pemeriksaan utuh */
+.gambar-centang {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: gambar-centang 0.6s 0.15s ease forwards;
+}
+@keyframes gambar-centang {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gambar-centang {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

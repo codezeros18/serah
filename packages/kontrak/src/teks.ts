@@ -591,6 +591,8 @@ export const TEKS = {
   NAV_CARI: "Cari kode serah",
   FOTO_TIDAK_ADA: "Foto tidak dapat dimuat.",
   CETAK_AJAK: "Pindai untuk mencatat sampah di TPS ini.",
+  RANTAI_HASIL_UTUH: "Rantai utuh",
+  RANTAI_HASIL_PATAH: "Rantai tidak utuh",
   QR_TPS_TIDAK_ADA: "QR belum bisa dimuat. Buat QR baru lalu coba cetak lagi.",
   TUJUAN_TIDAK_TERIMA: "Tidak menerima aliran ini",
   TENTANG_JUDUL: "Cara kerja dan batasan",
